@@ -1,0 +1,154 @@
+# Reviewed reference data for society metadata (DR-15). Edit by hand; `pipeline build` stops if a
+# code in the GSN files is missing here, or if `country` no longer matches the files' spelling.
+
+# Display names, keyed on `code` (ISO 3166 alpha-3, plus XKX for Kosovo; TTO is the pooled
+# Caribbean). `country` is the spelling in the GSN files. Names follow the authors where they
+# relabel a society (SRS §4.4): "China" is shown as "Mainland China" and "Somalia" as
+# "Somaliland", because its site is Hargeisa. `DRCongo` is only spaced out.
+[societies]
+ARG = { country = "Argentina", name = "Argentina" }
+ARM = { country = "Armenia", name = "Armenia" }
+AUS = { country = "Australia", name = "Australia" }
+AZE = { country = "Azerbaijan", name = "Azerbaijan" }
+BEN = { country = "Benin", name = "Benin" }
+BGD = { country = "Bangladesh", name = "Bangladesh" }
+BGR = { country = "Bulgaria", name = "Bulgaria" }
+BIH = { country = "Bosnia and Herzegovina", name = "Bosnia and Herzegovina" }
+BOL = { country = "Bolivia", name = "Bolivia" }
+BRA = { country = "Brazil", name = "Brazil" }
+CAF = { country = "Central African Republic", name = "Central African Republic" }
+CAN = { country = "Canada", name = "Canada" }
+CHL = { country = "Chile", name = "Chile" }
+CHN = { country = "China", name = "Mainland China" }
+CMR = { country = "Cameroon", name = "Cameroon" }
+COD = { country = "DRCongo", name = "DR Congo" }
+COL = { country = "Colombia", name = "Colombia" }
+CRI = { country = "Costa Rica", name = "Costa Rica" }
+CUB = { country = "Cuba", name = "Cuba" }
+CZE = { country = "Czechia", name = "Czechia" }
+DEU = { country = "Germany", name = "Germany" }
+DNK = { country = "Denmark", name = "Denmark" }
+DZA = { country = "Algeria", name = "Algeria" }
+ESP = { country = "Spain", name = "Spain" }
+EST = { country = "Estonia", name = "Estonia" }
+ETH = { country = "Ethiopia", name = "Ethiopia" }
+FIN = { country = "Finland", name = "Finland" }
+FRA = { country = "France", name = "France" }
+GBR = { country = "United Kingdom", name = "United Kingdom" }
+GEO = { country = "Georgia", name = "Georgia" }
+GIB = { country = "Gibraltar", name = "Gibraltar" }
+GRC = { country = "Greece", name = "Greece" }
+GTM = { country = "Guatemala", name = "Guatemala" }
+HND = { country = "Honduras", name = "Honduras" }
+HRV = { country = "Croatia", name = "Croatia" }
+HUN = { country = "Hungary", name = "Hungary" }
+IND = { country = "India", name = "India" }
+IRL = { country = "Ireland", name = "Ireland" }
+IRN = { country = "Iran", name = "Iran" }
+ISL = { country = "Iceland", name = "Iceland" }
+ISR = { country = "Israel", name = "Israel" }
+ITA = { country = "Italy", name = "Italy" }
+JPN = { country = "Japan", name = "Japan" }
+KAZ = { country = "Kazakhstan", name = "Kazakhstan" }
+KOR = { country = "South Korea", name = "South Korea" }
+KWT = { country = "Kuwait", name = "Kuwait" }
+LKA = { country = "Sri Lanka", name = "Sri Lanka" }
+LTU = { country = "Lithuania", name = "Lithuania" }
+LVA = { country = "Latvia", name = "Latvia" }
+MAR = { country = "Morocco", name = "Morocco" }
+MDA = { country = "Moldova", name = "Moldova" }
+MEX = { country = "Mexico", name = "Mexico" }
+MKD = { country = "North Macedonia", name = "North Macedonia" }
+MLT = { country = "Malta", name = "Malta" }
+MNG = { country = "Mongolia", name = "Mongolia" }
+MOZ = { country = "Mozambique", name = "Mozambique" }
+MTQ = { country = "Martinique", name = "Martinique" }
+MUS = { country = "Mauritius", name = "Mauritius" }
+MYS = { country = "Malaysia", name = "Malaysia" }
+NAM = { country = "Namibia", name = "Namibia" }
+NGA = { country = "Nigeria", name = "Nigeria" }
+NLD = { country = "Netherlands", name = "Netherlands" }
+NZL = { country = "New Zealand", name = "New Zealand" }
+PAK = { country = "Pakistan", name = "Pakistan" }
+PER = { country = "Peru", name = "Peru" }
+PHL = { country = "Philippines", name = "Philippines" }
+POL = { country = "Poland", name = "Poland" }
+PRT = { country = "Portugal", name = "Portugal" }
+ROU = { country = "Romania", name = "Romania" }
+RUS = { country = "Russia", name = "Russia" }
+RWA = { country = "Rwanda", name = "Rwanda" }
+SAU = { country = "Saudi Arabia", name = "Saudi Arabia" }
+SGP = { country = "Singapore", name = "Singapore" }
+SLV = { country = "El Salvador", name = "El Salvador" }
+SOM = { country = "Somalia", name = "Somaliland" }
+SRB = { country = "Serbia", name = "Serbia" }
+SVK = { country = "Slovakia", name = "Slovakia" }
+SVN = { country = "Slovenia", name = "Slovenia" }
+SWE = { country = "Sweden", name = "Sweden" }
+TCD = { country = "Chad", name = "Chad" }
+TTO = { country = "Caribbean", name = "Caribbean" }
+TUR = { country = "Turkey", name = "Turkey" }
+TWN = { country = "Taiwan", name = "Taiwan" }
+URY = { country = "Uruguay", name = "Uruguay" }
+USA = { country = "United States", name = "United States" }
+VNM = { country = "Vietnam", name = "Vietnam" }
+XKX = { country = "Kosovo", name = "Kosovo" }
+YEM = { country = "Yemen", name = "Yemen" }
+ZMB = { country = "Zambia", name = "Zambia" }
+ZWE = { country = "Zimbabwe", name = "Zimbabwe" }
+
+# Map positions the GSN files lack (SRS §4.4). Every other society uses the files' country
+# centroid (`Latitude_average`, `Longitude_average`).
+[coordinates]
+XKX = { lat = 42.6, lon = 20.9, source = "approximate geographic centre of Kosovo, added by hand" }
+
+# Qualtrics interface-language codes (`UserLanguage`) and the language names the site shows.
+# Variants of one language share a name and are merged before the 10-respondent rule (DR-15).
+# BSC and M-CR are not documented by Qualtrics; their names are inferred from where they occur.
+[languages]
+AR = "Arabic"
+AZ-AZ = "Azerbaijani"
+BG = "Bulgarian"
+BS = "Bosnian"
+BSC = "Bosnian/Croatian/Serbian"
+CS = "Czech"
+DA = "Danish"
+DE = "German"
+EL = "Greek"
+EN = "English"
+EN-GB = "English"
+ES = "Spanish"
+ES-ES = "Spanish"
+ET = "Estonian"
+FA = "Persian"
+FI = "Finnish"
+FR = "French"
+HE = "Hebrew"
+HR = "Croatian"
+HU = "Hungarian"
+HYE = "Armenian"
+ISL = "Icelandic"
+IT = "Italian"
+JA = "Japanese"
+KAT = "Georgian"
+KO = "Korean"
+LT = "Lithuanian"
+LV = "Latvian"
+M-CR = "Mauritian Creole"
+MK = "Macedonian"
+MN = "Mongolian"
+NL = "Dutch"
+PL = "Polish"
+PT = "Portuguese"
+PT-BR = "Portuguese"
+RO = "Romanian"
+RU = "Russian"
+RW = "Kinyarwanda"
+SK = "Slovak"
+SL = "Slovenian"
+SO = "Somali"
+SV = "Swedish"
+TR = "Turkish"
+VI = "Vietnamese"
+ZH-S = "Chinese (Simplified)"
+ZH-T = "Chinese (Traditional)"

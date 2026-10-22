@@ -1,0 +1,42 @@
+# Published values the pipeline must reproduce, or stop (NFR-51). Transcribed by hand from
+# Eriksson et al. (2025), Communications Psychology 3:145, doi:10.1038/s44271-025-00324-4
+# (open access, CC BY 4.0). Only numbers printed in the paper belong here.
+
+# Means are checked to ±tolerance; counts are checked exactly.
+tolerance = 0.02
+
+# Table 1, "Change in behavior-specific appropriateness ratings of 12 behaviors in 22 societies".
+# Each society's change for a behavior is the mean, over that behavior's situations, of the
+# society–cell change from the 2000–2003 survey to GSN (Israel has no laugh × party cell, so its
+# laugh change uses nine situations). `mean` and `sd` summarize the 22 societies; `increased` is
+# the printed "% of countries where ratings have increased", checked as a count of societies.
+[table1]
+sample = "paper"
+societies = 22
+rows = [
+    { behavior = "flirt", mean = -0.34, sd = 0.32, increased = 18.2 },
+    { behavior = "argue", mean = -0.31, sd = 0.33, increased = 13.6 },
+    { behavior = "laugh", mean = -0.19, sd = 0.39, increased = 40.9 },
+    { behavior = "kiss", mean = -0.07, sd = 0.37, increased = 36.4 },
+    { behavior = "talk", mean = -0.02, sd = 0.31, increased = 45.5 },
+    { behavior = "sing", mean = -0.00, sd = 0.19, increased = 40.9 },
+    { behavior = "bargain", mean = -0.00, sd = 0.36, increased = 40.9 },
+    { behavior = "curse", mean = 0.09, sd = 0.34, increased = 59.1 },
+    { behavior = "readnewspaper", mean = 0.20, sd = 0.19, increased = 90.9 },
+    { behavior = "eat", mean = 0.28, sd = 0.23, increased = 86.4 },
+    { behavior = "listen", mean = 0.48, sd = 0.21, increased = 95.5 },
+    { behavior = "cry", mean = 0.56, sd = 0.36, increased = 100.0 },
+]
+
+# Fig. 2 caption: the society × situated-behavior norms were "averaged across participants
+# (n = 54.3 on average, ranging from 1 to 217 across cells)", in the paper's sample.
+[fig2]
+sample = "paper"
+cell_n_mean = 54.3
+cell_n_min = 1
+cell_n_max = 217
+
+# Fig. 3 caption: global appropriateness ratings are "averaged over 71 societies".
+[fig3]
+sample = "paper"
+societies = 71
