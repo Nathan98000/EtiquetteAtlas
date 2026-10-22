@@ -4,7 +4,7 @@
  */
 
 import { BEHAVIORS, CELL_COUNT, SITUATIONS } from './grid';
-import type { CellsDoc, GlobalDoc, SampleId, SocietiesDoc } from './model';
+import type { CellsDoc, GlobalDoc, SampleId, SimilarityDoc, SocietiesDoc } from './model';
 
 const grid = () => ({ behaviors: [...BEHAVIORS], situations: [...SITUATIONS] });
 const cells = () => Array.from({ length: CELL_COUNT }, (_, c) => c);
@@ -72,16 +72,23 @@ export function cellsDoc(sample: SampleId = 'all'): CellsDoc {
 	};
 }
 
+/**
+ * Facts as stored: BBB has some student status missing, CCC none recorded and no month with
+ * 10 respondents starting; societies outside a sample have nulls.
+ */
 export function societiesDoc(): SocietiesDoc {
-	const facts = (n: (number | null)[]) => ({
-		code: [...CODES],
-		n,
-		student_share: [50, 60, null],
-		student_unknown: [0, 0, null],
-		first_month: ['2023-09', '2023-10', null],
-		last_month: ['2023-12', '2024-01', null],
-		languages: [['English'], ['Spanish', 'English'], []]
-	});
+	const facts = (n: (number | null)[]) => {
+		const only = <T>(values: T[]) => values.map((v, i) => (n[i] === null ? null : v));
+		return {
+			code: [...CODES],
+			n,
+			student_share: only([50, 60, 0]),
+			student_unknown: only([0, 5, 100]),
+			first_month: only(['2023-09', '2023-10', null]),
+			last_month: only(['2023-09', '2024-01', null]),
+			languages: only([['English'], ['Spanish', 'English'], ['French']])
+		};
+	};
 	return {
 		societies: {
 			code: [...CODES],
@@ -94,6 +101,23 @@ export function societiesDoc(): SocietiesDoc {
 			all: facts([300, 120, 40]),
 			paper: facts([280, 100, null]),
 			attention: facts([200, null, 30])
+		}
+	};
+}
+
+/**
+ * AAA and BBB are each other's closest match; CCC has too few publishable cells for any pair
+ * (decision 7). Rows are written out of rank order to check the decoder sorts them.
+ */
+export function similarityDoc(sample: SampleId = 'all'): SimilarityDoc {
+	return {
+		sample,
+		pairs: {
+			code: ['AAA', 'AAA', 'BBB'],
+			rank: [2, 1, 1],
+			other: ['CCC', 'BBB', 'AAA'],
+			r: [-0.12, 0.61, 0.61],
+			n_cells: [120, 149, 149]
 		}
 	};
 }

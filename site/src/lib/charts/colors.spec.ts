@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { REGIONS } from '../data/model';
 import {
+	DEVIATION_MAX,
 	DIVERGING,
 	INK,
 	REGION_COLOR,
 	REGION_SHAPE,
 	SURFACES,
 	contrast,
+	deviationScore,
+	deviationStyle,
 	fill,
 	ink,
 	scoreStyle,
@@ -63,6 +66,18 @@ describe('FR-10, §6.4: the diverging scale', () => {
 		expect(scoreStyle(0)).toBe(
 			'--fill-light:#f1eeea;--fill-dark:#2e3238;--ink-light:#1d2329;--ink-dark:#f2f4f6'
 		);
+	});
+});
+
+describe('FR-30, decision 46: the fingerprint’s difference scale', () => {
+	it('spreads ±1.5 over the same colours, neutral at 0 and clamped beyond', () => {
+		expect(DEVIATION_MAX).toBe(1.5);
+		expect(deviationScore(0)).toBe(0);
+		expect(deviationScore(0.75)).toBeCloseTo(1.25);
+		expect(deviationScore(-1.5)).toBe(-2.5);
+		expect(deviationScore(2.6)).toBe(2.5);
+		expect(deviationStyle(0)).toBe(scoreStyle(0));
+		expect(deviationStyle(-3)).toBe(scoreStyle(-2.5));
 	});
 });
 

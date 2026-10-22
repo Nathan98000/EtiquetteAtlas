@@ -94,7 +94,8 @@ interface SampleFacts {
 	student_unknown: Num[];
 	first_month: (string | null)[];
 	last_month: (string | null)[];
-	languages: string[][];
+	/** Null when the society is not in the sample. */
+	languages: (string[] | null)[];
 }
 
 export interface SocietiesDoc {
@@ -337,19 +338,26 @@ export class SocietyCells {
 		) as Notable | null;
 	}
 
+	#value(society: number, cell: number, kind: EstimateKind, scale: Scale): SocietyCell {
+		const i = society * CELL_COUNT + cell;
+		return {
+			code: this.codes[society],
+			status: this.status(society, cell),
+			n: this.#c.n[i],
+			estimate: this.estimate(society, cell, kind, scale),
+			share: this.#c.share[i],
+			notable: this.notable(society, cell, scale)
+		};
+	}
+
 	/** Every society in the sample for one cell, in file order (by code). */
 	column(cell: number, kind: EstimateKind, scale: Scale): SocietyCell[] {
-		return this.codes.map((code, s) => {
-			const i = s * CELL_COUNT + cell;
-			return {
-				code,
-				status: this.status(s, cell),
-				n: this.#c.n[i],
-				estimate: this.estimate(s, cell, kind, scale),
-				share: this.#c.share[i],
-				notable: this.notable(s, cell, scale)
-			};
-		});
+		return this.codes.map((_, s) => this.#value(s, cell, kind, scale));
+	}
+
+	/** One society's 150 cells in grid order, for its fingerprint (FR-30). */
+	row(society: number, kind: EstimateKind, scale: Scale): SocietyCell[] {
+		return Array.from({ length: CELL_COUNT }, (_, c) => this.#value(society, c, kind, scale));
 	}
 }
 
@@ -360,6 +368,29 @@ export interface Society {
 	lat: number;
 	lon: number;
 }
+
+/** A society's facts in one sample (DR-15, FR-34). */
+export interface SocietyFacts {
+	respondents: number;
+	/** Whole percents of all respondents: flagged as students, and with no status recorded. */
+	studentShare: number;
+	studentUnknown: number;
+	/** First and last month with at least 10 respondents starting (decision 17); null if none. */
+	firstMonth: string | null;
+	lastMonth: string | null;
+	/** Interface languages used by at least 10 respondents, most used first (decision 10). */
+	languages: readonly string[];
+}
+
+const FACT_KEYS = [
+	'code',
+	'n',
+	'student_share',
+	'student_unknown',
+	'first_month',
+	'last_month',
+	'languages'
+] as const;
 
 /** `societies.json`: names, regions, positions and per-sample facts (DR-15). */
 export class Societies {
@@ -380,12 +411,7 @@ export class Societies {
 		check(isObject(json.samples), `${where} has no samples`);
 		const samples = json.samples;
 		for (const sample of SAMPLES) {
-			const facts = table(
-				samples[sample],
-				`${where} samples.${sample}`,
-				['code', 'n', 'languages'],
-				length
-			);
+			const facts = table(samples[sample], `${where} samples.${sample}`, FACT_KEYS, length);
 			check(
 				JSON.stringify(facts.code) === JSON.stringify(s.code),
 				`${where} samples.${sample} lists societies in another order`
@@ -421,5 +447,73 @@ export class Societies {
 	/** Societies in the sample. */
 	count(sample: SampleId): number {
 		return this.#samples[sample].n.filter((n) => n !== null).length;
+	}
+
+	/** The society's facts in the sample, or null when it is not in it (FR-34). */
+	facts(code: string, sample: SampleId): SocietyFacts | null {
+		const i = this.#index.get(code);
+		const f = this.#samples[sample];
+		const respondents = i === undefined ? null : f.n[i];
+		if (i === undefined || respondents === null) return null;
+		return {
+			respondents,
+			studentShare: f.student_share[i] ?? 0,
+			studentUnknown: f.student_unknown[i] ?? 0,
+			firstMonth: f.first_month[i],
+			lastMonth: f.last_month[i],
+			languages: f.languages[i] ?? []
+		};
+	}
+}
+
+export interface SimilarityDoc {
+	sample: string;
+	pairs: { code: string[]; rank: number[]; other: string[]; r: number[]; n_cells: number[] };
+}
+
+/** One of a society's five most similar societies (DR-14, FR-32). */
+export interface SimilarPair {
+	other: string;
+	rank: number;
+	/** Pearson correlation of the two fingerprints (decision 16). */
+	r: number;
+	/** Pairs both societies can publish, at least 120. */
+	cells: number;
+}
+
+/** `similarity-<sample>.json`: up to five pairs per society (DR-14). */
+export class Similarity {
+	readonly sample: SampleId;
+	readonly #pairs = new Map<string, SimilarPair[]>();
+
+	constructor(json: unknown, sample: SampleId) {
+		const where = `similarity-${sample}.json`;
+		check(isObject(json), `${where} is not an object`);
+		checkSample(json, sample, where);
+		const p = table(
+			json.pairs,
+			`${where} pairs`,
+			['code', 'rank', 'other', 'r', 'n_cells'],
+			rows(json.pairs)
+		);
+		this.sample = sample;
+		(p.code as string[]).forEach((code, i) => {
+			const r = p.r[i];
+			const rank = p.rank[i];
+			const cells = p.n_cells[i];
+			check(
+				typeof r === 'number' && typeof rank === 'number' && typeof cells === 'number',
+				`${where} has missing values`
+			);
+			const list = this.#pairs.get(code) ?? [];
+			list.push({ other: p.other[i] as string, rank, r, cells });
+			this.#pairs.set(code, list);
+		});
+		for (const list of this.#pairs.values()) list.sort((a, b) => a.rank - b.rank);
+	}
+
+	/** Most similar first; empty when the society has too few publishable cells (decision 7). */
+	pairs(code: string): readonly SimilarPair[] {
+		return this.#pairs.get(code) ?? [];
 	}
 }

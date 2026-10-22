@@ -17,19 +17,24 @@ import {
 import { ordinal, percent, place, responseLabel, score, spread } from './format';
 import type { GlobalCells, Scale, Society, SocietyCell } from './model';
 
-export type SortKey = 'paper' | 'mean' | 'disagreement' | 'name';
+export type SortKey = 'paper' | 'mean' | 'disagreement' | 'name' | 'difference';
+/** The matrix's orders (FR-12). */
 export const SORT_KEYS: readonly SortKey[] = ['paper', 'mean', 'disagreement', 'name'];
+/** A fingerprint adds the society's own differences (decision 45). */
+export const FINGERPRINT_SORT_KEYS: readonly SortKey[] = [...SORT_KEYS, 'difference'];
 export const SORT_LABEL: Record<SortKey, string> = {
 	paper: 'Paper order',
 	mean: 'Most appropriate first',
 	disagreement: 'Most disagreement first',
-	name: 'Name (A–Z)'
+	name: 'Name (A–Z)',
+	difference: 'Largest difference first'
 };
 
 /** Data values have two decimals; comparing in hundredths keeps float noise out of ties. */
-const cents = (x: number) => Math.round(x * 100);
+export const cents = (x: number) => Math.round(x * 100);
 
-function orderBy(count: number, key: (i: number) => number | string, descending: boolean) {
+/** Indices 0 to count − 1 ordered by a key; ties keep index (paper) order. */
+export function orderBy(count: number, key: (i: number) => number | string, descending: boolean) {
 	return Array.from({ length: count }, (_, i) => i).sort((a, b) => {
 		const ka = key(a);
 		const kb = key(b);
@@ -61,7 +66,9 @@ export function matrixOrder(
 			? cents(mean(cells.map((c) => global.mean(c, scale))))
 			: cents(mean(cells.map((c) => global.tau(c, scale))));
 	switch (sort) {
+		// "difference" needs a society: the fingerprint orders it (fingerprint-model.ts).
 		case 'paper':
+		case 'difference':
 			return {
 				rows: orderBy(BEHAVIORS.length, () => 0, false),
 				columns: orderBy(width, () => 0, false)

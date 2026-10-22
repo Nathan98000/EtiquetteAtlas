@@ -5,7 +5,14 @@
 
 import type { Topology } from 'topojson-specification';
 import { FILES } from './files';
-import { DataError, GlobalCells, Societies, SocietyCells, type SampleId } from './model';
+import {
+	DataError,
+	GlobalCells,
+	Similarity,
+	Societies,
+	SocietyCells,
+	type SampleId
+} from './model';
 
 const cache = new Map<string, Promise<unknown>>();
 
@@ -34,6 +41,10 @@ export function loadGlobal(sample: SampleId): Promise<GlobalCells> {
 
 export function loadCells(sample: SampleId): Promise<SocietyCells> {
 	return cached(FILES.cells[sample], (json) => new SocietyCells(json, sample));
+}
+
+export function loadSimilarity(sample: SampleId): Promise<Similarity> {
+	return cached(FILES.similarity[sample], (json) => new Similarity(json, sample));
 }
 
 /** Map outlines (NFR-3: only when the map is shown). The map module decodes them. */

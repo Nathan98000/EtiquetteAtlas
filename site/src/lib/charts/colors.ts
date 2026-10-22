@@ -105,6 +105,18 @@ export function fill(score: number, theme: Theme): string {
 	return rgbToHex(oklabToRgb([0, 1, 2].map((k) => a[k] + (b[k] - a[k]) * f) as Lab));
 }
 
+/**
+ * A fingerprint's difference from the global mean (FR-30) takes the same colours spread over
+ * ±1.5 instead of ±2.5, clamped beyond: 99% of differences lie within (decision 46). Blue is more
+ * appropriate than the global average, orange less.
+ */
+export const DEVIATION_MAX = 1.5;
+
+/** The score on the ±2.5 palette that shows a difference. */
+export function deviationScore(difference: number): number {
+	return (Math.max(-DEVIATION_MAX, Math.min(DEVIATION_MAX, difference)) / DEVIATION_MAX) * 2.5;
+}
+
 /** WCAG relative luminance. */
 export function luminance(hex: string): number {
 	const [r, g, b] = hexToRgb(hex).map(toLinear);
@@ -134,6 +146,11 @@ export function scoreStyle(score: number): string {
 		`--fill-light:${light};--fill-dark:${dark};` +
 		`--ink-light:${ink(light, 'light')};--ink-dark:${ink(dark, 'dark')}`
 	);
+}
+
+/** The fill and ink for a fingerprint's difference (FR-30, decision 46). */
+export function deviationStyle(difference: number): string {
+	return scoreStyle(deviationScore(difference));
 }
 
 /** The same for a region's colour (FR-21). */
