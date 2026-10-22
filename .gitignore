@@ -1,0 +1,33 @@
+# Raw OSF downloads hold respondent-level data: never committed (C-5, DR-16, NFR-52).
+/data/raw/
+
+# The local data profile quotes respondent-level field values (site names,
+# exact timestamps, small counts), so it stays out of the public repository.
+/docs/reference/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+
+# Node and SvelteKit
+node_modules/
+/site/.svelte-kit/
+/site/build/
+/site/test-results/
+/site/playwright-report/
+/site/blob-report/
+/site/vite.config.*.timestamp-*
+
+# Local environment and OS files
+.env
+.env.*
+!.env.example
+.DS_Store
