@@ -124,6 +124,13 @@ def rebuild(raw_dir: Path) -> Rebuild:
     con = raw.connect()
     raw.load_situations(con, raw_dir)
     add_membership(con)
+    result = count(con, raw_dir)
+    con.close()
+    return result
+
+
+def count(con: duckdb.DuckDBPyConnection, raw_dir: Path) -> Rebuild:
+    """Count every sample in a connection that has `membership`, and cross-check the lists."""
 
     counts = {}
     for s in CHECKED_SAMPLES:
@@ -158,7 +165,6 @@ def rebuild(raw_dir: Path) -> Rebuild:
         ORDER BY m.code
         """
     ).df()
-    con.close()
     return Rebuild(counts, cross_checks, validate_societies(societies))
 
 

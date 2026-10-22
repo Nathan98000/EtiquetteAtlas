@@ -47,6 +47,12 @@ def _samples(args: argparse.Namespace) -> int:
     return samples.main(args.raw_dir)
 
 
+def _build(args: argparse.Namespace) -> int:
+    from pipeline import build  # pulls in pandas, NumPy and DuckDB
+
+    return build.main(args.raw_dir, args.out)
+
+
 def _privacy_scan(args: argparse.Namespace) -> int:
     return privacy.main(args.paths or [paths.DERIVED_DIR])
 
@@ -72,6 +78,17 @@ def build_parser() -> argparse.ArgumentParser:
     add("download", "Fetch the pinned OSF files, skipping any already verified (DR-1).", _download)
     add("verify", "Check every raw file against its pinned size and MD5 (DR-1).", _verify)
     add("samples", "Rebuild the three samples and the cross-checks (DR-2, DR-3).", _samples)
+    build = add(
+        "build",
+        "Verify, rebuild the samples, estimate, validate and write data/derived/ (§4.6).",
+        _build,
+    )
+    build.add_argument(
+        "--out",
+        type=Path,
+        default=paths.DERIVED_DIR,
+        help="output folder (default: data/derived/); e.g. a scratch folder to compare runs",
+    )
     scan = add(
         "privacy-scan",
         "Scan derived outputs for forbidden fields and counts below 10 (DR-9, DR-16).",

@@ -1,6 +1,6 @@
 [project]
 name = "etiquette-atlas-pipeline"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline data pipeline for The Etiquette Atlas: download, validate, estimate and export GSN aggregates."
 readme = "README.md"
 license = "MIT"

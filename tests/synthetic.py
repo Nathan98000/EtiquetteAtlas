@@ -153,3 +153,63 @@ def rating_set(
     respondents = np.zeros(len(societies), dtype=np.int64)
     np.maximum.at(respondents, a[:, 0], a[:, 1] + 1)
     return RatingSet(societies, cells, respondents, a[:, 0], a[:, 1], a[:, 2], a[:, 3], a[:, 4])
+
+
+# A small full-grid population for end-to-end builds: (code, country, region, respondents,
+# start, att_check_commit). Kuwait's survey has no kiss or flirt items, as in the real data.
+POPULATION = (
+    ("CHL", "Chile", "Latin America", 30, "2023-11-0{d}T10:00:00Z", 1),
+    ("JPN", "Japan", "Asia", 24, "2023-12-1{d}T10:00:00Z", 1),
+    ("KWT", "Kuwait", "Asia", 14, "2024-02-0{d}T10:00:00Z", 1),
+)
+GELFAND_KEYS = {"Chile": 15, "Japan": 12}
+LEFT_OUT = {"KWT": {"kiss", "flirt"}}
+
+
+def _value(*parts: int) -> int:
+    return sum((i + 3) * p for i, p in enumerate(parts)) % 6 + 1
+
+
+def write_population(raw_dir: Path) -> Path:
+    """Main, contexts and 2000–2003 files for POPULATION; respondent IDs carry SENTINEL."""
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    with (raw_dir / raw.SITUATIONS).open("w", newline="") as f:
+        out = csv.writer(f)
+        out.writerow(SITUATION_COLUMNS)
+        for s, (code, country, region, n, start, att) in enumerate(POPULATION):
+            for r in range(n):
+                gender = ("Woman", "Man", "Other")[r % 3] if r % 7 else NA
+                for b, behavior in enumerate(raw.BEHAVIORS):
+                    if behavior in LEFT_OUT.get(code, ()):
+                        continue
+                    for c, situation in enumerate(raw.SITUATIONS_IDS):
+                        out.writerow([
+                            f"{country}_SiteA", country, "XX", start.format(d=r % 9 + 1),
+                            rid(f"{code}-{r}"), "EN" if r % 4 else "ES", gender,
+                            "yes" if r % 2 else "no", *["3"] * 9, _value(s, r, b, c),
+                            behavior, situation, att, code, region, *place(code),
+                        ])  # fmt: skip
+    with (raw_dir / raw.CONTEXTS).open("w", newline="") as f:
+        out = csv.writer(f)
+        out.writerow(["ResponseId", "country", "behavior", "context", "rating"])
+        for s, (code, country, _, n, _, _) in enumerate(POPULATION):
+            for r in range(n):
+                for b, behavior in enumerate(raw.BEHAVIORS):
+                    if behavior in LEFT_OUT.get(code, ()):
+                        continue
+                    for c, context in enumerate(raw.CONTEXT_IDS):
+                        out.writerow([rid(f"{code}-{r}"), country, behavior, context,
+                                      _value(s, r, b, c + 1)])  # fmt: skip
+        out.writerow([rid("contexts-only"), "Chile", "argue", "alone", 4])
+    with (raw_dir / raw.GELFAND).open("w", newline="") as f:
+        out = csv.writer(f)
+        out.writerow(["country", "ResponseId", "age", "woman", "rating", "behavior", "situation"])
+        for s, (country, keys) in enumerate(GELFAND_KEYS.items()):
+            for k in range(1, keys + 1):
+                for b, behavior in enumerate(raw.BEHAVIORS[:12]):
+                    for c, situation in enumerate(raw.SITUATIONS_IDS):
+                        if (country, behavior, situation) == ("Japan", "laugh", "party"):
+                            continue
+                        rating = _value(s, k, c, b) - 3.5
+                        out.writerow([country, k, 30, k % 2, rating, behavior, situation])
+    return raw_dir
