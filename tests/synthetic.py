@@ -4,6 +4,7 @@ Respondent IDs carry a SENTINEL prefix so tests can assert that no ID reaches an
 """
 
 import csv
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -145,12 +146,10 @@ def write_all(raw_dir: Path) -> Path:
 
 
 def rating_set(
-    societies: tuple[str, ...], cells: int, rows: list[tuple[int, int, int, int]]
+    societies: tuple[str, ...], cells: int, rows: Sequence[tuple[int, ...]]
 ) -> RatingSet:
-    """A RatingSet from (society, respondent, cell, value) rows, for estimator tests."""
-    a = np.array(rows, dtype=np.int64).reshape(-1, 4)
+    """A RatingSet from (society, respondent, cell, value[, group]) rows, for estimator tests."""
+    a = np.array([(*r, 0)[:5] for r in rows], dtype=np.int64).reshape(-1, 5)
     respondents = np.zeros(len(societies), dtype=np.int64)
     np.maximum.at(respondents, a[:, 0], a[:, 1] + 1)
-    return RatingSet(
-        societies, cells, respondents, a[:, 0], a[:, 1], a[:, 2], a[:, 3], np.zeros(len(a), int)
-    )
+    return RatingSet(societies, cells, respondents, a[:, 0], a[:, 1], a[:, 2], a[:, 3], a[:, 4])
