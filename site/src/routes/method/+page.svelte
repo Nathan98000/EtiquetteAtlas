@@ -33,6 +33,7 @@
 			<li><a href="#compare">Comparing two societies</a></li>
 			<li><a href="#similar">Similar societies</a></li>
 			<li><a href="#facts">Society facts</a></li>
+			<li><a href="#audiences">Who's watching?</a></li>
 			<li><a href="#rank">Ranks</a></li>
 			<li><a href="#map">The map</a></li>
 			<li><a href="#privacy">Privacy</a></li>
@@ -217,6 +218,39 @@
 			which at least 10 respondents started. The collection sites themselves are never shown,
 			because they could help identify respondents. Regions are the GSN authors' four-way grouping
 			(see The map).
+		</p>
+	</section>
+
+	<section id="audiences">
+		<h2>Who's watching? Audiences and actor gender</h2>
+		<p>
+			A second part of the survey asked about the same 15 behaviors without a situation, but with an
+			audience: when alone, in front of colleagues or classmates, or in front of management or
+			professors. It also asked how appropriate each behavior is when done by a woman and when done
+			by a man. That is about who does it, not who watches, so the charts draw it apart from the
+			audiences. They show how respondents judged each behavior in front of each audience, not why,
+			and not how anyone feels when watched.
+		</p>
+		<p>
+			Each value is the average answer of a society's respondents, as given, with its 95% interval;
+			"all societies" is the average of the society averages. The audience effect is the score when
+			alone minus the score in front of management or professors, the two ends of the audiences. It
+			keeps its sign, so a behavior judged more appropriate in front of management shows as higher,
+			not as a smaller drop. Talking is judged most appropriate in front of colleagues or
+			classmates, so its range across the three audiences is a little larger than this difference. A
+			difference has no interval of its own: both scores come from the same respondents, so their
+			intervals cannot simply be combined, and a small difference in one society may be noise.
+		</p>
+		<p>
+			These charts always show raw scores. Centering subtracts each society's average over the 150
+			situations, which these questions are not part of, and the audience effect compares a society
+			with itself, so the way a society's respondents use the scale mostly cancels out.
+		</p>
+		<p>
+			Women and men respondents are shown for all societies together only: within one society, a
+			behavior's answers from women or from men in front of one audience rest on about 11
+			respondents in the median society. Respondents who answered "other" or preferred not to say
+			are left out of this split, though they count everywhere else.
 		</p>
 	</section>
 

@@ -267,6 +267,13 @@
 		</aside>
 	</div>
 
+	<!-- The same society in the audiences module (decision 57). -->
+	<p class="more-link">
+		<a href={withView(resolve('audiences/'), vs, GLOBAL_KEYS)}>
+			How {who} judged the 15 behaviors alone and in front of others
+		</a>
+	</p>
+
 	<!-- FR-33: compare mode, two societies cell by cell (decision 49). -->
 	<section id="compare" class="compare needs-js" aria-labelledby="compare-title">
 		<h2 id="compare-title">Compare with another society</h2>
@@ -407,6 +414,14 @@
 
 	.notice p {
 		margin-top: 0;
+	}
+
+	.more-link {
+		margin: 1.5rem 0 0;
+	}
+
+	.more-link a::after {
+		content: ' →';
 	}
 
 	.compare {

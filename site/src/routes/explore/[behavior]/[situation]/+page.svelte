@@ -14,7 +14,14 @@
 	import Toggle from '#lib/components/Toggle.svelte';
 	import { cellSummary, neighbours, societiesSummary, stripSummary } from '#lib/data/derive.ts';
 	import { count, interval, place, responseLabel, score, spread } from '#lib/data/format.ts';
-	import { BEHAVIOR_TEXT, CELLS, SITUATION_TEXT, cellParams, headline } from '#lib/data/grid.ts';
+	import {
+		BEHAVIOR_TEXT,
+		CELLS,
+		SITUATION_TEXT,
+		cellParams,
+		headline,
+		slug
+	} from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSocieties } from '#lib/data/load.ts';
 	import { SAMPLE_LABEL, Status, type EstimateKind } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
@@ -166,6 +173,11 @@
 				{/if}
 			{/snippet}
 		</ChartFrame>
+		<p class="more-link">
+			<a href={withView(resolve(`audiences/${slug(behavior)}/`), vs, GLOBAL_KEYS)}>
+				{BEHAVIOR_TEXT[behavior].gerund} alone and in front of others
+			</a>
+		</p>
 		<!-- FR-26: previous and next cells in paper order (decision 39). -->
 		<StepLinks
 			label="Other pairs"
@@ -374,6 +386,15 @@
 
 	.strip-section {
 		margin: 1.5rem 0 2rem;
+	}
+
+	.more-link {
+		margin: 0.75rem 0 0;
+		font-size: var(--text-sm);
+	}
+
+	.more-link a::after {
+		content: ' →';
 	}
 
 	.layout {
