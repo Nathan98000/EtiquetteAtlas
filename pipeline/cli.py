@@ -41,6 +41,12 @@ def _verify(args: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
+def _samples(args: argparse.Namespace) -> int:
+    from pipeline import samples  # pulls in pandas and DuckDB; keeps the other commands fast
+
+    return samples.main(args.raw_dir)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pipeline", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -61,6 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     add("download", "Fetch the pinned OSF files, skipping any already verified (DR-1).", _download)
     add("verify", "Check every raw file against its pinned size and MD5 (DR-1).", _verify)
+    add("samples", "Rebuild the three samples and the cross-checks (DR-2, DR-3).", _samples)
     return parser
 
 
