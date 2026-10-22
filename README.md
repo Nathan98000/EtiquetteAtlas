@@ -6,8 +6,9 @@ in 90 societies judge 15 everyday behaviors (eating, kissing, using a phone…) 
 [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB) and published at
 **https://nathan98000.github.io/EtiquetteAtlas/**.
 
-Status: milestone M1 (pipeline and privacy gate). The pipeline produces every aggregate the site
-needs, in `data/derived/`; the site is still a placeholder until the explorer arrives in M2. The requirements are in
+Status: milestone M2 (core explorer, live but not announced). The etiquette matrix and the
+drill-down for each of the 150 behavior–situation pairs work, with the society picker, sample
+and scale toggles and permalinks; the other modules arrive from M3 on. The requirements are in
 [`The Etiquette Atlas Software Requirements Specification.md`](<The Etiquette Atlas Software Requirements Specification.md>).
 
 ## How it works
@@ -96,14 +97,54 @@ From `site/`:
 ```sh
 npm run dev                    # development server at http://localhost:5173/EtiquetteAtlas/
 npm run build                  # static site in site/build/
-npm run check:build            # checks the build: 404 page, hashing, CSP, attribution, sizes
+npm run check:build            # checks the build and reports first-load sizes against NFR-1
 npm run preview                # serves build/ like GitHub Pages at http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
-npm run test:e2e               # builds, serves and runs the Playwright tests
+npm run test:e2e               # builds, serves and runs the Playwright tests, axe included
+npm run lhci                   # Lighthouse CI on five routes under the mobile profile
 ```
+
+`npm run preview`, `npm run test:e2e` and `npm run lhci` use port 4173; set `PORT` to use
+another (`PORT=4392 npm run test:e2e`).
 
 The site lives under the base path `/EtiquetteAtlas`, set in `site/site.config.js`. To serve it
 elsewhere, change that line or set `BASE_PATH` (and `SITE_ORIGIN`) when building.
+
+### How the site is put together
+
+- **Routes** (`site/src/routes/`): `/` is a short intro, `/explore` the matrix (a list below
+  640 px), `/explore/[behavior]/[situation]` the drill-down for each of the 150 cells, and
+  `/method` a draft method page. `/societies`, `/audiences`, `/change` and `/story` are
+  placeholders until their milestones. Every route is prerendered to its own `index.html` with
+  its title, description, canonical URL and a one-sentence summary built from All data at build
+  time, so it reads without JavaScript.
+- **Data** (`site/src/lib/data/`): each file in `data/derived/` is imported with `?url` in
+  `files.ts`, so Vite ships it content-hashed, and fetched by `load.ts` only when a view needs it:
+  the matrix loads `societies.json` and `global-<sample>.json`, plus `cells-<sample>.json` once a
+  society is selected; the drill-down loads `cells-<sample>.json`, and the map's code and
+  outlines when the map nears the screen. Each file is decoded once (`model.ts` checks its shape)
+  and kept in memory; a failed load shows a message with a retry.
+- **State**: the society, sample, scale, sort and the drill-down's toggles live in the query
+  string (`src/lib/state/`). Every control navigates, so back and forward step through views and
+  any URL can be shared.
+- **Charts** (`site/src/lib/charts/`): Svelte components drawing HTML and SVG, with D3 for
+  scales and the map projection. Each has a one-sentence summary, an "About this chart" link and
+  a "Show as table" view.
+
+### Adding a route
+
+1. Create `site/src/routes/<name>/+page.svelte` and render `<Seo title=… description=… />` for
+   its meta tags. Prerendering is on for every route (`+layout.ts`).
+2. For text built from the data at build time, add a `+page.server.ts` that reads
+   `#lib/server/derived.ts` and returns short strings only. For a route with parameters, export
+   `entries` listing every value.
+3. In the browser, load data with `new Resource(() => loadX(view.state.sample))` and show
+   `LoadError` on failure. Add new data files to `files.ts`; never import JSON in browser code.
+4. Link to it with `withView(resolve('<name>/'), view.state, GLOBAL_KEYS)`; add it to the header
+   in `Header.svelte` and to `sitemap.xml` if it should be indexed.
+5. If it loads data on first view, add it to `ROUTE_DATA` in `scripts/check-build.js` and to the
+   routes in `e2e/budget.e2e.ts`, and add it to `lighthouserc.cjs` and `e2e/a11y.e2e.ts` if it is a
+   main route.
 
 ## Deploying
 
@@ -114,6 +155,10 @@ files, runs `pipeline build` and the raw-data tests, and, if `data/derived/` cha
 pull request that changes only that folder. GitHub does not run CI on pull requests opened by
 the workflow's token, so close and reopen that pull request to run CI before merging.
 
+CI (`ci.yml`) runs Ruff, mypy, pytest with coverage and the privacy scan for the pipeline; lint,
+type-check, Vitest, the build check, Playwright (end-to-end, axe, budgets, redraw times) and
+Lighthouse CI for the site; and actionlint for the workflows.
+
 ## Changing the quiz items
 
 The quiz (FR-60) arrives in milestone M6, with its three items set in a configuration file. This
@@ -121,7 +166,8 @@ section will then say where that file lives and how to change it.
 
 ## Licences and credit
 
-Code: [MIT](LICENSE).
+Code: [MIT](LICENSE). Third-party software and data, with their licences:
+[`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 
 Data: Eriksson, K., Strimling, P., Vartanova, I., Simpson, B., et al. (2025). Everyday norms have
 become more permissive over time and vary across cultures. *Communications Psychology* 3:145

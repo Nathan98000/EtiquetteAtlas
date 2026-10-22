@@ -8,8 +8,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   (FR-, NFR-, DR-, HR-, C-, AT-) and the milestones (§10) come from it.
 - Column-level data notes: `docs/reference/gsn-data-profile.md`. It is local only (git-ignored)
   because it quotes respondent-level values: never commit it or copy values out of it.
-- Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1). Manual GitHub and
-  analytics steps: `docs/SETUP.md`.
+- Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
+  (M2). Manual GitHub and analytics steps: `docs/SETUP.md`.
 - Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
   Method-page drafts: `docs/method-notes.md`. Output formats: `data/derived/README.md`.
 
@@ -26,7 +26,11 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - Nothing describing fewer than 10 respondents is published (DR-9). Everything in
   `data/derived/` must pass `uv run pipeline privacy-scan`.
 - Static site only: no server, database, serverless function, cookies or paid service (C-2,
-  C-11). Quiz answers never leave the browser (C-12).
+  C-11). Quiz answers never leave the browser (C-12). The browser fetches nothing from a third
+  party (NFR-31); the CSP stays closed until the analytics beacon lands.
+- The site shows nothing below 10 respondents: status 2 reads "too few responses", status 3
+  "not asked"; neither is plotted or ranked (DR-9, FR-27). Write "respondents in Chile", never
+  "Chileans", and no causes (FR-73, §6.5).
 - Commit locally in small commits with clear messages. Ask before any push, before changing a
   GitHub setting, and before adding a major dependency.
 - Cite requirement IDs in comments and test names where code implements them (§9.3).
@@ -49,8 +53,20 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - `data/raw/` (ignored) holds the OSF downloads; `data/derived/` holds committed aggregates.
 - `site/`: SvelteKit 3 app. `site.config.js` sets the base path and origin; `vite.config.ts`
   holds the SvelteKit config, including the CSP. `scripts/serve-pages.js` serves `build/` like
-  GitHub Pages; `scripts/check-build.js` checks the artifact; `e2e/` holds Playwright tests;
-  Vitest specs sit next to the code as `*.spec.ts`.
+  GitHub Pages (gzip included); `scripts/check-build.js` checks the artifact and the NFR-1
+  budgets; `e2e/` holds Playwright tests; `lighthouserc.cjs` configures Lighthouse CI. Vitest
+  specs sit next to the code as `*.spec.ts`.
+  - `src/lib/data/`: `grid.ts` (IDs, slugs, wording), `files.ts` (`?url` imports), `model.ts`
+    (decoders and typed tables), `load.ts` (cache and retry), `resource.svelte.ts` (a load in a
+    component), `derive.ts` (sorts, ranks, summaries), `format.ts` (numbers and phrases).
+  - `src/lib/state/`: `url.ts` (query-string state), `view.svelte.ts` (reading it and
+    `setView`, `withView`), `theme.svelte.ts`.
+  - `src/lib/charts/`: matrix, list, beeswarm, map (loaded lazily), strip, legends and tables;
+    `*-model.ts` hold their pure logic; `colors.ts` the palettes.
+  - `src/lib/components/`: header, control bar, society picker and other shell parts.
+  - `src/lib/server/derived.ts`: All-data aggregates for build-time summaries only.
+  - Routes: `/` (intro), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
+    `/method` (draft), placeholders for `/societies`, `/audiences`, `/change`, `/story`.
 - `.github/workflows/`: `ci.yml` (pull requests; reused by deploy), `deploy.yml` (push to `main`
   → GitHub Pages), `pipeline.yml` (manual).
 
@@ -79,7 +95,11 @@ npm run build && npm run check:build
 npm run preview                 # serves build/ like Pages: http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
 npm run test:e2e                # builds, serves, runs Playwright (once: npx playwright install chromium)
+PORT=4392 npm run test:e2e      # the same on another port if 4173 is taken
+npm run lhci                    # Lighthouse CI on build/ (5 routes, mobile profile; also honours PORT)
 ```
+
+Pipeline coverage as CI runs it: `uv run pytest -m "not needs_raw" --cov` (80% floor, NFR-53).
 
 Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7.12 -color`.
 
@@ -106,8 +126,23 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   resampled quantity gets its own key so existing outputs do not move.
 - Base path `/EtiquetteAtlas` (case-sensitive) comes from `site/site.config.js` or `BASE_PATH`.
   Internal links use `resolve()` from `$app/paths`; off-site links carry `rel="external"`.
-- Ship data, JS and CSS content-hashed (HR-3): import them through Vite, not `static/`.
+- Ship data, JS and CSS content-hashed (HR-3): import them through Vite, not `static/`. A
+  data file is added to `src/lib/data/files.ts` with `?url` and loaded through `load.ts`;
+  browser code never imports JSON directly. Build-time text comes from `+page.server.ts` through
+  `src/lib/server/derived.ts`; return only short strings (`__data.json` is capped at 2 KB).
+- Every number on screen comes from `data/derived/` through the decoders in `model.ts`. Charts
+  render in the browser; prerendered pages carry a text summary (FR-87) and reserve the charts'
+  space so nothing shifts (NFR-2).
+- View state lives in the URL (decision 31): read `view.state`, change it with `setView`, build
+  links with `withView(resolve('path/'), view.state, KEYS)`. Use the path form of `resolve` with a
+  trailing slash, as the routes are prerendered with one.
+- Colours come from `charts/colors.ts` and the tokens in `app.css`: pass `scoreStyle()` or
+  `regionStyle()` and the `score` or `region` class, which pick the theme's colour. Check new
+  colours for 3:1 (marks) and 4.5:1 (text) in both themes; `colors.spec.ts` does so for the
+  palettes.
+- The inline theme script in `src/app.html` gets its CSP hash in `vite.config.ts`; keep scripts
+  out of `static/` and add no other inline script.
 - Add the analytics beacon's hosts to the CSP in `site/vite.config.ts` when the beacon lands
-  (M2).
+  (after the hostname check in `docs/SETUP.md`).
 - Python: Ruff (line length 100), strict mypy, type hints. Front end: TypeScript, Prettier,
   ESLint. Typographic `–`, `−` and `×` are fine in Python comments.
