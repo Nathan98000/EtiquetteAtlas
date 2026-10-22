@@ -66,7 +66,9 @@
 	// its own beside the audiences, or below them when the page is narrow, so its labels fit.
 	const layout = $derived.by(() => {
 		const gutter = focus ? (width >= 560 ? 176 : 44) : 4;
-		const ends = focus && width >= 640 && (row?.series.length ?? 0) > 1;
+		// From 640 px every line is named at its end; the margin is kept even for one line, so
+		// it does not move when a society's line arrives (NFR-2).
+		const ends = focus && width >= 640;
 		const right = ends ? 116 : focus ? 12 : 4;
 		const plotWidth = Math.max(1, width - gutter - right);
 		const plotHeight = focus ? 252 : 120;
