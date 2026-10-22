@@ -18,9 +18,10 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 	await expect(panel.getByRole('heading', { name: 'Respondents in Chile' })).toBeVisible();
 	await expect(page.locator('.beeswarm [aria-pressed="true"]')).toHaveAttribute('data-code', 'CHL');
 	await expect(page.locator('.strip .mark').first()).toBeVisible();
+	// Decision 44: the Societies link opens the selected society's fingerprint.
 	await expect(page.getByRole('link', { name: 'Societies' })).toHaveAttribute(
 		'href',
-		/societies\/\?society=chl$/
+		/societies\/chl\/$/
 	);
 
 	// FR-4: the sample changes every view and shows its badge.
@@ -72,6 +73,99 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 	await expect(page.locator('#matrix-summary')).toBeVisible();
 	await page.goBack();
 	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
+});
+
+test('AT-11: on a fingerprint, society, sample and scale update every view and the URL; back and forward restore them', async ({
+	page
+}) => {
+	await page.goto(url('societies/chl/'));
+	await matrixReady(page);
+	const box = page.getByRole('combobox', { name: 'Society' });
+	const facts = page.getByRole('region', { name: 'About these respondents' });
+	const similar = page.getByRole('region', { name: 'Most similar answers' });
+	const lede = page.locator('.lede');
+	await expect(box).toHaveValue('Chile');
+	const chileSimilar = await similar.getByRole('listitem').allTextContents();
+
+	// FR-3: the picker moves between fingerprints (decision 44).
+	await box.fill('Japan');
+	await page.getByRole('option', { name: /^Japan/ }).click();
+	await expect(page).toHaveURL(/\/societies\/jpn\/$/);
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Respondents in Japan');
+	await expect(page.getByRole('grid', { name: /^Respondents in Japan compared/ })).toBeVisible();
+	await matrixReady(page);
+	await expect(lede).toHaveText(/^Respondents in Japan were notably/);
+	await expect(similar.getByRole('listitem')).not.toHaveText(chileSimilar);
+	await expect(facts).toContainText('Japanese');
+
+	// FR-4: the sample changes the grid, summary, facts and similar societies.
+	const before = await lede.textContent();
+	await page.getByRole('radio', { name: 'Attention check' }).check();
+	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
+	await expect(page.locator('.badge')).toHaveText(/Attention check: 80 societies/);
+	await expect(facts).toContainText('Respondents (Attention check)');
+	await expect(lede).not.toHaveText(before ?? '');
+
+	// FR-5: the scale changes the grid's colours, marks and summary.
+	const fills = () =>
+		page
+			.locator('.grid-view a[data-cell]')
+			.evaluateAll((links) => links.map((a) => getComputedStyle(a).backgroundColor).join());
+	const rawFills = await fills();
+	await page.getByRole('radio', { name: 'Centered' }).check();
+	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention&scale=centered$/);
+	await expect(lede).toHaveText(/^On the centered scale, respondents in Japan/);
+	expect(await fills()).not.toBe(rawFills);
+
+	// FR-84: back and forward step through the states, the society included.
+	await page.goBack();
+	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
+	await expect(lede).toHaveText(/^Respondents in Japan/);
+	await page.goBack();
+	await expect(page).toHaveURL(/\/societies\/jpn\/$/);
+	await expect(page.getByRole('radio', { name: 'All data' })).toBeChecked();
+	await page.goBack();
+	await expect(page).toHaveURL(/\/societies\/chl\/$/);
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Respondents in Chile');
+	await expect(box).toHaveValue('Chile');
+	await page.goForward();
+	await page.goForward();
+	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
+	await expect(box).toHaveValue('Japan');
+	await expect(facts).toContainText('Respondents (Attention check)');
+});
+
+test('NFR-13: by keyboard alone, pick a society, read its fingerprint and open a similar one', async ({
+	page
+}) => {
+	await page.goto(url('societies/'));
+	const box = page.getByRole('combobox', { name: 'Society' });
+	await box.focus();
+	await page.keyboard.type('urug');
+	await page.keyboard.press('Enter');
+	await expect(page).toHaveURL(/\/societies\/ury\/$/);
+	await matrixReady(page);
+	// Tab from the picker to the grid's one tab stop, then read a cell's details.
+	let inGrid = false;
+	for (let i = 0; i < 40 && !inGrid; i++) {
+		await page.keyboard.press('Tab');
+		inGrid = await page.evaluate(() => document.activeElement?.getAttribute('data-cell') !== null);
+	}
+	expect(inGrid, 'Tab reaches the grid').toBe(true);
+	await page.keyboard.press('ArrowDown');
+	await expect(page.getByRole('complementary')).toContainText('Difference from the global average');
+	// Shift+Tab back to the similar societies, which come before the grid.
+	let onSimilar = false;
+	for (let i = 0; i < 20 && !onSimilar; i++) {
+		await page.keyboard.press('Shift+Tab');
+		onSimilar = await page.evaluate(
+			() => !!document.activeElement?.closest('[aria-labelledby="similar-title"] li a.name')
+		);
+	}
+	expect(onSimilar, 'Shift+Tab reaches a similar society').toBe(true);
+	const name = (await page.locator(':focus').textContent())!.trim();
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText(new RegExp(`${name}$`));
 });
 
 test('§4.4: a society outside the sample reads "not in this sample"', async ({ page }) => {

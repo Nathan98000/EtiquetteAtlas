@@ -61,6 +61,30 @@ for (const [label, rate, limit] of [
 		for (const time of Object.values(times)) expect(time).toBeLessThan(limit);
 	});
 
+	test(`NFR-4: a fingerprint redraws within ${limit} ms on ${label}`, async ({
+		page
+	}, testInfo) => {
+		// Japan has similar societies in every sample, so the link exists after the sample switch.
+		await page.goto(url('societies/jpn/'));
+		await matrixReady(page);
+		await warm(page);
+		const cdp = await page.context().newCDPSession(page);
+		await cdp.send('Emulation.setCPUThrottlingRate', { rate });
+		const times = {
+			sample: await redraw(page, '.grid-view', 'input[name="sample"][value="attention"]'),
+			scale: await redraw(page, '.grid-view', 'input[name="scale"][value="centered"]'),
+			// The society is the path: a similar society's link opens its fingerprint.
+			society: await redraw(page, '.grid-view', '[aria-labelledby="similar-title"] li a.name')
+		};
+		await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+		const line = Object.entries(times)
+			.map(([k, v]) => `${k} ${v.toFixed(0)} ms`)
+			.join(', ');
+		console.log(`NFR-4 fingerprint on ${label}: ${line}`);
+		await testInfo.attach('redraw', { body: line, contentType: 'text/plain' });
+		for (const time of Object.values(times)) expect(time).toBeLessThan(limit);
+	});
+
 	test(`NFR-4: the matrix redraws within ${limit} ms on ${label}`, async ({ page }, testInfo) => {
 		await page.goto(url('explore/?society=chl'));
 		await matrixReady(page);

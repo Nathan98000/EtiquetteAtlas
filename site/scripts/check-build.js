@@ -29,6 +29,8 @@ const ROUTE_DATA = {
 	home: [],
 	explore: ['societies', 'global-all', 'cells-all'],
 	cell: ['societies', 'global-all', 'cells-all', 'land-110m'],
+	societies: ['societies'],
+	society: ['societies', 'global-all', 'cells-all', 'similarity-all'],
 	other: []
 };
 /** @param {string} file */
@@ -39,7 +41,11 @@ const kindOf = (file) =>
 			? 'explore'
 			: /^explore\/[^/]+\/[^/]+\/index\.html$/.test(file)
 				? 'cell'
-				: 'other';
+				: file === 'societies/index.html'
+					? 'societies'
+					: /^societies\/[a-z]{3}\/index\.html$/.test(file)
+						? 'society'
+						: 'other';
 const ATTRIBUTION = [
 	'data-attribution',
 	'Eriksson',
@@ -170,7 +176,7 @@ console.log(`check-build: ok, ${pages} pages and ${files.length} files, ${megaby
 console.log('NFR-1 first load, gzip (largest page of each kind):');
 for (const [kind, { page, code, data }] of Object.entries(worst)) {
 	console.log(
-		`  ${kind.padEnd(8)} ${page.padEnd(36)} JS+CSS ${kb(code).padStart(9)} of 200 KB` +
+		`  ${kind.padEnd(9)} ${page.padEnd(37)} JS+CSS ${kb(code).padStart(9)} of 200 KB` +
 			`   data ${kb(data).padStart(9)} of 300 KB`
 	);
 }

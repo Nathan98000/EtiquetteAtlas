@@ -1,11 +1,19 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
-import { matrixReady, noSidewaysScroll, swarmReady, url } from './helpers';
+import { expect, test, type Page } from '@playwright/test';
+import { matrixReady, noSidewaysScroll, societiesReady, swarmReady, url } from './helpers';
 
-const ROUTES = [
+const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	{ path: '', ready: async () => {} },
 	{ path: 'explore/?society=chl', ready: matrixReady },
 	{ path: 'explore/usemphone/funeral/?society=chl', ready: swarmReady },
+	{ path: 'societies/', ready: societiesReady },
+	{
+		path: 'societies/chl/?compare=jpn',
+		ready: async (page) => {
+			await matrixReady(page);
+			await expect(page.locator('.dumbbell')).toBeVisible();
+		}
+	},
 	{ path: 'method/', ready: async () => {} }
 ];
 

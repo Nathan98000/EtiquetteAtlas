@@ -19,12 +19,17 @@ export async function watchCsp(page: Page) {
 	});
 }
 
-/** The matrix has its data once its first cell has a real label. */
+/** The matrix or a fingerprint has its data once its first cell has a real label. */
 export async function matrixReady(page: Page) {
 	await expect(page.locator('[data-cell="0"]').first()).not.toHaveAttribute(
 		'aria-label',
 		'Loading'
 	);
+}
+
+/** The index of societies has its list once the first society links to its page. */
+export async function societiesReady(page: Page) {
+	await expect(page.locator('.regions li a').first()).toBeVisible();
 }
 
 /** The drill-down has its data once the beeswarm has drawn its dots. */
