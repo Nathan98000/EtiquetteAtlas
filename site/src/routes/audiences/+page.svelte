@@ -6,7 +6,7 @@
 		audiencesSummary,
 		effectShort,
 		multiplesTable,
-		panelLabel,
+		panelDetails,
 		readingOrder,
 		subjectOf,
 		type AudienceScope,
@@ -130,21 +130,26 @@
 				{#each order as i (i)}
 					{@const row = rows?.[i]}
 					<li>
+						<!-- The link's name is its visible text (WCAG 2.5.3); the values in full are its
+						     description. -->
 						<a
 							href={audiencesHref(BEHAVIORS[i], vs)}
-							aria-label={row ? panelLabel(row, vs.actor) : BEHAVIOR_TEXT[BEHAVIORS[i]].label}
+							aria-describedby={row && !row.notAsked ? `panel-${i}` : undefined}
 						>
 							<span class="name">{BEHAVIOR_TEXT[BEHAVIORS[i]].label}</span>
 							<!-- A no-break space keeps the line's height before the data arrives. -->
 							<span class="effect">
-								{row && !row.notAsked ? effectShort(row.effect) : ' '}
+								{row ? (row.notAsked ? 'Not asked' : effectShort(row.effect)) : '\u00a0'}
 							</span>
 							{#if row?.notAsked}
-								<span class="not-asked">Not asked</span>
+								<span class="not-asked" aria-hidden="true">–</span>
 							{:else}
 								<Slopegraph {row} actor={vs.actor} size="small" />
 							{/if}
 						</a>
+						{#if row && !row.notAsked}
+							<span id="panel-{i}" hidden>{panelDetails(row, vs.actor)}</span>
+						{/if}
 					</li>
 				{/each}
 			</ol>

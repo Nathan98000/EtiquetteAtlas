@@ -322,6 +322,10 @@ export function behaviorSummary(
 			missing.push(`${missingText(v.status)} ${contextPhrase(k)}`);
 		}
 	}
+	if (!shown.length) {
+		const who = lower(subject.replace(/ judged$/, '').replace(/^On average across the/, 'In'));
+		return `Fewer than 10 ${who} rated ${what} in each audience, so none is shown.`;
+	}
 	let text = `${subject} ${what} ${listText(shown)}`;
 	if (missing.length) text += `, with ${listText(missing)}`;
 	if (row.effect !== null) {
@@ -455,10 +459,12 @@ export function columnLabel(row: BehaviorAudiences, context: number): string {
 	return `${CONTEXT_TEXT[CONTEXTS[context]].label}: ${lines.join(', ')}`;
 }
 
-/** A panel's accessible name: the behavior, every line's values and the effect. */
-export function panelLabel(row: BehaviorAudiences, actor: boolean): string {
-	const name = BEHAVIOR_TEXT[BEHAVIORS[row.behavior]].label;
-	if (row.notAsked) return `${name}: not asked`;
+/**
+ * What a panel's link adds, for assistive technology, after its visible name and effect: the
+ * effect in full and every line's values. The visible text starts the link's name (WCAG 2.5.3).
+ */
+export function panelDetails(row: BehaviorAudiences, actor: boolean): string {
+	if (row.notAsked) return '';
 	const contexts = actor ? [...AUDIENCES, ...ACTORS] : [...AUDIENCES];
 	const lines = readingOrder(row.series).map(
 		(s) =>
@@ -466,5 +472,5 @@ export function panelLabel(row: BehaviorAudiences, actor: boolean): string {
 				.map((k) => `${lower(CONTEXT_TEXT[CONTEXTS[k]].label)} ${valueList(s, [k])[0]}`)
 				.join(', ')}`
 	);
-	return `${name}. ${capital(effectText(row.effect))}. ${lines.join('. ')}.`;
+	return `${capital(effectText(row.effect))}. ${lines.join('. ')}.`;
 }

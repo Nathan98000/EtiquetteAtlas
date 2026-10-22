@@ -149,8 +149,8 @@ export function fixtureContext(b: number, k: number): number {
 /**
  * Society s: all societies' mean + (s − 1) × 0.5, except that AAA judges cursing (2) more
  * appropriate in front of management than alone (0.8 against 0.5). CCC was not asked about
- * kissing (3) and has too few responses for arguing (0) in front of management; BBB is a small
- * sample for laughing (1) in front of colleagues.
+ * kissing (3), has too few responses for arguing (0) in front of management and for singing (5)
+ * anywhere; BBB is a small sample for laughing (1) in front of colleagues.
  */
 export function contextsDoc(sample: SampleId = 'all'): ContextsDoc {
 	const rows = CODES.flatMap((_, s) =>
@@ -160,7 +160,7 @@ export function contextsDoc(sample: SampleId = 'all'): ContextsDoc {
 	const status = ({ s, b, k }: Row) =>
 		s === 2 && b === 3
 			? 3
-			: s === 2 && b === 0 && k === 2
+			: s === 2 && ((b === 0 && k === 2) || b === 5)
 				? 2
 				: s === 1 && b === 1 && k === 1
 					? 1

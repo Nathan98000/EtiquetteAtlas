@@ -15,7 +15,7 @@ import {
 	effectText,
 	multiplesTable,
 	orderNote,
-	panelLabel,
+	panelDetails,
 	respondentsText,
 	slopeSummary,
 	slopeTable,
@@ -123,8 +123,8 @@ describe('FR-41: the small multiples’ order', () => {
 			2
 		);
 		expect(
-			audienceOrder(audienceRows(file, { scope: GAMMA, split: false }), 'effect').slice(-2)
-		).toEqual([0, 3]);
+			audienceOrder(audienceRows(file, { scope: GAMMA, split: false }), 'effect').slice(-3)
+		).toEqual([0, 3, 5]);
 	});
 
 	it('sorts by the behaviors’ names', () => {
@@ -153,7 +153,7 @@ describe('NFR-11, FR-87: summaries say what respondents judged, never why (FR-73
 		);
 		const gamma = audienceRows(file, { scope: GAMMA, split: false });
 		expect(audiencesSummary(gamma, subjectOf(GAMMA, 3))).toMatch(
-			/^Respondents in Gamma judged every one of the 13 behaviors with enough responses less/
+			/^Respondents in Gamma judged every one of the 12 behaviors with enough responses less/
 		);
 	});
 
@@ -187,6 +187,10 @@ describe('NFR-11, FR-87: summaries say what respondents judged, never why (FR-73
 		expect(behaviorSummary(rows, 3, subjectOf(GAMMA, 3))).toBe(
 			'Respondents in Gamma were not asked about kissing on the mouth.'
 		);
+		expect(behaviorSummary(rows, 5, subjectOf(GAMMA, 3))).toBe(
+			'Fewer than 10 respondents in Gamma rated singing in each audience, so none is shown.'
+		);
+		expect(rows[5].notAsked).toBe(false);
 		const alpha = audienceRows(file, { scope: ALPHA, split: false });
 		expect(behaviorSummary(alpha, 2, subjectOf(ALPHA, 3))).toMatch(
 			/: 0\.3 higher in front of management or professors than when alone\.$/
@@ -239,24 +243,22 @@ describe('NFR-11: tables and accessible names', () => {
 			behavior: 'Use a mobile phone',
 			series: 'Respondents in Gamma'
 		});
-		expect(table.at(-2)).toMatchObject({
+		expect(table.find((r) => r.key === '3-main')).toMatchObject({
 			behavior: 'Kiss on the mouth',
 			values: ['not asked', 'not asked', 'not asked', 'not asked', 'not asked'],
 			effect: '–'
 		});
 	});
 
-	it('names a panel by its values and effect', () => {
+	it('adds every line’s values and the effect in full to a panel’s name', () => {
 		const rows = audienceRows(file, { scope: GLOBAL, split: false });
-		expect(panelLabel(rows[14], false)).toBe(
-			'Use a mobile phone. 1.5 lower in front of management or professors than when alone. ' +
-				'All societies: alone +1.0, in front of colleagues or classmates +0.3, in front of ' +
-				'management or professors −0.5.'
+		expect(panelDetails(rows[14], false)).toBe(
+			'1.5 lower in front of management or professors than when alone. All societies: alone ' +
+				'+1.0, in front of colleagues or classmates +0.3, in front of management or professors ' +
+				'−0.5.'
 		);
-		expect(panelLabel(rows[14], true)).toContain('done by a woman +0.8, done by a man +0.5');
-		expect(panelLabel(audienceRows(file, { scope: GAMMA, split: false })[3], false)).toBe(
-			'Kiss on the mouth: not asked'
-		);
+		expect(panelDetails(rows[14], true)).toContain('done by a woman +0.8, done by a man +0.5');
+		expect(panelDetails(audienceRows(file, { scope: GAMMA, split: false })[3], false)).toBe('');
 	});
 
 	it('names a column of the focused slopegraph by every line’s value', () => {
