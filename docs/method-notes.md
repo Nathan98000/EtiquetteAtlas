@@ -1,7 +1,9 @@
 # Method notes (draft for the method page, FR-70)
 
-Plain-language drafts for each estimator, to be edited into the method page in M2. Each section
-has the text for readers, then a short technical note for reviewers. Wording follows SRS §6.5:
+Plain-language drafts for each estimator, edited into the method page (`/method`) from M2 on.
+Each section has the text for readers, then a short technical note for reviewers. Where a
+section says it is on the method page, the page's wording is the current one and the draft here
+follows it. Wording follows SRS §6.5:
 "respondents in Chile", not "Chileans", and no causes (FR-73).
 
 ## Where the numbers come from
@@ -124,10 +126,46 @@ the cells it has (decision 4); centered = estimate − offset. For a society wit
 this equals subtracting its own mean and adding back the overall mean. Centered τ uses the same
 noise correction; it ignores the small extra noise in the offset.
 
+## Society fingerprints
+
+On the method page as `#fingerprint` since M3 (decisions 46 and 47).
+
+**For readers.** A society's fingerprint shows, for each of the 150 pairs, how far its
+respondents' score lies above or below the average of all societies. It uses the default
+estimate, which pulls scores from few respondents toward the average, so a handful of unusual
+answers cannot make a society look extreme. Blue means the society's respondents judged the pair
+more appropriate than average (looser), orange less appropriate (stricter). The colours run out
+at 1.5 points either way; the few larger differences take the end colours, and the details give
+their exact value. A pair rated by fewer than 10 respondents, or left out of that society's
+survey, shows a dash and no colour.
+
+**Technical.** FR-30: shrunken estimate − global cell mean on the scale shown; centered, the
+estimate minus the society's shrunken offset, minus the centered global mean (DR-10). This is
+the fingerprint DR-14 correlates (decision 16). Under All data 1.0% of differences lie beyond
+±1.5 on the raw scale and 0.3% on the centered one. The difference has no interval of its own in
+the data: the details give the society's interval and the global mean's.
+
+## Comparing two societies
+
+On the method page as `#compare` since M3 (decision 49).
+
+**For readers.** On a society's page you can compare it with any other society, pair by pair.
+Each row shows both societies' estimates (shrunken, on the scale you chose) with the global mean
+as a tick, and the gap between them; the largest gaps come first. Pairs that either society
+cannot show are listed apart. Each estimate has its own uncertainty, so a small gap may be noise:
+the table gives each estimate's 95% interval.
+
+**Technical.** FR-33: the gap is the difference of the two shrunken estimates, in hundredths,
+sorted by its size with ties in paper order. No interval is computed for the gap, so the
+comparison shows estimates side by side rather than testing their difference.
+
 ## Notably stricter or looser
 
+On the method page as `#notable` (the matrix) and in `#fingerprint` since M3.
+
 **For readers.** On a society's fingerprint, a pair is marked notably stricter or looser when we
-are 95% sure the society's score is below or above the global average.
+are 95% sure the society's score is below or above the global average. A pair can have a clear
+colour and no mark when few respondents rated it.
 
 **Technical.** FR-31: the percentile interval of (society mean − global mean) across replicates
 excludes 0. The global mean includes the society, and both move together in each replicate.
@@ -138,9 +176,15 @@ from its own tendency.
 
 ## Similar societies
 
+On the method page as `#similar` since M3 (decision 48).
+
 **For readers.** Two societies are similar when they depart from the global average in the same
-places: stricter about the same things and looser about the same things. We compare societies
-only when both have at least 120 of the 150 pairs with 10 or more respondents.
+places: stricter about the same things and looser about the same things. The score is the
+correlation between their two fingerprints, from −1 to 1: 1 would mean exactly the same pattern,
+0 no shared pattern. It measures how alike the answers are, not how related the cultures are. We
+compare two societies only when both have at least 120 of the 150 pairs with 10 or more
+respondents, so a few societies have no similar societies listed. Centering shifts all of a
+society's scores by the same amount, so the scale toggle does not change similarity.
 
 **Technical.** DR-14 as amended by decision 16: the Pearson correlation of fingerprints
 (shrunken estimate − global cell mean) over cells both can publish, with at least 120 shared
@@ -183,10 +227,14 @@ party cell in the older survey. The build reproduces Table 1 within ±0.02 (NFR-
 
 ## Society facts
 
-**For readers.** Each society's facts panel shows how many people responded, the share flagged
-as students, the languages people took the survey in, and the months of fieldwork. Student
-status was recorded by the collection sites rather than asked in the questionnaire, and is
-missing for some sites, so we show the share unknown as well.
+On the method page as `#facts` since M3 (decision 50).
+
+**For readers.** Each society's page shows how many people responded in the chosen sample, the
+share flagged as students, the languages people took the survey in, and the months of fieldwork.
+Student status was recorded by the collection sites rather than asked in the questionnaire, and
+some sites recorded none, so we show the share with no status as well. Fieldwork months are
+those in which at least 10 respondents started. The collection sites themselves are never shown,
+because they could help identify respondents. Regions are the GSN authors' four-way grouping.
 
 **Technical.** DR-15. Student shares are as stored in the GSN deposit (decision 11); the
 companion tightness project recodes the Philippines and Bolivia, which the atlas does not.

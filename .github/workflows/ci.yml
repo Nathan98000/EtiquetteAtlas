@@ -64,7 +64,7 @@ jobs:
       # times (NFR-4).
       - name: Playwright end-to-end and accessibility tests
         run: npm run test:e2e
-      # NFR-2 and AT-1 on five routes under Lighthouse's mobile profile, with the runner's Chrome.
+      # NFR-2 and AT-1 on seven routes under Lighthouse's mobile profile, with the runner's Chrome.
       - name: Lighthouse CI
         run: npm run lhci
 
