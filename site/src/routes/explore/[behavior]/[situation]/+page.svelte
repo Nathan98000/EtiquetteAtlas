@@ -10,6 +10,8 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Segmented from '#lib/components/Segmented.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import StepLinks from '#lib/components/StepLinks.svelte';
+	import Toggle from '#lib/components/Toggle.svelte';
 	import { cellSummary, neighbours, societiesSummary, stripSummary } from '#lib/data/derive.ts';
 	import { count, interval, place, responseLabel, score, spread } from '#lib/data/format.ts';
 	import { BEHAVIOR_TEXT, CELLS, SITUATION_TEXT, cellParams, headline } from '#lib/data/grid.ts';
@@ -165,15 +167,11 @@
 			{/snippet}
 		</ChartFrame>
 		<!-- FR-26: previous and next cells in paper order (decision 39). -->
-		<nav class="steps" aria-label="Other pairs">
-			<a class="button" href={href(previous)} rel="prev">
-				<span aria-hidden="true">←</span>
-				{headline(CELLS[previous])}
-			</a>
-			<a class="button" href={href(next)} rel="next">
-				{headline(CELLS[next])} <span aria-hidden="true">→</span>
-			</a>
-		</nav>
+		<StepLinks
+			label="Other pairs"
+			previous={{ href: href(previous), label: headline(CELLS[previous]) }}
+			next={{ href: href(next), label: headline(CELLS[next]) }}
+		/>
 	</div>
 
 	<div class="layout">
@@ -186,14 +184,11 @@
 					options={estimateOptions}
 					onchange={(value) => setView({ estimate: value })}
 				/>
-				<label class="check">
-					<input
-						type="checkbox"
-						checked={vs.uncertainty}
-						onchange={(event) => setView({ uncertainty: event.currentTarget.checked })}
-					/>
-					Show uncertainty
-				</label>
+				<Toggle
+					label="Show uncertainty"
+					checked={vs.uncertainty}
+					onchange={(checked) => setView({ uncertainty: checked })}
+				/>
 				<a class="about" href={resolve('method/#shrinkage')}>About shrinkage</a>
 			</div>
 
@@ -381,19 +376,6 @@
 		margin: 1.5rem 0 2rem;
 	}
 
-	.steps {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		gap: 0.5rem;
-		margin-top: 0.75rem;
-	}
-
-	.steps a {
-		max-width: 100%;
-		font-size: var(--text-sm);
-	}
-
 	.layout {
 		display: grid;
 		gap: 2rem;
@@ -424,19 +406,6 @@
 		align-items: flex-end;
 		gap: 0.75rem 1.5rem;
 		margin-bottom: -1.5rem;
-	}
-
-	.check {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		min-height: 2.75rem;
-	}
-
-	.check input {
-		width: 1.25rem;
-		height: 1.25rem;
-		accent-color: var(--accent);
 	}
 
 	.about {

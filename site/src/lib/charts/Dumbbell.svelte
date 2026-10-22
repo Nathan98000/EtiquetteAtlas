@@ -2,6 +2,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { score } from '#lib/data/format.ts';
 	import type { Comparison } from './compare-model';
+	import SeriesKey from './SeriesKey.svelte';
 
 	interface Props {
 		comparison: Comparison;
@@ -24,11 +25,13 @@
      society, ○ the other, told apart by shape, since blue and orange mean appropriateness and the
      region colours mean regions. Largest gaps first; each label opens the pair's drill-down. -->
 <div class="dumbbell">
-	<ul class="key" aria-hidden="true">
-		<li><span class="dot a"></span> Respondents in {names[0]}</li>
-		<li><span class="dot b"></span> Respondents in {names[1]}</li>
-		<li><span class="tick"></span> Global mean</li>
-	</ul>
+	<SeriesKey
+		items={[
+			{ label: `Respondents in ${names[0]}`, mark: 'dot' },
+			{ label: `Respondents in ${names[1]}`, mark: 'ring' },
+			{ label: 'Global mean', mark: 'vtick' }
+		]}
+	/>
 	<div class="axis" aria-hidden="true">
 		<span>−2.5 extremely inappropriate</span><span>0</span><span>+2.5 extremely appropriate</span>
 	</div>
@@ -87,25 +90,6 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-	}
-
-	.key {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem 1.5rem;
-		margin-bottom: 0.75rem;
-	}
-
-	.key li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.key .dot,
-	.key .tick {
-		position: static;
-		transform: none;
 	}
 
 	.axis {

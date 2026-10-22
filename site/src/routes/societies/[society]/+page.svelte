@@ -21,9 +21,10 @@
 	import FactsPanel from '#lib/components/FactsPanel.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import SortSelect from '#lib/components/SortSelect.svelte';
 	import SimilarList from '#lib/components/SimilarList.svelte';
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
-	import { FINGERPRINT_SORT_KEYS, SORT_LABEL, type SortKey } from '#lib/data/derive.ts';
+	import { FINGERPRINT_SORT_KEYS } from '#lib/data/derive.ts';
 	import { place, respondentsIn } from '#lib/data/format.ts';
 	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
@@ -200,17 +201,11 @@
 			about={resolve('method/#fingerprint')}
 		>
 			{#snippet controls()}
-				<label class="sort">
-					<span>Sort</span>
-					<select
-						value={vs.sort}
-						onchange={(event) => setView({ sort: event.currentTarget.value as SortKey })}
-					>
-						{#each FINGERPRINT_SORT_KEYS as key (key)}
-							<option value={key}>{SORT_LABEL[key]}</option>
-						{/each}
-					</select>
-				</label>
+				<SortSelect
+					keys={FINGERPRINT_SORT_KEYS}
+					value={vs.sort}
+					onchange={(sort) => setView({ sort })}
+				/>
 			{/snippet}
 			{#snippet legend()}
 				{#if !empty && !outside}<FingerprintLegend {counts} />{/if}
@@ -412,24 +407,6 @@
 
 	.notice p {
 		margin-top: 0;
-	}
-
-	.sort {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: var(--text-sm);
-		color: var(--text-muted);
-	}
-
-	.sort select {
-		min-height: 2.75rem;
-		padding: 0.25rem 0.5rem;
-		border: 1px solid var(--border-strong);
-		border-radius: var(--radius);
-		background: var(--surface-raised);
-		color: var(--text);
-		font-size: var(--text-md);
 	}
 
 	.compare {
