@@ -43,8 +43,8 @@ for (const route of ROUTES) {
 		await route.ready(page);
 		await page.waitForLoadState('networkidle');
 
-		const page = route.path.replace(/\?.*$/, '');
-		let code = gzip(`${page}index.html`);
+		const html = `${route.path.replace(/\?.*$/, '')}index.html`;
+		let code = gzip(html);
 		let data = 0;
 		for (const file of files) {
 			if (/\.(js|css)$/.test(file)) code += gzip(file);
