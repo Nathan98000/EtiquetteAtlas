@@ -1,0 +1,74 @@
+/* Global styles. System fonts only, so no font service is contacted (SRS §2.6, §6.4). */
+
+:root {
+	--font-sans:
+		system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji';
+	--text: #1d2329;
+	--text-muted: #4d5864;
+	--surface: #ffffff;
+	--surface-muted: #f3f5f7;
+	--border: #d8dde3;
+	--link: #1f5fa8;
+	--focus: #1f5fa8;
+	--measure: 42rem;
+	color-scheme: light dark;
+}
+
+/* Light and dark follow the system setting (§6.4); a manual switch comes with the app shell. */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--text: #e6e9ec;
+		--text-muted: #aab4be;
+		--surface: #14181c;
+		--surface-muted: #1d2328;
+		--border: #333b43;
+		--link: #8cbcf2;
+		--focus: #8cbcf2;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-sans);
+	font-size: 1rem; /* at least 16 px (§6.4) */
+	line-height: 1.55;
+	color: var(--text);
+	background: var(--surface);
+	/* Header, main and footer stack as a column so the footer sits at the bottom of short pages. */
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+
+a {
+	color: var(--link);
+}
+
+:focus-visible {
+	outline: 3px solid var(--focus);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
