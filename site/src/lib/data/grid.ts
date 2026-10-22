@@ -152,3 +152,50 @@ export function phrase(cell: Cell): string {
 export function cellParams(cell: Cell): { behavior: string; situation: string } {
 	return { behavior: slug(cell.behavior), situation: slug(cell.situation) };
 }
+
+/**
+ * The contexts file's five contexts in its order (DR-12): three audiences, from no one else around
+ * to management or professors, then who does the behavior. The last two are the actor's gender,
+ * never an audience (FR-42). Context `k` of behavior `b` is row `b × 5 + k`.
+ */
+export const CONTEXTS = [
+	'alone',
+	'colleagues/classmates',
+	'management/professors',
+	'woman',
+	'man'
+] as const;
+
+export type Context = (typeof CONTEXTS)[number];
+
+/** The audiences (FR-40), as indices into CONTEXTS. */
+export const AUDIENCES = [0, 1, 2] as const;
+/** Done by a woman, done by a man (FR-42), as indices into CONTEXTS. */
+export const ACTORS = [3, 4] as const;
+export const ALONE = 0;
+export const MANAGEMENT = 2;
+
+interface ContextText {
+	/** For axes, tables and details: "In front of colleagues or classmates". */
+	label: string;
+	/** For narrow panels and keys: "Colleagues". */
+	short: string;
+	/** Inside a sentence: "judged it very appropriate in front of colleagues or classmates". */
+	phrase: string;
+}
+
+export const CONTEXT_TEXT: Record<Context, ContextText> = {
+	alone: { label: 'Alone', short: 'Alone', phrase: 'alone' },
+	'colleagues/classmates': {
+		label: 'In front of colleagues or classmates',
+		short: 'Colleagues',
+		phrase: 'in front of colleagues or classmates'
+	},
+	'management/professors': {
+		label: 'In front of management or professors',
+		short: 'Management',
+		phrase: 'in front of management or professors'
+	},
+	woman: { label: 'Done by a woman', short: 'A woman', phrase: 'done by a woman' },
+	man: { label: 'Done by a man', short: 'A man', phrase: 'done by a man' }
+};

@@ -1,10 +1,18 @@
 /**
  * Small documents in the data/derived/ layout for unit tests: three societies on the full
- * 15 × 10 grid, with known values, one small sample, one suppressed and one not-asked cell.
+ * 15 × 10 grid (and 15 × 5 contexts), with known values, one small sample, one suppressed and one
+ * not-asked cell.
  */
 
-import { BEHAVIORS, CELL_COUNT, SITUATIONS } from './grid';
-import type { CellsDoc, GlobalDoc, SampleId, SimilarityDoc, SocietiesDoc } from './model';
+import { BEHAVIORS, CELL_COUNT, CONTEXTS, SITUATIONS } from './grid';
+import type {
+	CellsDoc,
+	ContextsDoc,
+	GlobalDoc,
+	SampleId,
+	SimilarityDoc,
+	SocietiesDoc
+} from './model';
 
 const grid = () => ({ behaviors: [...BEHAVIORS], situations: [...SITUATIONS] });
 const cells = () => Array.from({ length: CELL_COUNT }, (_, c) => c);
@@ -118,6 +126,82 @@ export function similarityDoc(sample: SampleId = 'all'): SimilarityDoc {
 			other: ['CCC', 'BBB', 'AAA'],
 			r: [-0.12, 0.61, 0.61],
 			n_cells: [120, 149, 149]
+		}
+	};
+}
+
+const round = (x: number) => Math.round(x * 100) / 100;
+
+/** Alone minus management of behavior b for all societies: 0.1 × (b + 1), but 3 and 4 tie at 0.4. */
+export const fixtureEffect = (b: number) => (b === 4 ? 0.4 : round((b + 1) * 0.1));
+
+/**
+ * All societies' mean for behavior b in context k: 1.0 alone, then down by half the effect and by
+ * the whole effect, except that talking (6) peaks in front of colleagues (1.2), out of order.
+ * Done by a woman 0.5 + 0.02 × b, done by a man 0.5. Women respondents sit 0.1 above all
+ * respondents and men 0.1 below.
+ */
+export function fixtureContext(b: number, k: number): number {
+	const e = fixtureEffect(b);
+	return round([1, b === 6 ? 1.2 : 1 - e / 2, 1 - e, 0.5 + 0.02 * b, 0.5][k]);
+}
+
+/**
+ * Society s: all societies' mean + (s − 1) × 0.5, except that AAA judges cursing (2) more
+ * appropriate in front of management than alone (0.8 against 0.5). CCC was not asked about
+ * kissing (3) and has too few responses for arguing (0) in front of management; BBB is a small
+ * sample for laughing (1) in front of colleagues.
+ */
+export function contextsDoc(sample: SampleId = 'all'): ContextsDoc {
+	const rows = CODES.flatMap((_, s) =>
+		BEHAVIORS.flatMap((_, b) => CONTEXTS.map((_, k) => ({ s, b, k })))
+	);
+	type Row = { s: number; b: number; k: number };
+	const status = ({ s, b, k }: Row) =>
+		s === 2 && b === 3
+			? 3
+			: s === 2 && b === 0 && k === 2
+				? 2
+				: s === 1 && b === 1 && k === 1
+					? 1
+					: 0;
+	const value = <T>(row: Row, v: T): T | null => (status(row) >= 2 ? null : v);
+	const mean = ({ s, b, k }: Row) =>
+		s === 0 && b === 2 && k === 2 ? 0.8 : round(fixtureContext(b, k) + (s - 1) * 0.5);
+	const global = BEHAVIORS.flatMap((_, b) => CONTEXTS.map((_, k) => ({ b, k })));
+	const genders = (['Woman', 'Man'] as const).flatMap((gender) =>
+		global.map((row) => ({ ...row, gender }))
+	);
+	return {
+		sample,
+		grid: { behaviors: [...BEHAVIORS], contexts: [...CONTEXTS] },
+		societies: { code: [...CODES] },
+		cells: {
+			n: rows.map((r) => value(r, status(r) === 1 ? 12 : 50)),
+			mean: rows.map((r) => value(r, mean(r))),
+			mean_minus: rows.map((r) => value(r, 0.2)),
+			mean_plus: rows.map((r) => value(r, 0.3)),
+			share: rows.map((r) => value(r, 60)),
+			status: rows.map(status)
+		},
+		global: {
+			n_societies: global.map(({ b }) => (b === 3 ? 2 : 3)),
+			n: global.map(() => 150),
+			mean: global.map(({ b, k }) => fixtureContext(b, k)),
+			mean_minus: global.map(() => 0.05),
+			mean_plus: global.map(() => 0.06),
+			share: global.map(() => 55)
+		},
+		by_gender: {
+			gender: genders.map((r) => r.gender),
+			n_societies: genders.map(() => 3),
+			n: genders.map((r) => (r.gender === 'Woman' ? 80 : 70)),
+			mean: genders.map(({ b, k, gender }) =>
+				round(fixtureContext(b, k) + (gender === 'Woman' ? 0.1 : -0.1))
+			),
+			mean_minus: genders.map(() => 0.07),
+			mean_plus: genders.map(() => 0.08),
+			share: genders.map((r) => (r.gender === 'Woman' ? 57 : 53))
 		}
 	};
 }

@@ -12,6 +12,9 @@ import cellsAttention from '../../../../data/derived/cells-attention.json?url';
 import similarityAll from '../../../../data/derived/similarity-all.json?url';
 import similarityPaper from '../../../../data/derived/similarity-paper.json?url';
 import similarityAttention from '../../../../data/derived/similarity-attention.json?url';
+import contextsAll from '../../../../data/derived/contexts-all.json?url';
+import contextsPaper from '../../../../data/derived/contexts-paper.json?url';
+import contextsAttention from '../../../../data/derived/contexts-attention.json?url';
 // Natural Earth 1:110m land, public domain, as TopoJSON from world-atlas (FR-24, §3.1).
 import land from 'world-atlas/land-110m.json?url';
 
@@ -20,5 +23,6 @@ export const FILES = {
 	global: { all: globalAll, paper: globalPaper, attention: globalAttention },
 	cells: { all: cellsAll, paper: cellsPaper, attention: cellsAttention },
 	similarity: { all: similarityAll, paper: similarityPaper, attention: similarityAttention },
+	contexts: { all: contextsAll, paper: contextsPaper, attention: contextsAttention },
 	land
 } as const;

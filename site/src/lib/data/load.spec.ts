@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearCache, loadGlobal, loadSocieties } from './load';
+import { clearCache, loadContexts, loadGlobal, loadSocieties } from './load';
 import { DataError } from './model';
-import { globalDoc, societiesDoc } from './test-fixtures';
+import { contextsDoc, globalDoc, societiesDoc } from './test-fixtures';
 
 const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
 
@@ -23,6 +23,17 @@ describe('decision 27, FR-86: loading data files', () => {
 		const global = await loadGlobal('paper');
 		expect(global.sample).toBe('paper');
 		expect(String(fetch.mock.calls[0][0])).toMatch(/global-paper\.json/);
+	});
+
+	it('NFR-3: loads the contexts file for the requested sample only when asked', async () => {
+		const fetch = vi.fn<(url: string) => Promise<Response>>(async () =>
+			ok(contextsDoc('attention'))
+		);
+		vi.stubGlobal('fetch', fetch);
+		const contexts = await loadContexts('attention');
+		expect(contexts.sample).toBe('attention');
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(String(fetch.mock.calls[0][0])).toMatch(/contexts-attention\.json/);
 	});
 
 	it('forgets a failed load so a retry fetches again', async () => {

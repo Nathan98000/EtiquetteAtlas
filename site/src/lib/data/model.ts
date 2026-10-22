@@ -10,7 +10,7 @@
  * - Rows below 10 respondents carry only a status (DR-9, FR-27): they have no estimate here.
  */
 
-import { BEHAVIORS, CELL_COUNT, SITUATIONS } from './grid';
+import { BEHAVIORS, CELL_COUNT, CONTEXTS, SITUATIONS } from './grid';
 
 export type SampleId = 'all' | 'paper' | 'attention';
 export const SAMPLES: readonly SampleId[] = ['all', 'paper', 'attention'];
@@ -515,5 +515,178 @@ export class Similarity {
 	/** Most similar first; empty when the society has too few publishable cells (decision 7). */
 	pairs(code: string): readonly SimilarPair[] {
 		return this.#pairs.get(code) ?? [];
+	}
+}
+
+/** Contexts per behavior in `contexts-<sample>.json` (DR-12). */
+const CONTEXT_COUNT = CONTEXTS.length;
+const CONTEXT_ROWS = BEHAVIORS.length * CONTEXT_COUNT;
+
+export interface ContextsDoc {
+	sample: string;
+	grid: { behaviors: string[]; contexts: string[] };
+	societies: { code: string[] };
+	cells: {
+		n: Num[];
+		mean: Num[];
+		mean_minus: Num[];
+		mean_plus: Num[];
+		share: Num[];
+		status: number[];
+	};
+	global: {
+		n_societies: Num[];
+		n: Num[];
+		mean: Num[];
+		mean_minus: Num[];
+		mean_plus: Num[];
+		share: Num[];
+	};
+	by_gender: {
+		gender: string[];
+		n_societies: Num[];
+		n: Num[];
+		mean: Num[];
+		mean_minus: Num[];
+		mean_plus: Num[];
+		share: Num[];
+	};
+}
+
+/** Respondent gender, split for all societies together only (DR-12, §4.7, decision 18). */
+export type RespondentGender = 'woman' | 'man';
+const GENDER_ROWS: Record<RespondentGender, { value: string; first: number }> = {
+	woman: { value: 'Woman', first: 0 },
+	man: { value: 'Man', first: CONTEXT_ROWS }
+};
+
+/** One series' value for one behavior in one context (DR-12). */
+export interface ContextValue {
+	status: StatusCode;
+	/** Respondents; null when suppressed. */
+	n: number | null;
+	/** The raw mean with its 95% interval (there is no shrunken one); null when suppressed. */
+	estimate: Estimate | null;
+	share: number | null;
+	/** Societies behind a global value; null for one society's own. */
+	societies: number | null;
+}
+
+const CONTEXT_CELL_KEYS = ['n', 'mean', 'mean_minus', 'mean_plus', 'share', 'status'] as const;
+const CONTEXT_GLOBAL_KEYS = [
+	'n_societies',
+	'n',
+	'mean',
+	'mean_minus',
+	'mean_plus',
+	'share'
+] as const;
+
+type GlobalContextColumns = Record<(typeof CONTEXT_GLOBAL_KEYS)[number], number[]>;
+
+function globalColumns(value: unknown, where: string, length: number): GlobalContextColumns {
+	const t = table(value, where, CONTEXT_GLOBAL_KEYS, length);
+	return Object.fromEntries(
+		CONTEXT_GLOBAL_KEYS.map((k) => [k, numbers(t[k] as Num[], `${where}.${k}`)])
+	) as GlobalContextColumns;
+}
+
+function globalValue(c: GlobalContextColumns, i: number): ContextValue {
+	const value = c.mean[i];
+	return {
+		status: Status.Ok,
+		n: c.n[i],
+		estimate: {
+			value,
+			lo: round2(value - c.mean_minus[i]),
+			hi: round2(value + c.mean_plus[i])
+		},
+		share: c.share[i],
+		societies: c.n_societies[i]
+	};
+}
+
+/**
+ * `contexts-<sample>.json`: 15 behaviors × 5 contexts per society, for all societies together and,
+ * for all societies only, by respondent gender (DR-12). Behaviors and contexts are indices into
+ * BEHAVIORS and CONTEXTS. Rows below 10 respondents carry only a status (DR-9).
+ */
+export class ContextCells {
+	readonly sample: SampleId;
+	readonly codes: readonly string[];
+	readonly #index: Map<string, number>;
+	readonly #c: ContextsDoc['cells'];
+	readonly #global: GlobalContextColumns;
+	readonly #byGender: GlobalContextColumns;
+
+	constructor(json: unknown, sample: SampleId) {
+		const where = `contexts-${sample}.json`;
+		check(isObject(json), `${where} is not an object`);
+		checkSample(json, sample, where);
+		check(isObject(json.grid), `${where} has no grid`);
+		check(
+			JSON.stringify(json.grid.behaviors) === JSON.stringify(BEHAVIORS) &&
+				JSON.stringify(json.grid.contexts) === JSON.stringify(CONTEXTS),
+			`${where} has a different behavior or context order`
+		);
+		const societies = table(json.societies, `${where} societies`, ['code'], rows(json.societies));
+		const codes = societies.code as string[];
+		this.#c = table(
+			json.cells,
+			`${where} cells`,
+			CONTEXT_CELL_KEYS,
+			codes.length * CONTEXT_ROWS
+		) as unknown as ContextsDoc['cells'];
+		this.#global = globalColumns(json.global, `${where} global`, CONTEXT_ROWS);
+		const byGender = table(json.by_gender, `${where} by_gender`, ['gender'], 2 * CONTEXT_ROWS);
+		for (const { value, first } of Object.values(GENDER_ROWS)) {
+			check(
+				byGender.gender.slice(first, first + CONTEXT_ROWS).every((g) => g === value),
+				`${where} by_gender is not women's rows then men's`
+			);
+		}
+		this.#byGender = globalColumns(byGender, `${where} by_gender`, 2 * CONTEXT_ROWS);
+		this.sample = sample;
+		this.codes = codes;
+		this.#index = new Map(codes.map((code, i) => [code, i]));
+	}
+
+	/** The society's row in this sample, or undefined when it is not in the sample. */
+	indexOf(code: string): number | undefined {
+		return this.#index.get(code);
+	}
+
+	/** One society's value (DR-12); null estimate when it rests on fewer than 10 (DR-9). */
+	society(society: number, behavior: number, context: number): ContextValue {
+		const i = society * CONTEXT_ROWS + behavior * CONTEXT_COUNT + context;
+		const c = this.#c;
+		const value = c.mean[i];
+		return {
+			status: c.status[i] as StatusCode,
+			n: c.n[i],
+			estimate:
+				value === null
+					? null
+					: {
+							value,
+							lo: round2(value - (c.mean_minus[i] ?? 0)),
+							hi: round2(value + (c.mean_plus[i] ?? 0))
+						},
+			share: c.share[i],
+			societies: null
+		};
+	}
+
+	/** All societies together: the unweighted mean of society means (DR-7, DR-12). */
+	global(behavior: number, context: number): ContextValue {
+		return globalValue(this.#global, behavior * CONTEXT_COUNT + context);
+	}
+
+	/** Women or men respondents in all societies together (DR-12, decision 18). */
+	byGender(gender: RespondentGender, behavior: number, context: number): ContextValue {
+		return globalValue(
+			this.#byGender,
+			GENDER_ROWS[gender].first + behavior * CONTEXT_COUNT + context
+		);
 	}
 }

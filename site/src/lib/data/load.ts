@@ -6,6 +6,7 @@
 import type { Topology } from 'topojson-specification';
 import { FILES } from './files';
 import {
+	ContextCells,
 	DataError,
 	GlobalCells,
 	Similarity,
@@ -45,6 +46,11 @@ export function loadCells(sample: SampleId): Promise<SocietyCells> {
 
 export function loadSimilarity(sample: SampleId): Promise<Similarity> {
 	return cached(FILES.similarity[sample], (json) => new Similarity(json, sample));
+}
+
+/** Audiences and actor gender (DR-12; NFR-3: only on the audiences routes). */
+export function loadContexts(sample: SampleId): Promise<ContextCells> {
+	return cached(FILES.contexts[sample], (json) => new ContextCells(json, sample));
 }
 
 /** Map outlines (NFR-3: only when the map is shown). The map module decodes them. */

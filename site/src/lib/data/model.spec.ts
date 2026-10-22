@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { CELL_COUNT } from './grid';
+import { BEHAVIORS, CELL_COUNT, CONTEXTS } from './grid';
 import {
+	ContextCells,
 	DataError,
 	GlobalCells,
 	SAMPLES,
@@ -10,7 +11,7 @@ import {
 	SocietyCells,
 	Status
 } from './model';
-import { cellsDoc, globalDoc, similarityDoc, societiesDoc } from './test-fixtures';
+import { cellsDoc, contextsDoc, globalDoc, similarityDoc, societiesDoc } from './test-fixtures';
 
 const derived = (name: string): unknown =>
 	JSON.parse(readFileSync(new URL(`../../../../data/derived/${name}`, import.meta.url), 'utf8'));
@@ -155,6 +156,73 @@ describe('DR-14: similar societies', () => {
 	});
 });
 
+describe('DR-12: contexts by society, for all societies and by respondent gender', () => {
+	const contexts = new ContextCells(contextsDoc(), 'all');
+
+	it('indexes row s × 75 + b × 5 + k as society s, behavior b, context k', () => {
+		expect(contexts.codes).toEqual(['AAA', 'BBB', 'CCC']);
+		expect(contexts.indexOf('CCC')).toBe(2);
+		expect(contexts.indexOf('ZZZ')).toBeUndefined();
+		// Behavior 14 in front of management: all societies 1 − 1.5, CCC 0.5 above.
+		expect(contexts.society(2, 14, 2)).toEqual({
+			status: Status.Ok,
+			n: 50,
+			estimate: { value: 0, lo: -0.2, hi: 0.3 },
+			share: 60,
+			societies: null
+		});
+	});
+
+	it('DR-9, FR-27: small, too few and not asked keep their status; only small has a value', () => {
+		expect(contexts.society(1, 1, 1)).toMatchObject({ status: Status.Small, n: 12 });
+		expect(contexts.society(1, 1, 1).estimate).not.toBeNull();
+		expect(contexts.society(2, 0, 2)).toEqual({
+			status: Status.TooFew,
+			n: null,
+			estimate: null,
+			share: null,
+			societies: null
+		});
+		expect(CONTEXTS.map((_, k) => contexts.society(2, 3, k).status)).toEqual([3, 3, 3, 3, 3]);
+	});
+
+	it('gives all societies’ values with their interval and society count (DR-7)', () => {
+		expect(contexts.global(6, 1)).toEqual({
+			status: Status.Ok,
+			n: 150,
+			estimate: { value: 1.2, lo: 1.15, hi: 1.26 },
+			share: 55,
+			societies: 3
+		});
+		expect(contexts.global(3, 0).societies).toBe(2);
+	});
+
+	it('decision 18: women and men respondents, all societies only', () => {
+		expect(contexts.byGender('woman', 0, 0)).toMatchObject({
+			n: 80,
+			estimate: { value: 1.1, lo: 1.03, hi: 1.18 },
+			share: 57
+		});
+		expect(contexts.byGender('man', 14, 4).estimate?.value).toBe(0.4);
+	});
+
+	it('FR-86: refuses another context order, a short table or mixed gender rows', () => {
+		const order = contextsDoc();
+		order.grid.contexts.reverse();
+		expect(() => new ContextCells(order, 'all')).toThrow(/behavior or context order/);
+		const short = contextsDoc();
+		short.cells.status.pop();
+		expect(() => new ContextCells(short, 'all')).toThrow(/cells\.status has/);
+		const mixed = contextsDoc();
+		mixed.by_gender.gender[3] = 'Man';
+		expect(() => new ContextCells(mixed, 'all')).toThrow(/women's rows then men's/);
+		const gap = contextsDoc();
+		gap.global.mean[0] = null;
+		expect(() => new ContextCells(gap, 'all')).toThrow(/missing values/);
+		expect(() => new ContextCells(contextsDoc('paper'), 'all')).toThrow(DataError);
+	});
+});
+
 describe('FR-86: malformed files are refused with a DataError', () => {
 	it('rejects another grid order', () => {
 		const doc = globalDoc();
@@ -194,6 +262,27 @@ describe('§4.6: the committed data/derived files decode', () => {
 			}
 		}
 		expect(mismatches).toBe(0);
+	});
+
+	it.each(SAMPLES)('contexts-%s.json: a value exactly where the status allows one', (sample) => {
+		const contexts = new ContextCells(derived(`contexts-${sample}.json`), sample);
+		expect(contexts.codes.length).toBe({ all: 90, paper: 71, attention: 80 }[sample]);
+		const statuses = [0, 0, 0, 0];
+		let mismatches = 0;
+		for (let s = 0; s < contexts.codes.length; s++) {
+			for (let b = 0; b < BEHAVIORS.length; b++) {
+				for (let k = 0; k < CONTEXTS.length; k++) {
+					const value = contexts.society(s, b, k);
+					statuses[value.status] += 1;
+					const shown = value.estimate !== null && value.n !== null && value.n >= 10;
+					if (shown !== value.status <= Status.Small) mismatches += 1;
+				}
+			}
+		}
+		expect(mismatches).toBe(0);
+		if (sample === 'all') expect(statuses).toEqual([5724, 829, 182, 15]);
+		expect(contexts.global(0, 0).societies).toBeGreaterThan(0);
+		expect(contexts.byGender('man', 14, 4).n).toBeGreaterThanOrEqual(10);
 	});
 
 	it('societies.json', () => {
