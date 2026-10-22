@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import favicon from '#lib/assets/favicon.svg';
 	import AttributionFooter from '#lib/components/AttributionFooter.svelte';
 	import Header from '#lib/components/Header.svelte';
@@ -13,6 +13,9 @@
 	onMount(() => {
 		theme.start();
 		view.start();
+		// The prerendered page is interactive from here, with the URL's view applied; the
+		// end-to-end tests wait for this mark before they click or type (e2e/helpers.ts).
+		void tick().then(() => (document.documentElement.dataset.hydrated = ''));
 	});
 </script>
 

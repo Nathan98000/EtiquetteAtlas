@@ -1,14 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { basePath } from '../site.config.js';
 import {
 	audiencesReady,
+	expect,
 	matrixReady,
 	slopeReady,
 	societiesReady,
 	swarmReady,
+	test,
 	url
 } from './helpers';
 

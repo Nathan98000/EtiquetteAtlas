@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { matrixReady, swarmReady, url } from './helpers';
+import { expect, matrixReady, swarmReady, test, url } from './helpers';
 
 test('AT-11: society, sample and scale update every view and the URL; back and forward restore them', async ({
 	page
@@ -142,6 +141,7 @@ test('NFR-13: by keyboard alone, pick a society, read its fingerprint and open a
 	const box = page.getByRole('combobox', { name: 'Society' });
 	await box.focus();
 	await page.keyboard.type('urug');
+	await expect(page.getByRole('option', { name: /^Uruguay/ })).toBeVisible();
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(/\/societies\/ury\/$/);
 	await matrixReady(page);

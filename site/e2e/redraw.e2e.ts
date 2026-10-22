@@ -1,5 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-import { audiencesReady, matrixReady, slopeReady, swarmReady, url } from './helpers';
+import type { Page } from '@playwright/test';
+import { audiencesReady, expect, matrixReady, slopeReady, swarmReady, test, url } from './helpers';
 
 // NFR-4: changing the society, sample or scale redraws every visible view within 100 ms on a
 // laptop and 300 ms on a mid-range phone, approximated here by slowing the CPU four times.
@@ -99,6 +99,7 @@ for (const [label, rate, limit] of [
 			await warm(page);
 			// The picker lists its societies before the timed click on one of them.
 			await page.getByRole('combobox', { name: 'Society' }).fill('Brazil');
+			await expect(page.getByRole('option', { name: /^Brazil/ })).toBeVisible();
 			const cdp = await page.context().newCDPSession(page);
 			await cdp.send('Emulation.setCPUThrottlingRate', { rate });
 			const times = {

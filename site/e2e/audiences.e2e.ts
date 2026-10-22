@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { audiencesReady, slopeReady, tabTo, url, watchCsp } from './helpers';
+import { audiencesReady, expect, slopeReady, tabTo, test, url, watchCsp } from './helpers';
 
 const details = (page: import('@playwright/test').Page) =>
 	page.getByRole('complementary', { name: 'Details' });
@@ -240,6 +239,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await slopeReady(page);
 	const box = page.getByRole('combobox', { name: 'Society' });
 	await box.fill('Japan');
+	await expect(page.getByRole('option', { name: /^Japan/ })).toBeVisible();
 	await box.press('Enter');
 	await expect(page).toHaveURL(/\/audiences\/listen\/\?society=jpn$/);
 	await expect(page.locator('.lede')).toHaveText(/^Respondents in Japan judged listening/);

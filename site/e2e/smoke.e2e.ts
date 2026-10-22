@@ -1,5 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { basePath } from '../site.config.js';
+import { expect, test } from './helpers';
 
 const home = `${basePath}/`;
 

@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { swarmReady, url, watchCsp } from './helpers';
+import { expect, swarmReady, test, url, watchCsp } from './helpers';
 
 const cell = url('explore/usemphone/funeral/');
 

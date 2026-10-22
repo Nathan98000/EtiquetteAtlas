@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { matrixReady, noSidewaysScroll, url, watchCsp } from './helpers';
+import { expect, matrixReady, noSidewaysScroll, test, url, watchCsp } from './helpers';
 
 const explore = url('explore/');
 

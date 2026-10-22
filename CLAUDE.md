@@ -55,7 +55,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - `site/`: SvelteKit 3 app. `site.config.js` sets the base path and origin; `vite.config.ts`
   holds the SvelteKit config, including the CSP. `scripts/serve-pages.js` serves `build/` like
   GitHub Pages (gzip included); `scripts/check-build.js` checks the artifact and the NFR-1
-  budgets; `e2e/` holds Playwright tests; `lighthouserc.cjs` configures Lighthouse CI. Vitest
+  budgets; `e2e/` holds Playwright tests, which import `test` and `expect` from `e2e/helpers.ts`
+  so every page load waits for the app to mount; `lighthouserc.cjs` configures Lighthouse CI. Vitest
   specs sit next to the code as `*.spec.ts`.
   - `src/lib/data/`: `grid.ts` (IDs, slugs, wording), `files.ts` (`?url` imports), `model.ts`
     (decoders and typed tables), `load.ts` (cache and retry), `resource.svelte.ts` (a load in a

@@ -1,5 +1,13 @@
-import { expect, test, type Page } from '@playwright/test';
-import { matrixReady, noSidewaysScroll, societiesReady, url, watchCsp } from './helpers';
+import type { Page } from '@playwright/test';
+import {
+	expect,
+	matrixReady,
+	noSidewaysScroll,
+	societiesReady,
+	test,
+	url,
+	watchCsp
+} from './helpers';
 
 const chile = url('societies/chl/');
 
@@ -235,6 +243,7 @@ test('FR-33: compare mode draws a dumbbell per pair, largest gaps first', async 
 	await page.keyboard.press('Escape');
 	await expect(page.getByRole('listbox')).toHaveCount(0);
 	await picker.press('ArrowDown');
+	await expect(page.getByRole('option', { name: /^Japan/ })).toBeVisible();
 	await picker.press('Enter');
 	await expect(page).toHaveURL(/\/societies\/chl\/\?compare=jpn$/);
 	const rows = page.locator('#dumbbell-rows > li');
@@ -293,6 +302,7 @@ test.describe('the index of societies', () => {
 		await page.goto(url('societies/?scale=centered'));
 		const box = page.getByRole('combobox', { name: 'Society' });
 		await box.fill('chil');
+		await expect(page.getByRole('option', { name: /^Chile/ })).toBeVisible();
 		await box.press('Enter');
 		await expect(page).toHaveURL(/\/societies\/chl\/\?scale=centered$/);
 		await expect(box).toHaveValue('Chile');

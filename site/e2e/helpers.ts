@@ -1,5 +1,40 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { test as base, expect, type Locator, type Page } from '@playwright/test';
 import { basePath } from '../site.config.js';
+
+/**
+ * Pages are prerendered, so they show content before the app takes over: a click or keystroke
+ * that comes first acts on the static page, through links without the view's query string or a
+ * picker with no handlers. This `test` waits, after every full load, for the mark the root layout
+ * sets once the app has mounted (skipped when JavaScript is off or the page loads no app).
+ */
+export const test = base.extend({
+	page: async ({ page, javaScriptEnabled }, use) => {
+		if (javaScriptEnabled !== false) {
+			// Pages without client-side rendering, such as the 404 page, load no app to wait for.
+			const hydrated = () =>
+				page.waitForFunction(
+					() =>
+						document.documentElement.hasAttribute('data-hydrated') ||
+						!document.querySelector('link[rel="modulepreload"]')
+				);
+			const goto = page.goto.bind(page);
+			page.goto = async (target, options) => {
+				const response = await goto(target, options);
+				await hydrated();
+				return response;
+			};
+			const reload = page.reload.bind(page);
+			page.reload = async (options) => {
+				const response = await reload(options);
+				await hydrated();
+				return response;
+			};
+		}
+		await use(page);
+	}
+});
+
+export { expect };
 
 export const url = (path: string) => `${basePath}/${path}`;
 
