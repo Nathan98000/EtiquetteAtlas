@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { respondentsIn, spread } from '#lib/data/format.ts';
-	import { DIVERGING } from './colors';
+	import Ramp from './Ramp.svelte';
 	import { dotSize, MARK_GLYPH, type MatrixCell, type SelectedSociety } from './matrix-model';
 
 	interface Props {
@@ -11,18 +11,13 @@
 
 	let { universal, dependent, society }: Props = $props();
 
-	const ramp = (stops: readonly string[]) => `linear-gradient(to right, ${stops.join(', ')})`;
-	const style = `--ramp-light: ${ramp(DIVERGING.light)}; --ramp-dark: ${ramp(DIVERGING.dark)}`;
 	const sizes = [0.2, 0.5, 0.8];
 </script>
 
-<div class="legend" {style}>
+<div class="legend">
 	<div class="item">
 		<p class="key">Global average (fill)</p>
-		<div class="ramp" aria-hidden="true"></div>
-		<div class="ends">
-			<span>Extremely inappropriate</span><span>0</span><span>Extremely appropriate</span>
-		</div>
+		<Ramp ends={['Extremely inappropriate', '0', 'Extremely appropriate']} />
 	</div>
 	<div class="item">
 		<p class="key">Disagreement between societies (circle size)</p>
@@ -69,17 +64,6 @@
 		gap: 0.75rem 2rem;
 		margin-bottom: 1rem;
 		font-size: var(--text-sm);
-		--ramp: var(--ramp-light);
-	}
-
-	:global(:root[data-theme='dark']) .legend {
-		--ramp: var(--ramp-dark);
-	}
-
-	@media (prefers-color-scheme: dark) {
-		:global(:root:not([data-theme='light'])) .legend {
-			--ramp: var(--ramp-dark);
-		}
 	}
 
 	.item {
@@ -90,21 +74,6 @@
 	.key {
 		margin: 0 0 0.25rem;
 		color: var(--text-muted);
-	}
-
-	.ramp {
-		width: min(16rem, 100%);
-		height: 0.75rem;
-		background: var(--ramp);
-		box-shadow: inset 0 0 0 1px var(--border-strong);
-	}
-
-	.ends {
-		display: flex;
-		justify-content: space-between;
-		width: min(16rem, 100%);
-		gap: 0.5rem;
-		font-size: 0.75rem;
 	}
 
 	ul {

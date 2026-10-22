@@ -2,6 +2,7 @@
 	import { BEHAVIOR_TEXT, SITUATION_TEXT } from '#lib/data/grid.ts';
 	import { count, interval, percent, respondentsIn, score, spread } from '#lib/data/format.ts';
 	import type { Scale } from '#lib/data/model.ts';
+	import DataTable, { type Column } from './DataTable.svelte';
 	import { societyPhrase, type MatrixCell, type SelectedSociety } from './matrix-model';
 
 	interface Props {
@@ -13,66 +14,37 @@
 
 	let { cells, order, scale, society }: Props = $props();
 	const centered = $derived(scale === 'centered' ? ', centered' : '');
+
+	const columns = $derived.by(() => {
+		const list: Column<MatrixCell>[] = [
+			{ header: 'Behavior', text: (c) => BEHAVIOR_TEXT[c.behavior].label, rowHeader: true },
+			{ header: 'Situation', text: (c) => SITUATION_TEXT[c.situation].label },
+			{
+				header: 'Global mean (95% interval)',
+				text: (c) => `${score(c.mean)} (${interval(c.meanLo, c.meanHi)})`
+			},
+			{ header: 'Chose appropriate', text: (c) => percent(c.share) },
+			{
+				header: 'Disagreement (95% interval)',
+				text: (c) => `${spread(c.tau)} (${spread(c.tauLo)} to ${spread(c.tauHi)})`
+			},
+			{ header: 'Societies', text: (c) => String(c.societies) },
+			{ header: 'Respondents', text: (c) => count(c.respondents) }
+		];
+		if (society?.inSample) {
+			list.push({
+				header: respondentsIn(society.code, society.name),
+				text: (c) => (c.society ? societyPhrase(c.society) : '')
+			});
+		}
+		return list;
+	});
 </script>
 
 <!-- NFR-11: the matrix's values as a table, in the order the chart is sorted. -->
-<table>
-	<caption>Global average and disagreement for each behavior and situation{centered}</caption>
-	<thead>
-		<tr>
-			<th scope="col">Behavior</th>
-			<th scope="col">Situation</th>
-			<th scope="col">Global mean (95% interval)</th>
-			<th scope="col">Chose appropriate</th>
-			<th scope="col">Disagreement (95% interval)</th>
-			<th scope="col">Societies</th>
-			<th scope="col">Respondents</th>
-			{#if society?.inSample}
-				<th scope="col">{respondentsIn(society.code, society.name)}</th>
-			{/if}
-		</tr>
-	</thead>
-	<tbody>
-		{#each order as index (index)}
-			{@const cell = cells[index]}
-			<tr>
-				<th scope="row">{BEHAVIOR_TEXT[cell.behavior].label}</th>
-				<td>{SITUATION_TEXT[cell.situation].label}</td>
-				<td>{score(cell.mean)} ({interval(cell.meanLo, cell.meanHi)})</td>
-				<td>{percent(cell.share)}</td>
-				<td>{spread(cell.tau)} ({spread(cell.tauLo)} to {spread(cell.tauHi)})</td>
-				<td>{cell.societies}</td>
-				<td>{count(cell.respondents)}</td>
-				{#if society?.inSample}
-					<td>{cell.society ? societyPhrase(cell.society) : ''}</td>
-				{/if}
-			</tr>
-		{/each}
-	</tbody>
-</table>
-
-<style>
-	table {
-		border-collapse: collapse;
-		font-size: var(--text-sm);
-		min-width: 100%;
-	}
-
-	caption {
-		text-align: left;
-		font-weight: 600;
-		padding-bottom: 0.5rem;
-	}
-
-	th,
-	td {
-		padding: 0.375rem 0.5rem;
-		border-bottom: 1px solid var(--border);
-		text-align: left;
-		vertical-align: top;
-	}
-
-	thead th {
-		border-bottom: 2px solid var(--border-strong);
-	}
-</style>
+<DataTable
+	caption="Global average and disagreement for each behavior and situation{centered}"
+	rows={order.map((i) => cells[i])}
+	{columns}
+	key={(c) => c.index}
+/>
