@@ -21,6 +21,7 @@ dev = [
     "mypy>=2.4",
     "pandas-stubs>=3.0",
     "pytest>=9.1",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17",
 ]
 
@@ -58,3 +59,22 @@ addopts = ["-ra", "--strict-markers", "--strict-config", "--tb=short"]
 markers = [
     "needs_raw: needs the pinned OSF files in data/raw/; skipped when they are absent",
 ]
+
+# NFR-53: estimator code keeps at least 80% line coverage from the unit tests, which run without
+# the raw files (`uv run pytest -m "not needs_raw" --cov`).
+[tool.coverage.run]
+include = [
+    "pipeline/ratings.py",
+    "pipeline/cells.py",
+    "pipeline/bootstrap.py",
+    "pipeline/estimates.py",
+    "pipeline/similarity.py",
+    "pipeline/contexts.py",
+    "pipeline/change.py",
+    "pipeline/metadata.py",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = false
