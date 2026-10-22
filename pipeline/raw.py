@@ -17,6 +17,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import duckdb
+import numpy as np
 
 SITUATIONS = "gsn-situations-clean-long.csv"
 CONTEXTS = "gsn-contexts-clean-long.csv"
@@ -71,6 +72,14 @@ def _scalar_rows(
 ) -> list[tuple[object, ...]]:
     try:
         return con.execute(sql).fetchall()
+    except duckdb.Error as err:
+        raise RawDataError(f"{context}: {type(err).__name__}: {scrub(str(err))}") from None
+
+
+def fetch_arrays(con: duckdb.DuckDBPyConnection, sql: str, context: str) -> dict[str, np.ndarray]:
+    """Run a query and return its columns as NumPy arrays, with any error scrubbed (DR-16)."""
+    try:
+        return {k: np.asarray(v) for k, v in con.execute(sql).fetchnumpy().items()}
     except duckdb.Error as err:
         raise RawDataError(f"{context}: {type(err).__name__}: {scrub(str(err))}") from None
 

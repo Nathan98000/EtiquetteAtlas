@@ -7,7 +7,10 @@ import csv
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 from pipeline import raw
+from pipeline.ratings import RatingSet
 
 SENTINEL = "SENTINEL"
 NA = "NA"
@@ -139,3 +142,15 @@ def write_all(raw_dir: Path) -> Path:
     write_id_list(raw_dir, raw.PREREG_LIST, PREREG_IDS)
     write_id_list(raw_dir, raw.ATTENTION_LIST, ATTENTION_IDS)
     return raw_dir
+
+
+def rating_set(
+    societies: tuple[str, ...], cells: int, rows: list[tuple[int, int, int, int]]
+) -> RatingSet:
+    """A RatingSet from (society, respondent, cell, value) rows, for estimator tests."""
+    a = np.array(rows, dtype=np.int64).reshape(-1, 4)
+    respondents = np.zeros(len(societies), dtype=np.int64)
+    np.maximum.at(respondents, a[:, 0], a[:, 1] + 1)
+    return RatingSet(
+        societies, cells, respondents, a[:, 0], a[:, 1], a[:, 2], a[:, 3], np.zeros(len(a), int)
+    )

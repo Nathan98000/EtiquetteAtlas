@@ -8,6 +8,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import duckdb
 import pandas as pd
 import pandera.pandas as pa
 
@@ -112,12 +113,17 @@ SOCIETY_SCHEMA = pa.DataFrameSchema(
 )
 
 
+def add_membership(con: duckdb.DuckDBPyConnection) -> None:
+    """Build `membership(rid, code, n_ratings, in_<sample>…)` from `respondents`."""
+    flags = ", ".join(f"({s.rule}) AS in_{s.key}" for s in CHECKED_SAMPLES)
+    con.execute(f"CREATE TABLE membership AS SELECT rid, code, n_ratings, {flags} FROM respondents")
+
+
 def rebuild(raw_dir: Path) -> Rebuild:
     """Load the main file and the respondent lists, then count every sample."""
     con = raw.connect()
     raw.load_situations(con, raw_dir)
-    flags = ", ".join(f"({s.rule}) AS in_{s.key}" for s in CHECKED_SAMPLES)
-    con.execute(f"CREATE TABLE membership AS SELECT rid, code, n_ratings, {flags} FROM respondents")
+    add_membership(con)
 
     counts = {}
     for s in CHECKED_SAMPLES:
