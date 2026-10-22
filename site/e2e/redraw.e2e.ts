@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { matrixReady, swarmReady, url } from './helpers';
+import { audiencesReady, matrixReady, slopeReady, swarmReady, url } from './helpers';
 
 // NFR-4: changing the society, sample or scale redraws every visible view within 100 ms on a
 // laptop and 300 ms on a mid-range phone, approximated here by slowing the CPU four times.
@@ -84,6 +84,38 @@ for (const [label, rate, limit] of [
 		await testInfo.attach('redraw', { body: line, contentType: 'text/plain' });
 		for (const time of Object.values(times)) expect(time).toBeLessThan(limit);
 	});
+
+	// The audiences show raw scores whatever the scale, so a scale change redraws only the note
+	// beside them (decision 60); the page is the view timed.
+	for (const [route, ready, view] of [
+		['audiences/?society=jpn', audiencesReady, '.audiences-page'],
+		['audiences/listen/?society=jpn', slopeReady, '.audience-page']
+	] as const) {
+		test(`NFR-4: /${route.replace(/\?.*$/, '')} redraws within ${limit} ms on ${label}`, async ({
+			page
+		}, testInfo) => {
+			await page.goto(url(route));
+			await ready(page);
+			await warm(page);
+			// The picker lists its societies before the timed click on one of them.
+			await page.getByRole('combobox', { name: 'Society' }).fill('Brazil');
+			const cdp = await page.context().newCDPSession(page);
+			await cdp.send('Emulation.setCPUThrottlingRate', { rate });
+			const times = {
+				society: await redraw(page, view, '[role="option"]'),
+				sample: await redraw(page, view, 'input[name="sample"][value="attention"]'),
+				scale: await redraw(page, view, 'input[name="scale"][value="centered"]'),
+				scope: await redraw(page, view, 'input[name="scope"][value="global"]')
+			};
+			await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+			const line = Object.entries(times)
+				.map(([k, v]) => `${k} ${v.toFixed(0)} ms`)
+				.join(', ');
+			console.log(`NFR-4 /${route} on ${label}: ${line}`);
+			await testInfo.attach('redraw', { body: line, contentType: 'text/plain' });
+			for (const time of Object.values(times)) expect(time).toBeLessThan(limit);
+		});
+	}
 
 	test(`NFR-4: the matrix redraws within ${limit} ms on ${label}`, async ({ page }, testInfo) => {
 		await page.goto(url('explore/?society=chl'));

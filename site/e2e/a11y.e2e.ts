@@ -1,6 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { matrixReady, noSidewaysScroll, societiesReady, swarmReady, url } from './helpers';
+import {
+	audiencesReady,
+	matrixReady,
+	noSidewaysScroll,
+	slopeReady,
+	societiesReady,
+	swarmReady,
+	url
+} from './helpers';
 
 const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	{ path: '', ready: async () => {} },
@@ -14,6 +22,17 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 			await expect(page.locator('.dumbbell')).toBeVisible();
 		}
 	},
+	{ path: 'audiences/?society=chl&actor=on', ready: audiencesReady },
+	{
+		path: 'audiences/usemphone/?society=chl&actor=on',
+		ready: async (page) => {
+			await slopeReady(page);
+			// A column's intervals and details are on screen too.
+			await page.locator('.slopegraph [data-context="2"]').hover();
+			await expect(page.locator('.slopegraph .whisker').first()).toBeVisible();
+		}
+	},
+	{ path: 'audiences/argue/?split=gender', ready: slopeReady },
 	{ path: 'method/', ready: async () => {} }
 ];
 

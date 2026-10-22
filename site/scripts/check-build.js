@@ -21,8 +21,9 @@ const UNHASHED_ALLOWED = new Set(['_app/version.json']);
 const ROUTE_PAYLOAD = /(^|\/)__data\.json$/;
 const MAX_ROUTE_PAYLOAD_BYTES = 2048;
 // NFR-1, gzip. JS and CSS are the page itself (small stylesheets are inlined) and what its HTML
-// preloads; the map's chunk loads later and is measured by e2e/budget.e2e.ts. Data are the files each kind of route fetches, with a society
-// selected (the worst case), named by their prefix before the hash (src/lib/data/files.ts).
+// preloads; the map's chunk loads later and is measured by e2e/budget.e2e.ts. Data are the files
+// each kind of route fetches, with a society selected (the worst case), named by their prefix
+// before the hash (src/lib/data/files.ts).
 const JS_CSS_BUDGET = 200 * 1024;
 const DATA_BUDGET = 300 * 1024;
 const ROUTE_DATA = {
@@ -31,6 +32,8 @@ const ROUTE_DATA = {
 	cell: ['societies', 'global-all', 'cells-all', 'land-110m'],
 	societies: ['societies'],
 	society: ['societies', 'global-all', 'cells-all', 'similarity-all'],
+	audiences: ['societies', 'contexts-all'],
+	audience: ['societies', 'contexts-all'],
 	other: []
 };
 /** @param {string} file */
@@ -45,7 +48,11 @@ const kindOf = (file) =>
 					? 'societies'
 					: /^societies\/[a-z]{3}\/index\.html$/.test(file)
 						? 'society'
-						: 'other';
+						: file === 'audiences/index.html'
+							? 'audiences'
+							: /^audiences\/[a-z]+\/index\.html$/.test(file)
+								? 'audience'
+								: 'other';
 const ATTRIBUTION = [
 	'data-attribution',
 	'Eriksson',

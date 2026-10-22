@@ -3,7 +3,14 @@ import { resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { expect, test, type Page } from '@playwright/test';
 import { basePath } from '../site.config.js';
-import { matrixReady, societiesReady, swarmReady, url } from './helpers';
+import {
+	audiencesReady,
+	matrixReady,
+	slopeReady,
+	societiesReady,
+	swarmReady,
+	url
+} from './helpers';
 
 // NFR-1: what each representative route transfers on first load, measured from the requests the
 // page makes until it is idle, with each file's gzip size taken from build/ (GitHub Pages gzips).
@@ -34,6 +41,8 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 			await expect(page.locator('.dumbbell')).toBeVisible();
 		}
 	},
+	{ path: 'audiences/', ready: audiencesReady },
+	{ path: 'audiences/usemphone/?society=chl', ready: slopeReady },
 	{ path: 'method/', ready: async () => {} }
 ];
 
