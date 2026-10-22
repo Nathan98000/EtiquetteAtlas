@@ -8,7 +8,10 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   (FR-, NFR-, DR-, HR-, C-, AT-) and the milestones (§10) come from it.
 - Column-level data notes: `docs/reference/gsn-data-profile.md`. It is local only (git-ignored)
   because it quotes respondent-level values: never commit it or copy values out of it.
-- M0 brief: `docs/claude-code-kickoff.md`. Manual GitHub and analytics steps: `docs/SETUP.md`.
+- Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1). Manual GitHub and
+  analytics steps: `docs/SETUP.md`.
+- Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
+  Method-page drafts: `docs/method-notes.md`. Output formats: `data/derived/README.md`.
 
 ## Non-negotiable rules
 
@@ -30,10 +33,19 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 
 ## Layout
 
-- `pipeline/`: Python package and `pipeline` CLI. `sources.toml` pins the OSF files;
-  `sources.py` downloads and verifies; `raw.py` loads CSVs with DuckDB; `samples.py` rebuilds the
-  samples; `privacy.py` is the privacy gate.
-- `tests/`: pytest. `synthetic.py` builds fake raw files; `needs_raw` tests use the real ones.
+- `pipeline/`: Python package and `pipeline` CLI.
+  - Inputs: `sources.toml` pins the OSF files; `sources.py` downloads and verifies; `raw.py`
+    loads CSVs with DuckDB; `samples.py` rebuilds the samples.
+  - Reviewed reference data: `societies.toml` (display names, Kosovo's position, language
+    names) and `published.toml` (the paper's values for NFR-51), read by `reference.py`.
+  - Estimators, one module each: `ratings.py` (one sample's ratings as integer arrays),
+    `cells.py` (DR-4, DR-9, DR-11), `bootstrap.py` (DR-5), `estimates.py` (DR-6 to DR-8,
+    DR-10, FR-31), `similarity.py` (DR-14), `contexts.py` (DR-12), `change.py` (DR-13),
+    `metadata.py` (DR-15).
+  - Output: `export.py` (JSON documents), `schemas.py` (pandera), `validate.py` (NFR-51,
+    §4.6 counts), `build.py` (`pipeline build`); `privacy.py` is the privacy gate.
+- `tests/`: pytest. `synthetic.py` builds fake raw files, a small full-grid population and
+  `RatingSet`s; `needs_raw` tests use the real files.
 - `data/raw/` (ignored) holds the OSF downloads; `data/derived/` holds committed aggregates.
 - `site/`: SvelteKit 3 app. `site.config.js` sets the base path and origin; `vite.config.ts`
   holds the SvelteKit config, including the CSP. `scripts/serve-pages.js` serves `build/` like
@@ -51,6 +63,8 @@ uv sync
 uv run pipeline download        # fetch + verify the five OSF files into data/raw/
 uv run pipeline verify          # re-check sizes and MD5s (DR-1)
 uv run pipeline samples         # rebuild the samples; non-zero exit on any mismatch (DR-3)
+uv run pipeline build           # verify, estimate, validate, write data/derived/ (about 15 s)
+uv run pipeline build --out DIR # the same into another folder, e.g. to compare two runs
 uv run pipeline privacy-scan    # scan data/derived/ (DR-9, DR-16)
 uv run pytest                   # needs_raw tests skip when data/raw/ is absent
 uv run ruff check && uv run ruff format --check && uv run mypy
@@ -82,6 +96,14 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
 - Privacy gate: group sizes (`n`, `n_*`, `*_n`, `respondents`, `count`, …) must be null or at
   least 10; 0 fails, so encode "absent" as null. Response counts `c1`–`c6` only on rows with
   n ≥ 10. New entries in `privacy.NOT_RESPONDENT_COUNTS` need a stated reason.
+- `data/derived/` is written only by `uv run pipeline build`; commit it in its own commit. The
+  build date is the date of the last commit that changed `pipeline/`, `pyproject.toml` or
+  `uv.lock`, so after changing any of them rebuild and commit the outputs: a `needs_raw` test
+  checks that a fresh build matches the committed files byte for byte.
+- Respondent-level arrays (`RatingSet`, bootstrap internals) have counts-only reprs. Never print
+  them or put them in assertion messages; tests on them assert on counts and aggregates.
+- Bootstrap streams are seeded per (output, sample, society) from `bootstrap.SEED`; a new
+  resampled quantity gets its own key so existing outputs do not move.
 - Base path `/EtiquetteAtlas` (case-sensitive) comes from `site/site.config.js` or `BASE_PATH`.
   Internal links use `resolve()` from `$app/paths`; off-site links carry `rel="external"`.
 - Ship data, JS and CSS content-hashed (HR-3): import them through Vite, not `static/`.

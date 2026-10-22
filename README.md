@@ -6,26 +6,28 @@ in 90 societies judge 15 everyday behaviors (eating, kissing, using a phone…) 
 [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB) and published at
 **https://nathan98000.github.io/EtiquetteAtlas/**.
 
-Status: milestone M0 (setup and data check). The site is a placeholder; the explorer arrives in
-later milestones. The requirements are in
+Status: milestone M1 (pipeline and privacy gate). The pipeline produces every aggregate the site
+needs, in `data/derived/`; the site is still a placeholder until the explorer arrives in M2. The requirements are in
 [`The Etiquette Atlas Software Requirements Specification.md`](<The Etiquette Atlas Software Requirements Specification.md>).
 
 ## How it works
 
 An offline Python pipeline downloads the GSN files from OSF, checks them against pinned
-checksums, rebuilds the paper's samples and (from M1) computes aggregates. Only aggregates that
+checksums, rebuilds the paper's samples and computes aggregates: per-society scores with
+bootstrap intervals and empirical-Bayes shrinkage, global means and disagreement, similar
+societies, audience effects and change since the early 2000s. Only aggregates that
 pass a privacy gate are committed to `data/derived/`: nothing respondent-level, and nothing that
 describes fewer than 10 respondents. A static SvelteKit site, deployed to GitHub Pages, reads
 those aggregates. There is no server, database or cookie.
 
 ```text
-pipeline/            Python package and `pipeline` CLI: download, verify, samples, privacy scan
+pipeline/            Python package and `pipeline` CLI: download, verify, samples, build, scan
 data/raw/            OSF downloads (git-ignored, never committed)
 data/derived/        committed aggregate outputs
 site/                SvelteKit app (static adapter)
 tests/               pytest suites for the pipeline (site tests live in site/)
 .github/workflows/   ci.yml, deploy.yml, pipeline.yml
-docs/                kickoff notes and manual setup steps (docs/SETUP.md)
+docs/                decisions, method-note drafts, kickoff notes and manual setup steps
 ```
 
 ## Setup
@@ -48,6 +50,7 @@ npx playwright install chromium  # browser for the end-to-end tests (once)
 uv run pipeline download       # fetch the five OSF files into data/raw/ (about 505 MB)
 uv run pipeline verify         # check every file's size and MD5 against pipeline/sources.toml
 uv run pipeline samples        # rebuild the samples and cross-check them; exits non-zero on mismatch
+uv run pipeline build          # verify, estimate, validate and write data/derived/
 uv run pipeline privacy-scan   # scan data/derived/ for forbidden fields and counts below 10
 ```
 
@@ -63,6 +66,20 @@ fail until `pipeline/sources.toml` is reviewed and updated by hand.
 | Paper's sample | 18,656 | 71 |
 | Attention check | 15,599 | 80 |
 | Complete case (cross-check) | 17,288 | 71 |
+
+`build` runs the whole pipeline in about 15 seconds on a laptop, and stops without touching
+`data/derived/` on any failure. In order, it:
+
+1. verifies the files (DR-1) and rebuilds the samples (DR-3);
+2. computes every output for all three samples, with 2,000 bootstrap replicates;
+3. checks the paper's Table 1 and the §4.6 row counts (NFR-51);
+4. validates each table against its schema and runs the privacy scan on a staging folder;
+5. replaces the files and prints their sizes against the NFR-1 budget.
+
+Two runs on the same inputs and code give byte-identical files. The formats are described in
+[`data/derived/README.md`](data/derived/README.md), the method in
+[`docs/method-notes.md`](docs/method-notes.md) and the choices behind it in
+[`docs/decisions.md`](docs/decisions.md). Commit regenerated outputs on their own.
 
 Tests and checks:
 
@@ -92,9 +109,10 @@ elsewhere, change that line or set `BASE_PATH` (and `SITE_ORIGIN`) when building
 
 Pushing to `main` runs `.github/workflows/deploy.yml`. It runs every CI check (`ci.yml`), builds
 the site and publishes it to GitHub Pages. The one-time repository settings are listed in
-[`docs/SETUP.md`](docs/SETUP.md). `pipeline.yml` is a manual workflow: today it downloads,
-verifies and rebuilds the samples; from M1 it will regenerate `data/derived/` and open a pull
-request that changes only that folder.
+[`docs/SETUP.md`](docs/SETUP.md). `pipeline.yml` is a manual workflow: it downloads the OSF
+files, runs `pipeline build` and the raw-data tests, and, if `data/derived/` changed, opens a
+pull request that changes only that folder. GitHub does not run CI on pull requests opened by
+the workflow's token, so close and reopen that pull request to run CI before merging.
 
 ## Changing the quiz items
 

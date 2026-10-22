@@ -43,8 +43,8 @@ FORBIDDEN_FIELDS = frozenset(
 # Counts of things other than respondents; each entry needs a reason.
 NOT_RESPONDENT_COUNTS = frozenset(
     {
-        "n_societies",  # societies contributing to a global estimate (FR-13)
-        "n_cells",  # cells two societies share in the similarity score (DR-14)
+        "n_societies",  # societies contributing to a global estimate (FR-13, DR-12, DR-13)
+        "n_cells",  # cells a similarity score or a society's change averages over (DR-13, DR-14)
     }
 )
 _GROUP_SIZE = re.compile(r"^(n|n\d+|n_.+|.+_n|respondents|.+_respondents|count|.+_count)$")
