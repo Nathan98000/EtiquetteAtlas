@@ -219,6 +219,16 @@ def report_sizes(sizes: dict[str, tuple[int, int]], keys: Sequence[str]) -> None
         print(f"first load, {label}: {value / 1000:,.0f} of {DATA_BUDGET / 1000:,.0f} KB {verdict}")
 
 
+def load(raw_dir: Path) -> duckdb.DuckDBPyConnection:
+    """Load the three rating files and the sample membership flags."""
+    con = raw.connect()
+    raw.load_situations(con, raw_dir)
+    raw.load_contexts(con, raw_dir)
+    raw.load_gelfand(con, raw_dir)
+    samples.add_membership(con)
+    return con
+
+
 def run(
     raw_dir: Path,
     out_dir: Path = paths.DERIVED_DIR,
@@ -231,11 +241,7 @@ def run(
         for source in sources.load_manifest():
             sources.verify(source, raw_dir)  # DR-1
         print("Raw files match their pinned checksums (DR-1)")
-    con = raw.connect()
-    raw.load_situations(con, raw_dir)
-    raw.load_contexts(con, raw_dir)
-    raw.load_gelfand(con, raw_dir)
-    samples.add_membership(con)
+    con = load(raw_dir)
     ref = reference.load_reference()
     found = dict(raw.fetch_rows(con, "SELECT DISTINCT code, country FROM respondents", "codes"))
     problems = ref.check_societies(found, complete=checks)
