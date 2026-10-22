@@ -15,6 +15,7 @@ Conventions:
 import re
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import numpy as np
@@ -70,6 +71,14 @@ def _run(con: duckdb.DuckDBPyConnection, sql: str, context: str) -> None:
 def _scalar_rows(
     con: duckdb.DuckDBPyConnection, sql: str, context: str
 ) -> list[tuple[object, ...]]:
+    try:
+        return con.execute(sql).fetchall()
+    except duckdb.Error as err:
+        raise RawDataError(f"{context}: {type(err).__name__}: {scrub(str(err))}") from None
+
+
+def fetch_rows(con: duckdb.DuckDBPyConnection, sql: str, context: str) -> list[tuple[Any, ...]]:
+    """Run an aggregate query and return its rows, with any error scrubbed (DR-16)."""
     try:
         return con.execute(sql).fetchall()
     except duckdb.Error as err:
