@@ -112,7 +112,7 @@
 	>
 		<thead>
 			<tr>
-				<td class="corner"></td>
+				<th scope="col" class="corner"><span class="visually-hidden">Behavior</span></th>
 				{#each columns as s (s)}
 					<th scope="col"><span class="column">{SITUATION_TEXT[SITUATIONS[s]].label}</span></th>
 				{/each}
