@@ -2,7 +2,8 @@
 
 Decisions taken where the SRS was open or needed interpretation. Code comments and the method
 notes cite them as "decision N". Decisions 1–14 were posed in `docs/m1-kickoff.md`; 15–23 were
-added during M1 planning. All were agreed by the maintainer on 22 October 2026.
+added during M1 planning; 24 onward were agreed in M2 planning (`docs/m2-kickoff.md`). All were
+agreed by the maintainer on 22 October 2026.
 
 | # | Topic | Decision |
 | --- | --- | --- |
@@ -29,3 +30,4 @@ added during M1 planning. All were agreed by the maintainer on 22 October 2026.
 | 21 | Pipeline pull requests | Opened by a separate job with the preinstalled `gh` CLI; no new third-party action. CI must be triggered by closing and reopening the pull request. |
 | 22 | Interval scope | Bootstrap intervals treat the set of societies as fixed. |
 | 23 | Contexts per sample | Context aggregates are produced for each sample, like every other output. |
+| 24 | Notable cells on the centered scale (FR-5, FR-15) | `notable` tests raw values, so under the centered scale it mostly reflects how a society uses the scale. The pipeline also outputs `notable_centered`: the percentile interval of (centered society value − centered global mean) excludes 0, from the same replicates. |

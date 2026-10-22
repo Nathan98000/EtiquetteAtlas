@@ -55,7 +55,8 @@ Vite so they ship content-hashed (HR-3).
   same way.
 - `cells`: `n`, `mean`, `mean_minus`, `mean_plus`, `shrunk`, `shrunk_pm`, `share` (% rating 4–6),
   `status`, `notable` (FR-31: `1` notably looser, `-1` notably stricter, `0` neither; the
-  interval of the society's difference from the global mean excludes 0).
+  interval of the society's difference from the global mean excludes 0) and `notable_centered`
+  (the same test on centered values, for the centered scale; decision 24).
 
 `distributions-<s>.json`: `cells` holds `n`, `sd` and `c1`–`c6`, the number choosing each point
 of the 1–6 scale; `c1`–`c6` add up to `n`.

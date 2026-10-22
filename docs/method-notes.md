@@ -131,6 +131,10 @@ are 95% sure the society's score is below or above the global average.
 
 **Technical.** FR-31: the percentile interval of (society mean − global mean) across replicates
 excludes 0. The global mean includes the society, and both move together in each replicate.
+Under the centered scale the same test runs on centered values: each replicate recomputes the
+offsets, and the interval of (centered society mean − centered global mean) must exclude 0
+(decision 24). A society that rates everything higher is then notable only where it departs
+from its own tendency.
 
 ## Similar societies
 

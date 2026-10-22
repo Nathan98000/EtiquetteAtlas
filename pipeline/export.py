@@ -105,6 +105,7 @@ def cell_estimates(
             "share": percents(stats.share, keep),
             "status": integers(status),
             "notable": integers(sc.notable, keep),
+            "notable_centered": integers(sc.notable_centered, keep),
         },
     }
 

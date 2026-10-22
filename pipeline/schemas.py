@@ -78,10 +78,21 @@ CELLS = pa.DataFrameSchema(
         "share": percent(),
         "status": STATUS,
         "notable": pa.Column(float, pa.Check.isin([-1, 0, 1]), nullable=True, coerce=True),
+        "notable_centered": pa.Column(float, pa.Check.isin([-1, 0, 1]), nullable=True, coerce=True),
     },
     checks=[
         SUPPRESSED,
-        _null_with("n", "mean", "mean_minus", "mean_plus", "shrunk", "shrunk_pm", "share"),
+        _null_with(
+            "n",
+            "mean",
+            "mean_minus",
+            "mean_plus",
+            "shrunk",
+            "shrunk_pm",
+            "share",
+            "notable",
+            "notable_centered",
+        ),
     ],
     strict=True,
 )

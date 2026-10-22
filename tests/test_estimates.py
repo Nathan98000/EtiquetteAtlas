@@ -148,6 +148,18 @@ def test_dr10_centered_values_remove_scale_use() -> None:
     assert np.all(g.sd_between > 0.5)
 
 
+def test_decision24_centered_notable_ignores_scale_use() -> None:
+    # B rates every cell one point higher than A: notable on the raw scale, not once centered.
+    rows = []
+    for c in range(3):
+        for r in range(40):
+            v = 1 + (r + 2 * c) % 4
+            rows += [(0, r, c, v), (1, r, c, v + 1)]
+    _, sc = run(synthetic.rating_set(("A", "B"), 3, rows))
+    assert sc.notable.tolist() == [[-1, -1, -1], [1, 1, 1]]
+    assert sc.notable_centered.tolist() == [[0, 0, 0], [0, 0, 0]]
+
+
 def test_dr16_estimate_reprs_show_shapes_only() -> None:
     g, sc = run(simulated([0.0, 1.0], respondents=10), replicates=10)
     assert repr(g) == "GlobalCells(1 cells)"

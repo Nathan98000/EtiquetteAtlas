@@ -17,7 +17,9 @@ respondents within societies, not the choice of societies.
 - Centering (DR-10): a society's offset is its mean deviation from the global cell means over
   the cells it has (decision 4); centered = estimate − offset. The site subtracts the offsets.
 - Notable cells (FR-31): +1 or −1 when the percentile interval of (society − global mean)
-  excludes 0 above or below.
+  excludes 0 above or below. `notable_centered` applies the same test to centered values
+  (society − its offset − the centered global mean), for the centered scale (FR-5, FR-15;
+  decision 24).
 """
 
 from dataclasses import dataclass
@@ -65,6 +67,7 @@ class SocietyCells:
     shrunk: np.ndarray
     shrunk_half: np.ndarray  # half-width of the empirical-Bayes interval
     notable: np.ndarray  # FR-31: +1 looser, −1 stricter, 0 neither
+    notable_centered: np.ndarray  # the same on the centered scale (decision 24)
     offset: np.ndarray  # DR-10, raw estimates
     offset_shrunk: np.ndarray  # DR-10, shrunken estimates
 
@@ -125,7 +128,11 @@ def estimate(stats: CellStats, reps: Replicates) -> tuple[GlobalCells, SocietyCe
         centered_g = np.nanmean(centered, axis=0)
         centered_sd = np.nanstd(centered, axis=0, ddof=1)
     c_lo, c_hi = _tau_interval(centered_rep, reps.se2_mean, se2_mean)
+    with bootstrap.quiet():
+        centered_rep -= np.nanmean(centered_rep, axis=1)[:, None, :]  # in place: (B, S, C) is big
+    cd_lo, cd_hi = bootstrap.interval(centered_rep)
     del centered_rep
+    notable_centered = np.where(cd_lo > 0, 1, np.where(cd_hi < 0, -1, 0))
 
     global_cells = GlobalCells(
         n_societies=(stats.n > 0).sum(axis=0),
@@ -151,6 +158,7 @@ def estimate(stats: CellStats, reps: Replicates) -> tuple[GlobalCells, SocietyCe
         shrunk=shrunk,
         shrunk_half=shrunk_half,
         notable=notable,
+        notable_centered=notable_centered,
         offset=offset,
         offset_shrunk=offsets(shrunk, g),
     )

@@ -47,6 +47,7 @@ def cells_doc(**overrides: list[object]) -> dict[str, object]:
         "share": [60, 20, None, None],
         "status": [cells.OK, cells.SMALL, cells.TOO_FEW, cells.NOT_ASKED],
         "notable": [1, 0, None, None],
+        "notable_centered": [0, -1, None, None],
     }
     table.update(overrides)
     return {
