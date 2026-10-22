@@ -1,0 +1,41 @@
+name: Pipeline
+
+# Run by hand (§8.4): download and verify the OSF inputs, rebuild the samples and, from M1,
+# regenerate data/derived/ and open a pull request that changes only that folder.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      # Downloaded fresh on every run and never cached or uploaded: in a public repository, pull
+      # request workflows (including from forks) can restore caches made on main (NFR-52).
+      - name: Download the OSF files (DR-1)
+        run: uv run pipeline download
+      - name: Verify checksums (DR-1)
+        run: uv run pipeline verify
+      - name: Rebuild the samples (DR-2, DR-3)
+        run: uv run pipeline samples
+      - name: Raw-data tests
+        run: uv run pytest -m needs_raw
+      # M1: estimate and export the aggregates into data/derived/ (DR-4 to DR-15).
+      - name: Privacy scan (DR-9, DR-16)
+        run: uv run pipeline privacy-scan
+      # M1: open a pull request limited to data/derived/. That step needs `contents: write` and
+      # `pull-requests: write`, plus "Allow GitHub Actions to create and approve pull requests".
+      - name: Open a pull request (stub until M1)
+        run: echo "M1 adds the export step and a pull request that changes data/derived/ only."
