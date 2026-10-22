@@ -56,6 +56,7 @@
 	);
 
 	const summary = $derived(files ? cellSummary(files.global, cell, vs.scale) : data.summary);
+	// Until the data arrives, the summaries are the prerendered All-data ones (FR-87).
 	const swarmSummary = $derived(
 		d && societies.current
 			? societiesSummary(
@@ -63,7 +64,7 @@
 					(code) => societies.current?.get(code),
 					cell
 				)
-			: ''
+			: data.swarmSummary
 	);
 	const behavior = $derived(CELLS[cell].behavior);
 	const { previous, next } = $derived(neighbours(cell));
@@ -125,7 +126,7 @@
 		<ChartFrame
 			id="strip"
 			title="{BEHAVIOR_TEXT[behavior].label} in each situation"
-			summary={files ? stripSummary(files.global, behavior, vs.scale) : ''}
+			summary={files ? stripSummary(files.global, behavior, vs.scale) : data.stripSummary}
 			about={resolve('method/#global')}
 		>
 			{#snippet chart()}
@@ -234,7 +235,7 @@
 			<ChartFrame
 				id="map"
 				title="Where the societies are"
-				summary={d ? regionSummary(d.plotted) : ''}
+				summary={d ? regionSummary(d.plotted) : data.mapSummary}
 				about={resolve('method/#map')}
 			>
 				{#snippet legend()}

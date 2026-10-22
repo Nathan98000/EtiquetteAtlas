@@ -38,7 +38,8 @@
 					{/if}
 				</span>
 				<span class="label">{SITUATION_TEXT[CELLS[index].situation].label}</span>
-				<span class="value num" aria-hidden="true">{c ? score(c.mean) : ''}</span>
+				<!-- A no-break space keeps the line's height before the data arrives. -->
+				<span class="value num" aria-hidden="true">{c ? score(c.mean) : '\u00a0'}</span>
 			</a>
 		</li>
 	{/each}

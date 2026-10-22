@@ -35,18 +35,17 @@
 			{/each}
 		</ul>
 	</div>
-	{#if universal && dependent}
-		<ul class="item rings">
-			<li>
-				<span class="ring universal" aria-hidden="true"></span>
-				Most universal: {universal.headline} ({spread(universal.tau)})
-			</li>
-			<li>
-				<span class="ring dependent" aria-hidden="true"></span>
-				Most culture-dependent: {dependent.headline} ({spread(dependent.tau)})
-			</li>
-		</ul>
-	{/if}
+	<!-- Rendered before the data arrives too, so the matrix below does not shift. -->
+	<ul class="item rings">
+		<li>
+			<span class="ring universal" aria-hidden="true"></span>
+			Most universal: {universal ? `${universal.headline} (${spread(universal.tau)})` : '…'}
+		</li>
+		<li>
+			<span class="ring dependent" aria-hidden="true"></span>
+			Most culture-dependent: {dependent ? `${dependent.headline} (${spread(dependent.tau)})` : '…'}
+		</li>
+	</ul>
 	{#if society}
 		<div class="item">
 			<p class="key">

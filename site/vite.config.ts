@@ -50,6 +50,9 @@ export default defineConfig({
 				}
 			},
 			prerender: { entries: ['*', '/404'] },
+			// Small stylesheets go inline, so first paint waits on fewer requests (NFR-2). Inline
+			// styles are allowed by the CSP; scripts and data stay in hashed files (HR-3).
+			inlineStyleThreshold: 8192,
 			// Deterministic app version in CI; local builds fall back to a timestamp.
 			version: { name: process.env.GITHUB_SHA }
 		})
