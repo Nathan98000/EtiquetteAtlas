@@ -9,7 +9,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - Column-level data notes: `docs/reference/gsn-data-profile.md`. It is local only (git-ignored)
   because it quotes respondent-level values: never commit it or copy values out of it.
 - Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
-  (M2), `docs/m3-kickoff.md` (M3). Manual GitHub and analytics steps: `docs/SETUP.md`.
+  (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4). Manual GitHub and analytics steps:
+  `docs/SETUP.md`.
 - Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
   Method-page drafts: `docs/method-notes.md`. Output formats: `data/derived/README.md`.
 
@@ -61,17 +62,22 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
     component), `derive.ts` (sorts, ranks, summaries), `format.ts` (numbers and phrases),
     `society.ts` (facts and similar societies in words).
   - `src/lib/state/`: `url.ts` (query-string state), `view.svelte.ts` (reading it, `setView`,
-    `withView`, and `societyHref` for fingerprints), `theme.svelte.ts`.
+    `withView`, `societyHref` for fingerprints and `audiencesHref` for the audiences),
+    `theme.svelte.ts`.
   - `src/lib/charts/`: `Grid.svelte`, `BarList.svelte` and `DataTable.svelte` are the shared 15 ×
     10 grid (keyboard, details), phone list and table; the matrix (`Matrix*`) and the fingerprint
-    (`Fingerprint*`) wrap them. Also beeswarm, map (lazy), strip, dumbbell (lazy, compare mode),
+    (`Fingerprint*`) wrap them. `Slopegraph.svelte` draws the audiences' focused chart and small
+    panels (`audience-model.ts`, `AudienceDetails.svelte`); `SeriesKey.svelte` tells lines apart
+    by shape and line style. Also beeswarm, map (lazy), strip, dumbbell (lazy, compare mode),
     legends and tables; `*-model.ts` hold their pure logic; `colors.ts` the palettes.
   - `src/lib/components/`: header, control bar, society picker, facts panel, similar-societies
-    list and other shell parts.
+    list, the audiences' filters, and shared controls (`Segmented`, `Toggle`, `SortSelect`,
+    `StepLinks`).
   - `src/lib/server/derived.ts`: All-data aggregates for build-time summaries only.
   - Routes: `/` (intro), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
     `/societies` (index) and `/societies/[society]` (90 fingerprints, with `?compare=`),
-    `/method` (draft), placeholders for `/audiences`, `/change`, `/story`.
+    `/audiences` (15 small multiples) and `/audiences/[behavior]` (15 slopegraphs), `/method`
+    (draft), placeholders for `/change`, `/story`.
 - `.github/workflows/`: `ci.yml` (pull requests; reused by deploy), `deploy.yml` (push to `main`
   → GitHub Pages), `pipeline.yml` (manual).
 
@@ -142,7 +148,9 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   links with `withView(resolve('path/'), view.state, KEYS)`. Use the path form of `resolve` with a
   trailing slash, as the routes are prerendered with one. On `/societies/[society]` the society is
   the path, not the query (decision 44): link to a fingerprint with `societyHref(code, state)`,
-  and `setView({ society })` there moves between fingerprints.
+  and `setView({ society })` there moves between fingerprints. The audiences' `scope`, `actor`
+  and `split` follow the reader within that module only (decision 57): link there with
+  `audiencesHref(behavior, state)`.
 - Colours come from `charts/colors.ts` and the tokens in `app.css`: pass `scoreStyle()` or
   `regionStyle()` and the `score` or `region` class, which pick the theme's colour. Check new
   colours for 3:1 (marks) and 4.5:1 (text) in both themes; `colors.spec.ts` does so for the

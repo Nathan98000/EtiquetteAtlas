@@ -195,19 +195,43 @@ and Ethiopia have too few publishable cells under All data.
 
 ## Who's watching? Audiences and actor gender
 
+On the method page as `#audiences` since M4 (decisions 57 to 65).
+
 **For readers.** A second part of the survey asked about the same 15 behaviors without a
-situation, but with an audience: when no one else is around, in front of colleagues or
-classmates, or in front of management or professors. It also asked whether each behavior is
-appropriate for a woman or for a man to do; that is about who does it, not who watches. Answers
-are shown for each society and for all societies together, and for women and men respondents
-for all societies together only: within one society those groups are too small.
+situation, but with an audience: when alone, in front of colleagues or classmates, or in front of
+management or professors. It also asked how appropriate each behavior is when done by a woman and
+when done by a man. That is about who does it, not who watches, so the charts draw it apart from
+the audiences. They show how respondents judged each behavior in front of each audience, not why,
+and not how anyone feels when watched.
+
+Each value is the average answer of a society's respondents, as given, with its 95% interval;
+"all societies" is the average of the society averages. The audience effect is the score when
+alone minus the score in front of management or professors, the two ends of the audiences. It
+keeps its sign, so a behavior judged more appropriate in front of management shows as higher, not
+as a smaller drop. Talking is judged most appropriate in front of colleagues or classmates, so its
+range across the three audiences is a little larger than this difference. A difference has no
+interval of its own: both scores come from the same respondents, so their intervals cannot simply
+be combined, and a small difference in one society may be noise.
+
+These charts always show raw scores. Centering subtracts each society's average over the 150
+situations, which these questions are not part of, and the audience effect compares a society
+with itself, so the way a society's respondents use the scale mostly cancels out.
+
+Women and men respondents are shown for all societies together only: within one society, a
+behavior's answers from women or from men in front of one audience rest on about 11 respondents
+in the median society. Respondents who answered "other" or preferred not to say are left out of
+this split, though they count everywhere else.
 
 **Technical.** DR-12. Respondents and their samples come from the main file (decision 6), so
 21 respondents found only in the contexts file are in no sample. Global values are unweighted
 means of society means. The respondent-gender split shows women and men; "Other / prefer not to
 answer" is a single mixed category and is left out of the split, though it counts everywhere
 else (decision 18). Intervals resample respondents within societies; the gender splits draw the
-same respondents as the whole sample.
+same respondents as the whole sample. The effect (decision 58) needs both ends with 10 or more
+respondents: under All data, 1,306 society–behaviors, 8 of them reversed, from −1.64 to +4.16;
+for all societies it runs from 0.77 (talking) to 2.97 (music on headphones). It has no bootstrap
+interval (decision 60); one would need a new resampled quantity in the pipeline, with its own
+seed key.
 
 ## Change since the early 2000s
 

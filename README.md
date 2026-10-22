@@ -6,10 +6,11 @@ in 90 societies judge 15 everyday behaviors (eating, kissing, using a phone…) 
 [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB) and published at
 **https://nathan98000.github.io/EtiquetteAtlas/**.
 
-Status: milestone M3 (society fingerprints, live but not announced). The etiquette matrix, the
-drill-down for each of the 150 behavior–situation pairs and a fingerprint for each of the 90
-societies work, with the society picker, sample and scale toggles, compare mode and permalinks;
-the other modules arrive from M4 on. The requirements are in
+Status: milestone M4 (who's watching?, live but not announced). The etiquette matrix, the
+drill-down for each of the 150 behavior–situation pairs, a fingerprint for each of the 90
+societies and the audiences module (each behavior alone, in front of colleagues or classmates
+and in front of management or professors) work, with the society picker, sample and scale
+toggles, compare mode and permalinks; the change module, quiz and story arrive from M5 on. The requirements are in
 [`The Etiquette Atlas Software Requirements Specification.md`](<The Etiquette Atlas Software Requirements Specification.md>).
 
 ## How it works
@@ -102,7 +103,7 @@ npm run check:build            # checks the build and reports first-load sizes a
 npm run preview                # serves build/ like GitHub Pages at http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
 npm run test:e2e               # builds, serves and runs the Playwright tests, axe included
-npm run lhci                   # Lighthouse CI on seven routes under the mobile profile
+npm run lhci                   # Lighthouse CI on nine routes under the mobile profile
 ```
 
 `npm run preview`, `npm run test:e2e` and `npm run lhci` use port 4173; set `PORT` to use
@@ -117,8 +118,10 @@ elsewhere, change that line or set `BASE_PATH` (and `SITE_ORIGIN`) when building
   640 px), `/explore/[behavior]/[situation]` the drill-down for each of the 150 cells,
   `/societies` an index of the 90 societies and `/societies/[society]` each society's
   fingerprint (its difference from the global average in every cell, its most similar
-  societies, its facts and a comparison with any other society), and `/method` a draft method
-  page. `/audiences`, `/change` and `/story` are placeholders until their milestones. Every route is prerendered to its own `index.html` with
+  societies, its facts and a comparison with any other society), `/audiences` small multiples
+  of the 15 behaviors by audience and `/audiences/[behavior]` each behavior's slopegraph, and
+  `/method` a draft method page. `/change` and `/story` are placeholders until their
+  milestones. Every route is prerendered to its own `index.html` with
   its title, description, canonical URL and a one-sentence summary built from All data at build
   time, so it reads without JavaScript.
 - **Data** (`site/src/lib/data/`): each file in `data/derived/` is imported with `?url` in
@@ -126,15 +129,16 @@ elsewhere, change that line or set `BASE_PATH` (and `SITE_ORIGIN`) when building
   the matrix loads `societies.json` and `global-<sample>.json`, plus `cells-<sample>.json` once a
   society is selected; the drill-down loads `cells-<sample>.json`, and the map's code and
   outlines when the map nears the screen; a fingerprint loads `global-`, `cells-` and
-  `similarity-<sample>.json`, and the dumbbell's code only in compare mode. Each file is decoded once (`model.ts` checks its shape)
+  `similarity-<sample>.json`, and the dumbbell's code only in compare mode; the audiences routes
+  load `contexts-<sample>.json` and nothing else. Each file is decoded once (`model.ts` checks its shape)
   and kept in memory; a failed load shows a message with a retry.
-- **State**: the society, sample, scale, sort, comparison and the drill-down's toggles live in
-  the query string (`src/lib/state/`), except on a fingerprint, whose society is its path
-  (`/societies/chl/`). Every control navigates, so back and forward step through views and any
+- **State**: the society, sample, scale, sort, comparison, the drill-down's toggles and the
+  audiences' filters live in the query string (`src/lib/state/`), except on a fingerprint, whose
+  society is its path (`/societies/chl/`). Every control navigates, so back and forward step through views and any
   URL can be shared.
 - **Charts** (`site/src/lib/charts/`): Svelte components drawing HTML and SVG, with D3 for
   scales and the map projection. The matrix and the fingerprint share one grid component, phone
-  list and table. Each chart has a one-sentence summary, an "About this chart" link and a "Show
+  list and table; the audiences' panels and focused chart share one slopegraph. Each chart has a one-sentence summary, an "About this chart" link and a "Show
   as table" view.
 
 ### Adding a route
