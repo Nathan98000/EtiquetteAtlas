@@ -2,7 +2,10 @@ import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { page } from '$app/state';
 import type { ResolvedPathname } from '$app/types';
+import { slug, type Behavior } from '../data/grid';
 import {
+	AUDIENCE_KEYS,
+	AUDIENCES_KEYS,
 	DEFAULT_VIEW,
 	FINGERPRINT_KEYS,
 	FINGERPRINT_ROUTE,
@@ -48,6 +51,16 @@ export function societyPath(code: string | null): ResolvedPathname {
 /** A link to a society's fingerprint that keeps the sample and scale (FR-32, decision 44). */
 export function societyHref(code: string | null, state: ViewState): ResolvedPathname {
 	return withView(societyPath(code), state, SOCIETIES_KEYS);
+}
+
+/**
+ * A behavior's audiences, or the small multiples without one, keeping the audiences' filters
+ * (decision 57). The index's sort stays on the index.
+ */
+export function audiencesHref(behavior: Behavior | null, state: ViewState): ResolvedPathname {
+	return behavior
+		? withView(resolve(`audiences/${slug(behavior)}/`), state, AUDIENCE_KEYS)
+		: withView(resolve('audiences/'), state, AUDIENCES_KEYS);
 }
 
 /** A fingerprint's own URL for a view, with its sort and comparison (FR-33). */

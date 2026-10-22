@@ -10,6 +10,7 @@ import {
 	audienceRows,
 	audiencesSummary,
 	behaviorSummary,
+	columnLabel,
 	effectShort,
 	effectText,
 	multiplesTable,
@@ -252,6 +253,18 @@ describe('NFR-11: tables and accessible names', () => {
 		expect(panelLabel(audienceRows(file, { scope: GAMMA, split: false })[3], false)).toBe(
 			'Kiss on the mouth: not asked'
 		);
+	});
+
+	it('names a column of the focused slopegraph by every line’s value', () => {
+		const row = audienceRows(file, { scope: GAMMA, split: false })[0];
+		expect(columnLabel(row, 0)).toBe(
+			'Alone: respondents in Gamma +1.5 (95% interval +1.3 to +1.8; 50 respondents), all ' +
+				'societies +1.0 (95% interval +0.9 to +1.1; 150 respondents in 3 societies)'
+		);
+		expect(columnLabel(row, 2)).toMatch(
+			/^In front of management or professors: respondents in Gamma too few responses, /
+		);
+		expect(row.series.map((s) => s.short)).toEqual(['All societies', 'Gamma']);
 	});
 
 	it('names who a value rests on', () => {

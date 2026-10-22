@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+	AUDIENCE_KEYS,
+	AUDIENCE_ROUTE,
+	AUDIENCES_KEYS,
+	AUDIENCES_ROUTE,
 	CELL_KEYS,
 	DEFAULT_VIEW,
 	FINGERPRINT_KEYS,
@@ -29,14 +33,19 @@ describe('FR-80: view state round-trips through the URL', () => {
 			scale: 'centered',
 			sort: 'disagreement',
 			compare: 'JPN',
+			scope: 'global',
+			actor: true,
+			split: true,
 			estimate: 'raw',
 			uncertainty: true
 		};
-		const all = [...new Set([...MATRIX_KEYS, ...CELL_KEYS, ...FINGERPRINT_KEYS])];
+		const all = [
+			...new Set([...MATRIX_KEYS, ...CELL_KEYS, ...FINGERPRINT_KEYS, ...AUDIENCES_KEYS])
+		];
 		const search = viewSearch(state, all);
 		expect(search).toBe(
-			'?society=chl&sample=paper&scale=centered&sort=disagreement&compare=jpn&estimate=raw' +
-				'&uncertainty=on'
+			'?society=chl&sample=paper&scale=centered&sort=disagreement&compare=jpn&scope=global' +
+				'&actor=on&split=gender&estimate=raw&uncertainty=on'
 		);
 		expect(parse(search)).toEqual(state);
 	});
@@ -65,6 +74,30 @@ describe('FR-80: view state round-trips through the URL', () => {
 		);
 	});
 
+	it('decision 57: the audiences routes keep their filters, and only the index its sort', () => {
+		expect(keysFor(AUDIENCES_ROUTE)).toBe(AUDIENCES_KEYS);
+		expect(keysFor(AUDIENCE_ROUTE)).toBe(AUDIENCE_KEYS);
+		const state: ViewState = { ...DEFAULT_VIEW, sort: 'effect', actor: true, split: true };
+		expect(viewSearch(state, AUDIENCES_KEYS)).toBe('?sort=effect&actor=on&split=gender');
+		expect(viewSearch(state, AUDIENCE_KEYS)).toBe('?actor=on&split=gender');
+		expect(viewSearch(state, GLOBAL_KEYS)).toBe('');
+		expect(parseView(new URLSearchParams('sort=effect'), AUDIENCES_ROUTE).sort).toBe('effect');
+		expect(parseView(new URLSearchParams('sort=effect'), '/explore').sort).toBe('paper');
+		expect(parseView(new URLSearchParams('sort=mean'), AUDIENCES_ROUTE).sort).toBe('paper');
+	});
+
+	it('decision 57: scope and split appear only where they change the view', () => {
+		const global: ViewState = { ...DEFAULT_VIEW, scope: 'global', split: true };
+		// No society: "all societies" is the only view, and the split applies.
+		expect(viewSearch(global, AUDIENCE_KEYS)).toBe('?split=gender');
+		// A society in view: no split (DR-12).
+		const chile: ViewState = { ...DEFAULT_VIEW, society: 'CHL', split: true };
+		expect(viewSearch(chile, AUDIENCE_KEYS)).toBe('?society=chl');
+		expect(viewSearch({ ...chile, scope: 'global' }, AUDIENCE_KEYS)).toBe(
+			'?society=chl&scope=global&split=gender'
+		);
+	});
+
 	it('decision 45: only a fingerprint sorts by its own differences', () => {
 		expect(parseView(new URLSearchParams('sort=difference'), FINGERPRINT_ROUTE).sort).toBe(
 			'difference'
@@ -84,6 +117,9 @@ describe('§6.1: unknown or invalid values fall back to the defaults without an 
 		'society=chile',
 		'society=c1l',
 		'compare=japan',
+		'scope=chile',
+		'actor=yes',
+		'split=age',
 		'colour=blue'
 	])('%s', (search) => {
 		expect(parse(search)).toEqual(DEFAULT_VIEW);

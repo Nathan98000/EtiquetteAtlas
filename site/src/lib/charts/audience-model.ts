@@ -37,6 +37,8 @@ export interface Series {
 	kind: SeriesKind;
 	/** "Respondents in Chile", "All societies", "Women respondents", "Men respondents". */
 	label: string;
+	/** For a line's end: "Chile", "All societies", "Women", "Men". */
+	short: string;
 	/** One value per context, in CONTEXTS order: three audiences, then the actor's gender. */
 	values: ContextValue[];
 }
@@ -71,6 +73,7 @@ export const SPLIT_LABEL: Record<RespondentGender, string> = {
 	woman: 'Women respondents',
 	man: 'Men respondents'
 };
+const SPLIT_SHORT: Record<RespondentGender, string> = { woman: 'Women', man: 'Men' };
 
 const lower = (text: string) => text[0].toLowerCase() + text.slice(1);
 const capital = (text: string) => text[0].toUpperCase() + text.slice(1);
@@ -131,6 +134,7 @@ export function behaviorAudiences(
 	const global: Series = {
 		kind: view.scope.kind === 'society' ? 'reference' : 'main',
 		label: GLOBAL_LABEL,
+		short: GLOBAL_LABEL,
 		values: values((k) => file.global(behavior, k))
 	};
 	let main = global;
@@ -140,6 +144,7 @@ export function behaviorAudiences(
 		main = {
 			kind: 'main',
 			label: societyLabel(code, name),
+			short: capital(place(code, name)),
 			values: values((k) => file.society(index, behavior, k))
 		};
 		series = [global, main];
@@ -147,6 +152,7 @@ export function behaviorAudiences(
 		series = (['woman', 'man'] as const).map((gender) => ({
 			kind: gender === 'woman' ? 'women' : 'men',
 			label: SPLIT_LABEL[gender],
+			short: SPLIT_SHORT[gender],
 			values: values((k) => file.byGender(gender, behavior, k))
 		}));
 	}
@@ -424,6 +430,22 @@ export function multiplesTable(
 			};
 		});
 	});
+}
+
+/**
+ * A column's accessible name on the focused slopegraph: the context, then each line's value with
+ * its interval and respondents, front line first.
+ */
+export function columnLabel(row: BehaviorAudiences, context: number): string {
+	const lines = [...row.series].reverse().map((s) => {
+		const v = s.values[context];
+		if (!v.estimate) return `${lower(s.label)} ${missingText(v.status)}`;
+		return (
+			`${lower(s.label)} ${score(v.estimate.value)} (95% interval ${score(v.estimate.lo)} to ` +
+			`${score(v.estimate.hi)}; ${respondentsText(v)})`
+		);
+	});
+	return `${CONTEXT_TEXT[CONTEXTS[context]].label}: ${lines.join(', ')}`;
 }
 
 /** A panel's accessible name: the behavior, every line's values and the effect. */
