@@ -180,12 +180,12 @@ interface ContextText {
 	label: string;
 	/** For narrow panels and keys: "Colleagues". */
 	short: string;
-	/** Inside a sentence: "judged it very appropriate in front of colleagues or classmates". */
+	/** Inside a sentence: "judged it very appropriate when alone". */
 	phrase: string;
 }
 
 export const CONTEXT_TEXT: Record<Context, ContextText> = {
-	alone: { label: 'Alone', short: 'Alone', phrase: 'alone' },
+	alone: { label: 'Alone', short: 'Alone', phrase: 'when alone' },
 	'colleagues/classmates': {
 		label: 'In front of colleagues or classmates',
 		short: 'Colleagues',

@@ -28,6 +28,11 @@ export type EstimateKind = 'shrunk' | 'raw';
 export const Status = { Ok: 0, Small: 1, TooFew: 2, NotAsked: 3 } as const;
 export type StatusCode = (typeof Status)[keyof typeof Status];
 
+/** Why nothing is shown (FR-27, decision 8): "not asked" or "too few responses". */
+export function missingText(status: StatusCode): string {
+	return status === Status.NotAsked ? 'not asked' : 'too few responses';
+}
+
 export const REGIONS = ['Africa', 'Asia', 'Latin America', 'West'] as const;
 export type Region = (typeof REGIONS)[number];
 

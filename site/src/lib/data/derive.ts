@@ -17,17 +17,20 @@ import {
 import { ordinal, percent, place, responseLabel, score, spread } from './format';
 import type { GlobalCells, Scale, Society, SocietyCell } from './model';
 
-export type SortKey = 'paper' | 'mean' | 'disagreement' | 'name' | 'difference';
+export type SortKey = 'paper' | 'mean' | 'disagreement' | 'name' | 'difference' | 'effect';
 /** The matrix's orders (FR-12). */
 export const SORT_KEYS: readonly SortKey[] = ['paper', 'mean', 'disagreement', 'name'];
 /** A fingerprint adds the society's own differences (decision 45). */
 export const FINGERPRINT_SORT_KEYS: readonly SortKey[] = [...SORT_KEYS, 'difference'];
+/** The audiences' small multiples (FR-41): paper order, the audience effect, or by name. */
+export const AUDIENCE_SORT_KEYS: readonly SortKey[] = ['paper', 'effect', 'name'];
 export const SORT_LABEL: Record<SortKey, string> = {
 	paper: 'Paper order',
 	mean: 'Most appropriate first',
 	disagreement: 'Most disagreement first',
 	name: 'Name (A–Z)',
-	difference: 'Largest difference first'
+	difference: 'Largest difference first',
+	effect: 'Largest audience effect first'
 };
 
 /** Data values have two decimals; comparing in hundredths keeps float noise out of ties. */
@@ -66,9 +69,11 @@ export function matrixOrder(
 			? cents(mean(cells.map((c) => global.mean(c, scale))))
 			: cents(mean(cells.map((c) => global.tau(c, scale))));
 	switch (sort) {
-		// "difference" needs a society: the fingerprint orders it (fingerprint-model.ts).
+		// "difference" needs a society: the fingerprint orders it (fingerprint-model.ts). "effect"
+		// orders behaviors only (audience-model.ts).
 		case 'paper':
 		case 'difference':
+		case 'effect':
 			return {
 				rows: orderBy(BEHAVIORS.length, () => 0, false),
 				columns: orderBy(width, () => 0, false)
@@ -217,10 +222,13 @@ export function stripSummary(global: GlobalCells, behavior: Behavior, scale: Sca
 	);
 }
 
-/** FR-26: the previous and next cells in paper order, wrapping around (decision 39). */
-export function neighbours(cell: number): { previous: number; next: number } {
+/**
+ * FR-26: the previous and next cells in paper order, wrapping around (decision 39); with a count,
+ * the same for another list in paper order, such as the 15 behaviors.
+ */
+export function neighbours(index: number, count = CELL_COUNT): { previous: number; next: number } {
 	return {
-		previous: (cell + CELL_COUNT - 1) % CELL_COUNT,
-		next: (cell + 1) % CELL_COUNT
+		previous: (index + count - 1) % count,
+		next: (index + 1) % count
 	};
 }

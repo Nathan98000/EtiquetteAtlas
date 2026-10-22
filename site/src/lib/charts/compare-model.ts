@@ -7,7 +7,7 @@ import { CELLS, headline, phrase, type Cell } from '../data/grid';
 import { cents, orderBy } from '../data/derive';
 import { score } from '../data/format';
 import {
-	Status,
+	missingText,
 	type Estimate,
 	type GlobalCells,
 	type Scale,
@@ -35,8 +35,6 @@ export interface Comparison {
 	unmatched: Unmatched[];
 }
 
-const lack = (status: number) => (status === Status.NotAsked ? 'not asked' : 'too few responses');
-
 /** `a` and `b` are rows in the sample's cells file; `names` say who lacks a pair. */
 export function comparison(
 	global: GlobalCells,
@@ -63,8 +61,8 @@ export function comparison(
 			});
 		} else {
 			const reasons = [
-				ea ? null : `${names[0]}: ${lack(cells.status(a, c))}`,
-				eb ? null : `${names[1]}: ${lack(cells.status(b, c))}`
+				ea ? null : `${names[0]}: ${missingText(cells.status(a, c))}`,
+				eb ? null : `${names[1]}: ${missingText(cells.status(b, c))}`
 			].filter(Boolean);
 			unmatched.push({ ...cell, headline: headline(cell), reason: reasons.join('; ') });
 		}
