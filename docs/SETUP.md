@@ -43,8 +43,11 @@ other third party (NFR-31, NFR-32).
 
 ## Later
 
-- [ ] **Before M1's first pipeline pull request:** under *Settings → Actions → General → Workflow
+- [ ] **Before the first pipeline pull request:** under *Settings → Actions → General → Workflow
   permissions*, tick *Allow GitHub Actions to create and approve pull requests*, so
-  `pipeline.yml` can open a pull request that updates `data/derived/`.
+  `pipeline.yml` can open a pull request that updates `data/derived/`. Leave the default
+  workflow permissions read-only: only that workflow's `pull-request` job asks for write access.
+  GitHub does not run CI on pull requests opened by `GITHUB_TOKEN`, so close and reopen each
+  pipeline pull request to run `ci.yml` before merging (merging runs it again before deploying).
 - [ ] **Optional:** a branch rule on `main` requiring the CI checks. Pushes to `main` already run
   them before any deploy, so this matters only if collaborators join.

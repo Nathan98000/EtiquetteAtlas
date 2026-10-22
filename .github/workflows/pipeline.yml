@@ -1,7 +1,7 @@
 name: Pipeline
 
-# Run by hand (§8.4): download and verify the OSF inputs, rebuild the samples and, from M1,
-# regenerate data/derived/ and open a pull request that changes only that folder.
+# Run by hand (§8.4): download and verify the OSF inputs, rebuild the samples, regenerate
+# data/derived/ and, if anything changed, open a pull request that changes only that folder.
 on:
   workflow_dispatch:
 
@@ -13,11 +13,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  pipeline:
+  build:
+    name: Build data/derived
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The manifest's build date is the date of the last commit that changed the pipeline.
+          fetch-depth: 0
+          persist-credentials: false
       # setup-uv publishes no moving major tags after v7, so it is pinned by commit.
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
@@ -27,16 +34,79 @@ jobs:
       # request workflows (including from forks) can restore caches made on main (NFR-52).
       - name: Download the OSF files (DR-1)
         run: uv run pipeline download
-      - name: Verify checksums (DR-1)
-        run: uv run pipeline verify
-      - name: Rebuild the samples (DR-2, DR-3)
-        run: uv run pipeline samples
+      # Verifies the files (DR-1), rebuilds the samples (DR-3), estimates, checks the published
+      # values (NFR-51), runs the privacy scan on a staging folder, then writes data/derived/.
+      - name: Build data/derived (§4.6)
+        run: uv run pipeline build
       - name: Raw-data tests
         run: uv run pytest -m needs_raw
-      # M1: estimate and export the aggregates into data/derived/ (DR-4 to DR-15).
       - name: Privacy scan (DR-9, DR-16)
         run: uv run pipeline privacy-scan
-      # M1: open a pull request limited to data/derived/. That step needs `contents: write` and
-      # `pull-requests: write`, plus "Allow GitHub Actions to create and approve pull requests".
-      - name: Open a pull request (stub until M1)
-        run: echo "M1 adds the export step and a pull request that changes data/derived/ only."
+      - name: Check that only data/derived changed
+        id: diff
+        run: |
+          outside="$(git status --porcelain --untracked-files=all -- . ':(exclude)data/derived')"
+          if [ -n "$outside" ]; then
+            echo "::error::the build changed files outside data/derived/"
+            exit 1
+          fi
+          if [ -z "$(git status --porcelain --untracked-files=all -- data/derived)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data/derived is already up to date."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git status --short -- data/derived
+          fi
+      # Aggregates only: the folder has just passed the privacy scan.
+      - name: Keep the new outputs for the next job
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: derived
+          path: data/derived/
+          retention-days: 7
+          if-no-files-found: error
+
+  # A separate job holds the write token, so no project code or dependency runs with it.
+  # Needs "Allow GitHub Actions to create and approve pull requests" (docs/SETUP.md). Pull
+  # requests opened with GITHUB_TOKEN do not trigger CI; close and reopen it to run ci.yml.
+  pull-request:
+    name: Open a pull request
+    needs: build
+    if: needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Replace data/derived with the new outputs
+        run: find data/derived -type f -name '*.json' -delete
+      - uses: actions/download-artifact@v8
+        with:
+          name: derived
+          path: data/derived/
+      - name: Commit, push and open the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -n "$(git status --porcelain -- . ':(exclude)data/derived')" ]; then
+            echo "::error::refusing to open a pull request that changes files outside data/derived/"
+            exit 1
+          fi
+          branch="pipeline/derived-${GITHUB_RUN_ID}"
+          git switch -c "$branch"
+          git add -A -- data/derived
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Rebuild data/derived (pipeline run ${GITHUB_RUN_ID})"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Rebuild data/derived (pipeline run ${GITHUB_RUN_ID})" \
+            --body "Regenerated by the Pipeline workflow: ${RUN_URL}
+
+          Changes only \`data/derived/\`. The build verified the OSF checksums (DR-1), reproduced the samples (DR-3) and the published values (NFR-51), and passed the privacy scan (DR-9, DR-16).
+
+          GitHub does not run CI on pull requests opened by GITHUB_TOKEN: close and reopen this pull request to run \`ci.yml\` before merging."
