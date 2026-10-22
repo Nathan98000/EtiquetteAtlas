@@ -16,6 +16,7 @@
 	import DataTable, { type Column } from '#lib/charts/DataTable.svelte';
 	import SeriesKey, { type KeyItem } from '#lib/charts/SeriesKey.svelte';
 	import Slopegraph from '#lib/charts/Slopegraph.svelte';
+	import AudienceCredit from '#lib/components/AudienceCredit.svelte';
 	import AudienceFilters from '#lib/components/AudienceFilters.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
@@ -167,6 +168,8 @@
 			{/if}
 		{/snippet}
 	</ChartFrame>
+
+	<AudienceCredit />
 </div>
 
 <style>

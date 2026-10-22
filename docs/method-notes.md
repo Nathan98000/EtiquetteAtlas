@@ -195,7 +195,8 @@ and Ethiopia have too few publishable cells under All data.
 
 ## Who's watching? Audiences and actor gender
 
-On the method page as `#audiences` since M4 (decisions 57 to 65).
+On the method page as `#audiences` since M4 (decisions 57 to 66), with the credit for the 2026
+*American Sociological Review* analysis of these audience effects (FR-43).
 
 **For readers.** A second part of the survey asked about the same 15 behaviors without a
 situation, but with an audience: when alone, in front of colleagues or classmates, or in front of

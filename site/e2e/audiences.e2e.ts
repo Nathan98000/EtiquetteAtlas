@@ -348,6 +348,20 @@ test('FR-83, NFR-60: audiences routes have their own title, description and cano
 	expect(sitemap).toContain('/EtiquetteAtlas/audiences/</loc>');
 });
 
+test('FR-43: the audiences routes and the method page credit the 2026 analysis of audience effects', async ({
+	request
+}) => {
+	for (const path of ['audiences/', 'audiences/usemphone/', 'audiences/kiss/', 'method/']) {
+		const html = await (await request.get(url(path))).text();
+		expect(html).toContain(
+			'How norms depend on the presence and status of observers: the relational contingency of ' +
+				'everyday behaviors in 90 societies'
+		);
+		expect(html).toContain('<cite>American Sociological Review</cite>');
+		expect(html).toContain('href="https://doi.org/10.1177/00031224261464586" rel="external"');
+	}
+});
+
 test.describe('FR-87: without JavaScript', () => {
 	test.use({ javaScriptEnabled: false });
 

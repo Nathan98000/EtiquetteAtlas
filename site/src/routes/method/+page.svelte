@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo.svelte';
-	import { attribution } from '#lib/attribution.ts';
+	import { attribution, audienceCredit } from '#lib/attribution.ts';
 </script>
 
 <!-- FR-7 in M2: a draft method page with anchored sections that each "About this chart" link
@@ -251,6 +251,14 @@
 			behavior's answers from women or from men in front of one audience rest on about 11
 			respondents in the median society. Respondents who answered "other" or preferred not to say
 			are left out of this split, though they count everywhere else.
+		</p>
+		<!-- FR-43, decision 66. -->
+		<p>
+			These audience effects were analysed by {audienceCredit.authors} ({audienceCredit.year}).
+			<a href={audienceCredit.url} rel="external">{audienceCredit.title}</a>.
+			<cite>{audienceCredit.journal}</cite>
+			{audienceCredit.volume}. The atlas shows its own aggregates of the GSN data, which can differ
+			from the paper's estimates.
 		</p>
 	</section>
 
