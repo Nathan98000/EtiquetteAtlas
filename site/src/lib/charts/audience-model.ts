@@ -58,7 +58,7 @@ export interface BehaviorAudiences {
 	behavior: number;
 	/** The view's own values, which the effect, order and sort use even when split on screen. */
 	main: Series;
-	/** The lines drawn, back to front. */
+	/** The lines drawn, back to front (readingOrder lists them for text). */
 	series: Series[];
 	/** Alone minus management or professors (FR-41); null when either is missing. */
 	effect: number | null;
@@ -164,6 +164,13 @@ export function behaviorAudiences(
 		outOfOrder: outOfOrder(main.values),
 		notAsked: AUDIENCES.every((k) => main.values[k].status === Status.NotAsked)
 	};
+}
+
+const READING: SeriesKind[] = ['main', 'women', 'men', 'reference'];
+
+/** Lines in reading order for keys, text and tables: the view's own first, women before men. */
+export function readingOrder(series: readonly Series[]): Series[] {
+	return [...series].sort((a, b) => READING.indexOf(a.kind) - READING.indexOf(b.kind));
 }
 
 /** All 15 behaviors in paper order (FR-41). */
@@ -335,7 +342,7 @@ const valueList = (series: Series, contexts: readonly number[]) =>
  * and with the actor's gender, each line's values done by a woman and by a man.
  */
 export function slopeSummary(row: BehaviorAudiences, actor: boolean): string {
-	const lines = [...row.series].reverse();
+	const lines = readingOrder(row.series);
 	const audiences = lines
 		.map((s) => `${lower(s.label)} ${valueList(s, AUDIENCES).join(', ')}`)
 		.join('; ');
@@ -380,7 +387,7 @@ export interface SlopeTableRow {
 /** NFR-11: the focused slopegraph as table rows, one per line and context. */
 export function slopeTable(row: BehaviorAudiences, actor: boolean): SlopeTableRow[] {
 	const contexts = actor ? [...AUDIENCES, ...ACTORS] : [...AUDIENCES];
-	return [...row.series].reverse().flatMap((s) =>
+	return readingOrder(row.series).flatMap((s) =>
 		contexts.map((k) => {
 			const v = s.values[k];
 			return {
@@ -413,7 +420,7 @@ export function multiplesTable(
 ): MultipleTableRow[] {
 	return order.flatMap((i) => {
 		const row = rows[i];
-		return [...row.series].reverse().map((s) => {
+		return readingOrder(row.series).map((s) => {
 			const effect = effectOf(s.values);
 			const gap = actorGap(s.values);
 			return {
@@ -434,10 +441,10 @@ export function multiplesTable(
 
 /**
  * A column's accessible name on the focused slopegraph: the context, then each line's value with
- * its interval and respondents, front line first.
+ * its interval and respondents, in reading order.
  */
 export function columnLabel(row: BehaviorAudiences, context: number): string {
-	const lines = [...row.series].reverse().map((s) => {
+	const lines = readingOrder(row.series).map((s) => {
 		const v = s.values[context];
 		if (!v.estimate) return `${lower(s.label)} ${missingText(v.status)}`;
 		return (
@@ -453,13 +460,11 @@ export function panelLabel(row: BehaviorAudiences, actor: boolean): string {
 	const name = BEHAVIOR_TEXT[BEHAVIORS[row.behavior]].label;
 	if (row.notAsked) return `${name}: not asked`;
 	const contexts = actor ? [...AUDIENCES, ...ACTORS] : [...AUDIENCES];
-	const lines = [...row.series]
-		.reverse()
-		.map(
-			(s) =>
-				`${s.label}: ${contexts
-					.map((k) => `${lower(CONTEXT_TEXT[CONTEXTS[k]].label)} ${valueList(s, [k])[0]}`)
-					.join(', ')}`
-		);
+	const lines = readingOrder(row.series).map(
+		(s) =>
+			`${s.label}: ${contexts
+				.map((k) => `${lower(CONTEXT_TEXT[CONTEXTS[k]].label)} ${valueList(s, [k])[0]}`)
+				.join(', ')}`
+	);
 	return `${name}. ${capital(effectText(row.effect))}. ${lines.join('. ')}.`;
 }

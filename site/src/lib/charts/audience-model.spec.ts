@@ -202,6 +202,10 @@ describe('NFR-11, FR-87: summaries say what respondents judged, never why (FR-73
 		expect(slopeSummary(row, true)).toMatch(
 			/ Done by a woman and by a man: respondents in Gamma \+1\.3 and \+1\.0; all societies \+0\.8 and \+0\.5\.$/
 		);
+		const split = audienceRows(file, { scope: GLOBAL, split: true })[0];
+		expect(slopeSummary(split, false)).toMatch(
+			/professors: women respondents \+1\.1, \+1\.1, \+1\.0; men respondents \+0\.9, /
+		);
 		const missing = audienceRows(file, { scope: GAMMA, split: false })[0];
 		expect(slopeSummary(missing, false)).toContain(
 			'respondents in Gamma +1.5, +1.4, too few responses'
