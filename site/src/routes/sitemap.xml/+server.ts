@@ -1,9 +1,10 @@
-// NFR-60: the pages worth indexing, on the free subdomain (decision 40). Placeholder pages and the
-// 404 page stay out. GitHub Pages serves a project site below the account's root, so a
+// NFR-60: the pages worth indexing, on the free subdomain (decisions 40 and 56). Placeholder pages
+// and the 404 page stay out. GitHub Pages serves a project site below the account's root, so a
 // robots.txt here would never be read; crawlers find this file through the canonical URLs.
 
 import { resolve } from '$app/paths';
 import { CELLS, cellParams } from '#lib/data/grid.ts';
+import { societies } from '#lib/server/derived.ts';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;
@@ -16,6 +17,8 @@ export const GET: RequestHandler = ({ url }) => {
 			const { behavior, situation } = cellParams(cell);
 			return resolve(`explore/${behavior}/${situation}/`);
 		}),
+		resolve('societies/'),
+		...societies.list.map((s) => resolve(`societies/${s.code.toLowerCase()}/`)),
 		resolve('method/')
 	];
 	const body = [

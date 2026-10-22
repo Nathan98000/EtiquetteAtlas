@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { Similarity, Societies } from './model';
 import {
 	NO_PERIOD,
+	byRegion,
 	factsView,
+	indexSummary,
 	listText,
 	monthLabel,
 	period,
@@ -77,5 +79,27 @@ describe('FR-32: the most similar societies', () => {
 
 	it('is empty for a society with too few publishable pairs (decision 7)', () => {
 		expect(similarView(similarity, societies, 'CCC')).toEqual([]);
+	});
+});
+
+describe('decision 52: the index of societies', () => {
+	it('sums up the active sample in one sentence', () => {
+		expect(indexSummary(societies, 'all')).toBe(
+			'Respondents in 3 societies took part, from 40 to 300 in each, listed here by the GSN ' +
+				"authors' four regions."
+		);
+		expect(indexSummary(societies, 'paper')).toBe(
+			"2 of the 3 societies are in this sample (Paper's sample), with 100 to 280 respondents " +
+				"in each, listed here by the GSN authors' four regions."
+		);
+	});
+
+	it('groups societies by the authors’ regions, by name within each', () => {
+		expect(byRegion(societies).map((g) => [g.region, g.members.map((s) => s.code)])).toEqual([
+			['Africa', ['CCC']],
+			['Asia', ['BBB']],
+			['Latin America', []],
+			['West', ['AAA']]
+		]);
 	});
 });

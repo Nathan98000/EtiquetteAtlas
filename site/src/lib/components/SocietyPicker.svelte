@@ -7,9 +7,22 @@
 		selected: string | null;
 		sample: SampleId;
 		onselect: (code: string | null) => void;
+		label?: string;
+		/** The clear button's name; the selected society's name follows in brackets. */
+		clearLabel?: string;
+		/** A society left out of the options, such as the one a fingerprint shows (FR-33). */
+		exclude?: string | null;
 	}
 
-	let { societies, selected, sample, onselect }: Props = $props();
+	let {
+		societies,
+		selected,
+		sample,
+		onselect,
+		label = 'Society',
+		clearLabel = 'Clear the society',
+		exclude = null
+	}: Props = $props();
 
 	const id = $props.id();
 	const inputId = `${id}-input`;
@@ -30,7 +43,11 @@
 			.toLowerCase();
 
 	const sorted = $derived(
-		societies ? [...societies.list].sort((a, b) => a.name.localeCompare(b.name, 'en')) : []
+		societies
+			? societies.list
+					.filter((s) => s.code !== exclude)
+					.sort((a, b) => a.name.localeCompare(b.name, 'en'))
+			: []
 	);
 
 	// FR-3: type-ahead by name (or code); names that start with the text come first.
@@ -123,7 +140,7 @@
 
 <!-- FR-3: an ARIA 1.2 combobox with a listbox popup, usable by keyboard alone (NFR-13). -->
 <div class="picker">
-	<label for={inputId}>Society</label>
+	<label for={inputId}>{label}</label>
 	<div class="field">
 		<input
 			bind:this={input}
@@ -152,7 +169,7 @@
 			<button
 				type="button"
 				class="clear"
-				aria-label="Clear the society ({current.name})"
+				aria-label="{clearLabel} ({current.name})"
 				onclick={clear}
 			>
 				<span aria-hidden="true">×</span>

@@ -29,6 +29,10 @@
 			<li><a href="#disagreement">Disagreement</a></li>
 			<li><a href="#centered">Centered scores</a></li>
 			<li><a href="#notable">Stricter or looser</a></li>
+			<li><a href="#fingerprint">Society fingerprints</a></li>
+			<li><a href="#compare">Comparing two societies</a></li>
+			<li><a href="#similar">Similar societies</a></li>
+			<li><a href="#facts">Society facts</a></li>
 			<li><a href="#rank">Ranks</a></li>
 			<li><a href="#map">The map</a></li>
 			<li><a href="#privacy">Privacy</a></li>
@@ -156,6 +160,63 @@
 			society's score is below or above the global average. On the centered scale the same test uses
 			centered scores, so a society that rates everything higher is marked only where it departs
 			from its own tendency.
+		</p>
+	</section>
+
+	<section id="fingerprint">
+		<h2>Society fingerprints</h2>
+		<p>
+			A society's fingerprint shows, for each of the 150 pairs, how far its respondents' score lies
+			above or below the average of all societies. It uses the default estimate, which pulls scores
+			from few respondents toward the average (see Shrinkage), so a handful of unusual answers
+			cannot make a society look extreme. Blue means the society's respondents judged the pair more
+			appropriate than average (looser), orange less appropriate (stricter). The colours run out at
+			1.5 points either way; the few larger differences take the end colours, and the details give
+			their exact value.
+		</p>
+		<p>
+			A ▲ or ▼ marks a pair where we are 95% sure the society's score is above or below the global
+			average. A pair can have a clear colour and no mark when few respondents rated it. A pair
+			rated by fewer than 10 respondents, or left out of that society's survey, shows a dash and no
+			colour. On the centered scale, both the colours and the marks use centered scores (see
+			Centered scores).
+		</p>
+	</section>
+
+	<section id="compare">
+		<h2>Comparing two societies</h2>
+		<p>
+			On a society's page you can compare it with any other society, pair by pair. Each row shows
+			both societies' estimates (shrunken, on the scale you chose) with the global mean as a tick,
+			and the gap between them; the largest gaps come first. Pairs that either society cannot show
+			are listed apart. Each estimate has its own uncertainty, so a small gap may be noise: the
+			table gives each estimate's 95% interval.
+		</p>
+	</section>
+
+	<section id="similar">
+		<h2>Similar societies</h2>
+		<p>
+			Two societies are similar when they depart from the global average in the same places:
+			stricter about the same things and looser about the same things. The score is the correlation
+			between their two fingerprints, from −1 to 1: 1 would mean exactly the same pattern, 0 no
+			shared pattern. It measures how alike the answers are, not how related the cultures are. We
+			compare two societies only when both have at least 120 of the 150 pairs with 10 or more
+			respondents, so a few societies have no similar societies listed. Centering shifts all of a
+			society's scores by the same amount, so the scale toggle does not change similarity.
+		</p>
+	</section>
+
+	<section id="facts">
+		<h2>Society facts</h2>
+		<p>
+			Each society's page shows how many people responded in the chosen sample, the share flagged as
+			students, the languages people took the survey in, and the months of fieldwork. Student status
+			was recorded by the collection sites rather than asked in the questionnaire, and some sites
+			recorded none, so we show the share with no status as well. Fieldwork months are those in
+			which at least 10 respondents started. The collection sites themselves are never shown,
+			because they could help identify respondents. Regions are the GSN authors' four-way grouping
+			(see The map).
 		</p>
 	</section>
 

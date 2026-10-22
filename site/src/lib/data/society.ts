@@ -5,14 +5,16 @@
  * two societies' answers are, never how related their cultures are (FR-73).
  */
 
-import { signed } from './format';
+import { count, signed } from './format';
 import {
+	REGIONS,
 	SAMPLE_LABEL,
 	SAMPLES,
 	type Region,
 	type SampleId,
 	type Similarity,
-	type Societies
+	type Societies,
+	type Society
 } from './model';
 
 const MONTHS = [
@@ -87,7 +89,7 @@ export function factsView(societies: Societies, code: string, sample: SampleId):
 	return {
 		sample,
 		inSample: facts && {
-			respondents: facts.respondents.toLocaleString('en-US'),
+			respondents: count(facts.respondents),
 			students: studentText(facts.studentShare, facts.studentUnknown),
 			languages: listText(facts.languages),
 			period: period(facts.firstMonth, facts.lastMonth) ?? NO_PERIOD
@@ -95,7 +97,7 @@ export function factsView(societies: Societies, code: string, sample: SampleId):
 		region: society.region,
 		bySample: SAMPLES.map((s) => {
 			const n = societies.respondents(code, s);
-			return { sample: s, label: SAMPLE_LABEL[s], respondents: n?.toLocaleString('en-US') ?? null };
+			return { sample: s, label: SAMPLE_LABEL[s], respondents: n === null ? null : count(n) };
 		})
 	};
 }
@@ -131,4 +133,27 @@ export function similarView(
 			}
 		];
 	});
+}
+
+/** FR-87, NFR-11: the index of societies in one sentence (decision 52). */
+export function indexSummary(societies: Societies, sample: SampleId): string {
+	const sizes = societies.list
+		.map((s) => societies.respondents(s.code, sample))
+		.filter((n): n is number => n !== null);
+	const [min, max] = [count(Math.min(...sizes)), count(Math.max(...sizes))];
+	const listed = "listed here by the GSN authors' four regions";
+	return sample === 'all'
+		? `Respondents in ${sizes.length} societies took part, from ${min} to ${max} in each, ${listed}.`
+		: `${sizes.length} of the ${societies.list.length} societies are in this sample ` +
+				`(${SAMPLE_LABEL[sample]}), with ${min} to ${max} respondents in each, ${listed}.`;
+}
+
+/** Societies by the authors' regions (§4.4), each sorted by name. */
+export function byRegion(societies: Societies): { region: Region; members: Society[] }[] {
+	return REGIONS.map((region) => ({
+		region,
+		members: societies.list
+			.filter((s) => s.region === region)
+			.sort((a, b) => a.name.localeCompare(b.name, 'en'))
+	}));
 }
