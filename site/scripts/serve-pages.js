@@ -3,12 +3,15 @@
 // - the site lives under the base path, e.g. http://localhost:4173/EtiquetteAtlas/;
 // - a folder URL without its trailing slash gets a 301 to the slashed URL;
 // - /page also serves /page.html;
-// - anything missing gets the root 404.html with status 404.
-// No dependencies; `npm run preview` after `npm run build`.
+// - anything missing gets the root 404.html with status 404;
+// - text files are gzipped when the browser accepts it, so Lighthouse and the size budgets see
+//   the transfer sizes Pages produces (HR-4, NFR-1).
+// No dependencies; `npm run preview` after `npm run build`. PORT sets the port (default 4173).
 
 import { createReadStream, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
+import { createGzip } from 'node:zlib';
 import { basePath } from '../site.config.js';
 
 const root = resolve(import.meta.dirname, '..', 'build');
@@ -45,17 +48,26 @@ if (!stat(notFoundPage)?.isFile()) {
 	process.exit(1);
 }
 
+const COMPRESSIBLE = new Set(['.html', '.js', '.css', '.json', '.csv', '.svg', '.txt', '.xml']);
+
 /**
+ * @param {import('node:http').IncomingMessage} req
  * @param {import('node:http').ServerResponse} res
  * @param {number} status
  * @param {string} file
  */
-function send(res, status, file) {
+function send(req, res, status, file) {
+	const gzip =
+		COMPRESSIBLE.has(extname(file)) && /\bgzip\b/.test(req.headers['accept-encoding'] ?? '');
 	res.writeHead(status, {
 		'content-type': TYPES[extname(file)] ?? 'application/octet-stream',
-		'cache-control': 'max-age=600' // what GitHub Pages sends (HR-3)
+		'cache-control': 'max-age=600', // what GitHub Pages sends (HR-3)
+		vary: 'Accept-Encoding',
+		...(gzip ? { 'content-encoding': 'gzip' } : {})
 	});
-	createReadStream(file).pipe(res);
+	const stream = createReadStream(file);
+	if (gzip) stream.pipe(createGzip()).pipe(res);
+	else stream.pipe(res);
 }
 
 /**
@@ -76,20 +88,20 @@ createServer((req, res) => {
 		// keep the raw path; it will not match a file
 	}
 	if (basePath && pathname === basePath) return redirect(res, `${basePath}/${url.search}`);
-	if (!pathname.startsWith(`${basePath}/`)) return send(res, 404, notFoundPage);
+	if (!pathname.startsWith(`${basePath}/`)) return send(req, res, 404, notFoundPage);
 
 	const target = normalize(join(root, pathname.slice(basePath.length)));
-	if (target !== root && !target.startsWith(root + sep)) return send(res, 404, notFoundPage);
+	if (target !== root && !target.startsWith(root + sep)) return send(req, res, 404, notFoundPage);
 
 	const found = stat(target);
 	if (found?.isDirectory()) {
 		if (!pathname.endsWith('/')) return redirect(res, `${url.pathname}/${url.search}`);
 		const index = join(target, 'index.html');
-		return send(res, stat(index)?.isFile() ? 200 : 404, stat(index) ? index : notFoundPage);
+		return send(req, res, stat(index)?.isFile() ? 200 : 404, stat(index) ? index : notFoundPage);
 	}
-	if (found?.isFile()) return send(res, 200, target);
-	if (stat(`${target}.html`)?.isFile()) return send(res, 200, `${target}.html`);
-	return send(res, 404, notFoundPage);
+	if (found?.isFile()) return send(req, res, 200, target);
+	if (stat(`${target}.html`)?.isFile()) return send(req, res, 200, `${target}.html`);
+	return send(req, res, 404, notFoundPage);
 }).listen(port, () => {
 	console.log(`Serving build/ like GitHub Pages at http://localhost:${port}${basePath}/`);
 });

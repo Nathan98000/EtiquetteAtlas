@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import { basePath } from './site.config.js';
 
-const port = 4173;
+// PORT moves the test server off 4173 when another preview server holds it; with
+// reuseExistingServer, Playwright would otherwise test whatever answers there.
+const port = Number(process.env.PORT ?? 4173);
 
 export default defineConfig({
 	testDir: 'e2e',
@@ -13,6 +15,7 @@ export default defineConfig({
 	// Tests run against build/ served the way GitHub Pages serves it (scripts/serve-pages.js).
 	webServer: {
 		command: 'npm run build && npm run preview',
+		env: { PORT: String(port) },
 		url: `http://localhost:${port}${basePath}/`,
 		reuseExistingServer: !process.env.CI
 	}
