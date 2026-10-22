@@ -1,7 +1,17 @@
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { basePath, origin } from './site.config.js';
+
+// SvelteKit hashes only the inline scripts it writes itself, so the theme script in app.html
+// (applied before first paint, NFR-30) gets its hash here and the policy keeps out
+// 'unsafe-inline' (NFR-32).
+const appHtml = readFileSync(new URL('./src/app.html', import.meta.url), 'utf8');
+const inlineScripts = [...appHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(
+	([, body]) => `sha256-${createHash('sha256').update(body).digest('base64')}` as const
+);
 
 export default defineConfig({
 	plugins: [
@@ -27,7 +37,7 @@ export default defineConfig({
 				mode: 'hash',
 				directives: {
 					'default-src': ['self'],
-					'script-src': ['self'],
+					'script-src': ['self', ...inlineScripts],
 					'connect-src': ['self'],
 					// Svelte and SvelteKit set inline style attributes; NFR-32 constrains scripts
 					// and connections only.
@@ -47,6 +57,8 @@ export default defineConfig({
 	// Keep every imported asset a content-hashed file on this origin (HR-3): no data: URIs for
 	// the CSP to allow.
 	build: { assetsInlineLimit: 0 },
+	// The dev server may read the pipeline's outputs, which live outside site/.
+	server: { fs: { allow: ['../data/derived'] } },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

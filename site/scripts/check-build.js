@@ -11,9 +11,13 @@ const root = resolve(import.meta.dirname, '..', 'build');
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_SITE_BYTES = 60 * 1024 * 1024;
 // HR-3 covers JavaScript, CSS and data files. SvelteKit's own version check reads the one
-// unhashed file below; images such as share cards may keep stable names.
+// unhashed file below; images such as share cards may keep stable names. Each route's
+// __data.json holds only its prerendered title and summary strings, like its HTML, which is
+// not hashed either (decision 28).
 const MUST_BE_HASHED = /\.(js|css|json|csv|topojson)$/;
 const UNHASHED_ALLOWED = new Set(['_app/version.json']);
+const ROUTE_PAYLOAD = /(^|\/)__data\.json$/;
+const MAX_ROUTE_PAYLOAD_BYTES = 2048;
 const ATTRIBUTION = [
 	'data-attribution',
 	'Eriksson',
@@ -81,7 +85,11 @@ for (const file of files) {
 	const size = statSync(join(root, file)).size;
 	total += size;
 	if (size > MAX_FILE_BYTES) problems.push(`HR-4: ${file} is over 5 MB`);
-	if (MUST_BE_HASHED.test(file) && !UNHASHED_ALLOWED.has(file)) {
+	if (ROUTE_PAYLOAD.test(file)) {
+		if (size > MAX_ROUTE_PAYLOAD_BYTES) {
+			problems.push(`HR-3: ${file} is ${size} bytes: route payloads must not carry datasets`);
+		}
+	} else if (MUST_BE_HASHED.test(file) && !UNHASHED_ALLOWED.has(file)) {
 		if (!file.startsWith('_app/immutable/')) {
 			problems.push(`HR-3: ${file} is not a content-hashed file under _app/immutable/`);
 		}
