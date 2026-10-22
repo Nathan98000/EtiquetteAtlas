@@ -1,22 +1,22 @@
 # Manual setup steps
 
 Steps only the repository owner can do, in GitHub or a third-party dashboard. Nothing here is
-automated, and none of it has been done yet. Tick each item once it is done.
+automated. Tick each item once it is done.
 
 ## Before the first deploy
 
-- [ ] **Confirm the repository is public.** GitHub Pages on a free account needs a public
+- [x] **Confirm the repository is public.** GitHub Pages on a free account needs a public
   repository, and C-10 requires one. Check *Settings → General → Danger Zone → Change repository
   visibility*; it should say the repository is public.
-- [ ] **Set the Pages source to GitHub Actions.** *Settings → Pages → Build and deployment →
+- [x] **Set the Pages source to GitHub Actions.** *Settings → Pages → Build and deployment →
   Source: GitHub Actions*. Without it, the `deploy` job in `.github/workflows/deploy.yml` fails.
-- [ ] **Push `main`** (after reviewing the local commits). The *Deploy* workflow runs every CI check,
+- [x] **Push `main`** (after reviewing the local commits). The *Deploy* workflow runs every CI check,
   builds the site and publishes it. Then open:
   - https://nathan98000.github.io/EtiquetteAtlas/ to see the placeholder home page with the
     attribution footer;
   - https://nathan98000.github.io/EtiquetteAtlas/no-such-page/ to see the custom 404 page with
     its styling and a link home.
-- [ ] **Check "Enforce HTTPS" (HR-6).** *Settings → Pages*. Sites on `github.io` are
+- [x] **Check "Enforce HTTPS" (HR-6).** *Settings → Pages*. Sites on `github.io` are
   HTTPS-only, so the box should already be ticked and locked; confirm it after the first deploy.
 
 ## Analytics (SRS §8.5)
