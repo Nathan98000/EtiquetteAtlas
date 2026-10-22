@@ -1,0 +1,50 @@
+# Pinned OSF inputs (DR-1). GSN deposit: OSF project sh4rb, CC BY 4.0, doi:10.17605/OSF.IO/SH4RB.
+# Byte sizes and MD5s were read from the OSF API on 2026-10-22
+# (https://api.osf.io/v2/nodes/sh4rb/files/osfstorage/); the first three MD5s also appear in SRS §4.1.
+# If OSF publishes a new version, `pipeline download` and `pipeline verify` fail until this file is
+# reviewed and updated by hand.
+
+[[file]]
+name = "gsn-situations-clean-long.csv"
+url = "https://osf.io/download/q3hcv/"
+bytes = 366886482
+md5 = "8996033995a219a5cfb3c4a51699bcf4"
+osf_version = 3
+osf_modified = 2025-01-14
+role = "Appropriateness ratings, one row per respondent × situated behavior"
+
+[[file]]
+name = "gsn-contexts-clean-long.csv"
+url = "https://osf.io/download/u6bvf/"
+bytes = 107288588
+md5 = "9d4608680300453ecc4fe25191896f0f"
+osf_version = 1
+osf_modified = 2025-01-14
+role = "Audience and actor-gender ratings"
+
+[[file]]
+name = "everyday-norms-2011-clean.csv"
+url = "https://osf.io/download/udy8q/"
+bytes = 25138380
+md5 = "9f8df6d61154102e49e99e09885bb202"
+osf_version = 1
+osf_modified = 2025-01-14
+role = "2000–2003 comparison data (Gelfand et al. 2011); used only as aggregates (C-6)"
+
+[[file]]
+name = "imputed-ind-data-attention-check.csv"
+url = "https://osf.io/download/2g5m3/"
+bytes = 2595339
+md5 = "72de19514561aa69ffeb180aaab84666"
+osf_version = 3
+osf_modified = 2025-01-14
+role = "Respondent list of the attention-check sample (cross-check)"
+
+[[file]]
+name = "individual-data-prereg.csv"
+url = "https://osf.io/download/25qup/"
+bytes = 3169904
+md5 = "5448aa35e71980523c04e16991ec3dc0"
+osf_version = 1
+osf_modified = 2025-01-14
+role = "Respondent list of the paper's complete-case model sample (cross-check)"
