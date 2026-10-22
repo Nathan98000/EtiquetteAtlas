@@ -25,6 +25,8 @@ class Person:
     items_missing: bool = False
     ratings: tuple[str, ...] = ("4",)  # one row per entry; "NA" is a missing rating
     iso2: str = "XX"
+    student: str = "yes"  # "yes", "no" or NA
+    language: str = "EN"
 
 
 def person(name: str, code: str, country: str, region: str, start: str, **kw: object) -> Person:
@@ -70,9 +72,20 @@ PEOPLE = (
 )
 
 SITUATION_COLUMNS = (
-    "site", "country", "iso2", "StartDate", "ResponseId", "gender", *raw.IND_BIND_ITEMS,
-    "rating", "behavior", "situation", "att_check_commit", "code", "region",
+    "site", "country", "iso2", "StartDate", "ResponseId", "UserLanguage", "gender", "student",
+    *raw.IND_BIND_ITEMS, "rating", "behavior", "situation", "att_check_commit", "code", "region",
+    "Longitude_average", "Latitude_average",
 )  # fmt: skip
+
+# Society-level map positions; Kosovo has none in the GSN files.
+PLACES = {"XKX": (NA, NA)}
+
+
+def place(code: str) -> tuple[str, str]:
+    """A made-up but stable (lon, lat) for a code, as the GSN files store whole degrees."""
+    if code in PLACES:
+        return PLACES[code]
+    return str(sum(map(ord, code)) % 180 - 90), str(sum(map(ord, code)) % 120 - 60)
 
 
 def write_situations(raw_dir: Path, people: tuple[Person, ...] = PEOPLE) -> None:
@@ -90,7 +103,9 @@ def write_situations(raw_dir: Path, people: tuple[Person, ...] = PEOPLE) -> None
                         p.iso2,
                         p.start,
                         p.rid,
+                        p.language,
                         p.gender or NA,
+                        p.student,
                         *items,
                         rating,
                         raw.BEHAVIORS[i % len(raw.BEHAVIORS)],
@@ -98,6 +113,7 @@ def write_situations(raw_dir: Path, people: tuple[Person, ...] = PEOPLE) -> None
                         p.att,
                         p.code,
                         p.region,
+                        *place(p.code),
                     ]
                 )
 

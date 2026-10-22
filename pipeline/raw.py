@@ -89,9 +89,10 @@ def connect() -> duckdb.DuckDBPyConnection:
 
 
 def load_situations(con: duckdb.DuckDBPyConnection, raw_dir: Path) -> None:
-    """Build `respondents` (one row per ResponseId) and `ratings` from the main long file.
+    """Build `respondents` (one row per ResponseId), `ratings` and `places` from the main file.
 
-    `ratings.rating` is recoded as rating − 3.5, giving −2.5 to +2.5 (DR-2).
+    `ratings.rating` is recoded as rating − 3.5, giving −2.5 to +2.5 (DR-2). `places` holds each
+    society's map position (`Latitude_average`, `Longitude_average`), which is society-level.
     """
     items = ", ".join(IND_BIND_ITEMS)
     _run(
@@ -99,7 +100,9 @@ def load_situations(con: duckdb.DuckDBPyConnection, raw_dir: Path) -> None:
         f"""
         CREATE TEMP TABLE situation_rows AS
         SELECT ResponseId AS rid, code, country, region, StartDate AS start_text,
-               att_check_commit, gender, {items}, behavior, situation, rating AS rating_text
+               att_check_commit, gender, student, UserLanguage AS language,
+               Latitude_average AS lat_text, Longitude_average AS lon_text,
+               {items}, behavior, situation, rating AS rating_text
         FROM {_csv(raw_dir / SITUATIONS)}
         """,
         f"reading {SITUATIONS}",
@@ -122,9 +125,17 @@ def load_situations(con: duckdb.DuckDBPyConnection, raw_dir: Path) -> None:
                min(strptime(start_text, '%Y-%m-%dT%H:%M:%SZ')) AS started_utc,
                min(CAST(att_check_commit AS INTEGER)) AS att_check_commit,
                bool_and({complete}) AS complete_case,
-               count(rating_text) AS n_ratings
+               count(rating_text) AS n_ratings,
+               min(gender) AS gender,
+               min(student) AS student,
+               min(language) AS language
         FROM situation_rows
         GROUP BY rid;
+
+        CREATE TABLE places AS
+        SELECT code, min(CAST(lat_text AS DOUBLE)) AS lat, min(CAST(lon_text AS DOUBLE)) AS lon
+        FROM situation_rows
+        GROUP BY code;
 
         DROP TABLE situation_rows;
         """,
@@ -134,7 +145,10 @@ def load_situations(con: duckdb.DuckDBPyConnection, raw_dir: Path) -> None:
 
 def _check_situation_rows(con: duckdb.DuckDBPyConnection) -> None:
     """Schema checks on the main file, reported as counts only (NFR-51)."""
-    constant = ("code", "country", "region", "start_text", "att_check_commit", "gender")
+    constant = (
+        "code", "country", "region", "start_text", "att_check_commit", "gender", "student",
+        "language",
+    )  # fmt: skip
     per_respondent = ", ".join(
         f"count(DISTINCT coalesce({c}, '<missing>')) AS k_{c}" for c in constant
     )
@@ -164,6 +178,23 @@ def _check_situation_rows(con: duckdb.DuckDBPyConnection) -> None:
             SELECT count(*) FROM (
                 SELECT {per_respondent} FROM situation_rows GROUP BY rid
             ) WHERE greatest({", ".join(f"k_{c}" for c in constant)}) > 1""",
+        "genders other than Woman, Man or Other": """
+            SELECT count(*) FROM situation_rows
+            WHERE gender IS NOT NULL AND gender NOT IN ('Woman', 'Man', 'Other')""",
+        "student values other than yes or no": """
+            SELECT count(*) FROM situation_rows
+            WHERE student IS NOT NULL AND student NOT IN ('yes', 'no')""",
+        "missing interface languages": "SELECT count(*) FROM situation_rows WHERE language IS NULL",
+        "unparseable or partial coordinates": """
+            SELECT count(*) FROM situation_rows
+            WHERE (lat_text IS NULL) <> (lon_text IS NULL)
+               OR (lat_text IS NOT NULL AND (TRY_CAST(lat_text AS DOUBLE) IS NULL
+                                             OR TRY_CAST(lon_text AS DOUBLE) IS NULL))""",
+        "societies whose coordinates vary between rows": """
+            SELECT count(*) FROM (
+                SELECT code FROM situation_rows GROUP BY code
+                HAVING count(DISTINCT coalesce(lat_text, '<missing>')) > 1
+                    OR count(DISTINCT coalesce(lon_text, '<missing>')) > 1)""",
         "codes mapped to several countries, or countries to several codes": """
             SELECT (SELECT count(*) FROM (SELECT code FROM situation_rows GROUP BY code
                                           HAVING count(DISTINCT country) > 1))
