@@ -21,6 +21,9 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+# Lighthouse CI reports
+.lighthouseci
+
 # Playwright
 test-results
 playwright-report

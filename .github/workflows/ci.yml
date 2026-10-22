@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   pipeline:
-    name: Pipeline (Ruff, mypy, pytest, privacy scan)
+    name: Pipeline (Ruff, mypy, pytest with coverage, privacy scan)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -26,16 +26,17 @@ jobs:
           uv run ruff format --check
       - name: mypy
         run: uv run mypy
-      # Unit tests only: tests marked needs_raw need the OSF files, which CI never has.
-      - name: pytest
-        run: uv run pytest -m "not needs_raw"
+      # Unit tests only: tests marked needs_raw need the OSF files, which CI never has. Estimator
+      # modules keep at least 80% line coverage (NFR-53; settings in pyproject.toml).
+      - name: pytest with coverage
+        run: uv run pytest -m "not needs_raw" --cov
       - name: Privacy scan of data/derived (DR-9, DR-16)
         run: uv run pipeline privacy-scan
 
   site:
-    name: Site (lint, type-check, Vitest, build, Playwright)
+    name: Site (lint, type-check, Vitest, build, Playwright, axe, Lighthouse)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: site
@@ -55,12 +56,17 @@ jobs:
         run: npm run test:unit -- --run
       - name: Build
         run: npm run build
-      - name: Check the build (HR-2, HR-3, HR-7, NFR-5, NFR-40)
+      - name: Check the build and first-load budgets (HR-1 to HR-7, NFR-1, NFR-5, NFR-40, FR-83)
         run: npm run check:build
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
-      - name: Playwright smoke tests
+      # AT-1, AT-2, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1) and redraw
+      # times (NFR-4).
+      - name: Playwright end-to-end and accessibility tests
         run: npm run test:e2e
+      # NFR-2 and AT-1 on five routes under Lighthouse's mobile profile, with the runner's Chrome.
+      - name: Lighthouse CI
+        run: npm run lhci
 
   workflows:
     name: Workflow syntax (actionlint)

@@ -19,7 +19,8 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest",
 		"test:e2e": "playwright test",
-		"test": "npm run test:unit -- --run && npm run test:e2e"
+		"test": "npm run test:unit -- --run && npm run test:e2e",
+		"lhci": "lhci autorun --config=lighthouserc.cjs"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "4.14.0",

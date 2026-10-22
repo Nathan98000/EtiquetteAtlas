@@ -24,6 +24,7 @@ node_modules/
 /site/test-results/
 /site/playwright-report/
 /site/blob-report/
+/site/.lighthouseci/
 /site/vite.config.*.timestamp-*
 
 # Local environment and OS files

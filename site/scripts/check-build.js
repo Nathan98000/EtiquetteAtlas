@@ -1,10 +1,12 @@
 // Checks the static artifact in build/ after `npm run build`, one line per problem:
 // HR-1 base path, HR-2 index.html and 404.html at the root, HR-3 content-hashed JS, CSS and data,
 // HR-4/NFR-5 size limits, HR-7/NFR-32 CSP meta tag, NFR-31 no third-party resources,
-// NFR-40/AT-5 attribution footer on every page.
+// NFR-40/AT-5 attribution footer on every page, FR-83 title, description and canonical URL, and
+// NFR-1 first-load budgets per kind of route, which it also reports.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
+import { gzipSync } from 'node:zlib';
 import { basePath } from '../site.config.js';
 
 const root = resolve(import.meta.dirname, '..', 'build');
@@ -18,6 +20,26 @@ const MUST_BE_HASHED = /\.(js|css|json|csv|topojson)$/;
 const UNHASHED_ALLOWED = new Set(['_app/version.json']);
 const ROUTE_PAYLOAD = /(^|\/)__data\.json$/;
 const MAX_ROUTE_PAYLOAD_BYTES = 2048;
+// NFR-1, gzip. JS and CSS are the page itself (small stylesheets are inlined) and what its HTML
+// preloads; the map's chunk loads later and is measured by e2e/budget.e2e.ts. Data are the files each kind of route fetches, with a society
+// selected (the worst case), named by their prefix before the hash (src/lib/data/files.ts).
+const JS_CSS_BUDGET = 200 * 1024;
+const DATA_BUDGET = 300 * 1024;
+const ROUTE_DATA = {
+	home: [],
+	explore: ['societies', 'global-all', 'cells-all'],
+	cell: ['societies', 'global-all', 'cells-all', 'land-110m'],
+	other: []
+};
+/** @param {string} file */
+const kindOf = (file) =>
+	file === 'index.html'
+		? 'home'
+		: file === 'explore/index.html'
+			? 'explore'
+			: /^explore\/[^/]+\/[^/]+\/index\.html$/.test(file)
+				? 'cell'
+				: 'other';
 const ATTRIBUTION = [
 	'data-attribution',
 	'Eriksson',
@@ -60,6 +82,15 @@ function checkPage(file, html) {
 		if (!html.includes(text)) problems.push(`NFR-40: ${file} lacks attribution text ${text}`);
 	}
 	if (!/<title>[^<]+<\/title>/.test(html)) problems.push(`FR-83: ${file} has no <title>`);
+	if (file !== '404.html') {
+		if (!/<meta name="description" content="[^"]+"/.test(html)) {
+			problems.push(`FR-83: ${file} has no description`);
+		}
+		const noindex = html.includes('<meta name="robots" content="noindex"');
+		if (!noindex && !/<link rel="canonical" href="https:\/\/[^"]+\/"/.test(html)) {
+			problems.push(`FR-83: ${file} has no canonical URL`);
+		}
+	}
 	const external = html.match(
 		/<(?:script|img|iframe|source|audio|video)\b[^>]*\bsrc="https?:[^"]*"|<link\b(?=[^>]*\brel="(?:stylesheet|modulepreload|preload|icon)")[^>]*\bhref="https?:[^"]*"/g
 	);
@@ -101,9 +132,45 @@ for (const file of files) {
 }
 if (total > MAX_SITE_BYTES) problems.push(`NFR-5: the site is over 60 MB`);
 
+/** @type {Map<string, number>} */
+const gzipped = new Map();
+/** @param {string} file */
+const gzipSize = (file) => {
+	if (!gzipped.has(file)) gzipped.set(file, gzipSync(readFileSync(join(root, file))).length);
+	return /** @type {number} */ (gzipped.get(file));
+};
+const kb = (/** @type {number} */ bytes) => `${(bytes / 1024).toFixed(1)} KB`;
+/** @type {Record<string, { page: string, code: number, data: number }>} */
+const worst = {};
+for (const file of files.filter((f) => f.endsWith('.html'))) {
+	const html = readFileSync(join(root, file), 'utf8');
+	const assets = (html.match(/<link\b[^>]*>/g) ?? [])
+		.filter((tag) => /\brel="(?:modulepreload|stylesheet)"/.test(tag))
+		.map((tag) => (tag.match(/\bhref="([^"]+)"/)?.[1] ?? '').slice(basePath.length + 1));
+	const code = [...new Set(assets)].reduce((sum, asset) => sum + gzipSize(asset), gzipSize(file));
+	const kind = kindOf(file);
+	const data = ROUTE_DATA[kind].reduce((sum, name) => {
+		const match = files.find((f) => f.startsWith(`_app/immutable/assets/${name}.`));
+		if (!match) problems.push(`NFR-1: no data file ${name} for ${file}`);
+		return sum + (match ? gzipSize(match) : 0);
+	}, 0);
+	if (code > JS_CSS_BUDGET) problems.push(`NFR-1: ${file} preloads ${kb(code)} of JS and CSS`);
+	if (data > DATA_BUDGET) problems.push(`NFR-1: ${file} needs ${kb(data)} of data`);
+	if (!worst[kind] || code + data > worst[kind].code + worst[kind].data) {
+		worst[kind] = { page: file, code, data };
+	}
+}
+
 if (problems.length) {
 	for (const problem of problems) console.error(`FAIL ${problem}`);
 	process.exit(1);
 }
 const megabytes = (total / 1024 / 1024).toFixed(2);
 console.log(`check-build: ok, ${pages} pages and ${files.length} files, ${megabytes} MB in build/`);
+console.log('NFR-1 first load, gzip (largest page of each kind):');
+for (const [kind, { page, code, data }] of Object.entries(worst)) {
+	console.log(
+		`  ${kind.padEnd(8)} ${page.padEnd(36)} JS+CSS ${kb(code).padStart(9)} of 200 KB` +
+			`   data ${kb(data).padStart(9)} of 300 KB`
+	);
+}
