@@ -25,6 +25,10 @@ node_modules/
 /site/playwright-report/
 /site/blob-report/
 /site/.lighthouseci/
+# Share images and their card pages, built by `npm run cards` (CI builds them too; decision 90).
+/site/share-images/
+/site/.cards/
+/site/.svelte-kit-cards/
 /site/vite.config.*.timestamp-*
 
 # Local environment and OS files

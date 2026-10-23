@@ -7,6 +7,9 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+/.svelte-kit-cards
+/.cards
+/share-images
 
 # OS
 .DS_Store

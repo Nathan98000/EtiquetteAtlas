@@ -15,6 +15,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"check:build": "node scripts/check-build.js",
+		"cards": "CARDS=on vite build && svelte-kit sync && node scripts/share-images.js",
+		"cards:docker": "CARDS=on vite build && svelte-kit sync && sh scripts/in-docker.sh node scripts/share-images.js",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:unit": "vitest",

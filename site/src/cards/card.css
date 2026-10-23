@@ -1,0 +1,22 @@
+/* Share-image cards (§6.4; decision 91): 1200 × 630, the light theme only, set in Liberation Sans
+   from the Playwright Linux image CI renders them in, or Arial, which has the same metrics, when a
+   card is previewed elsewhere. Colours are app.css's light tokens and charts/colors.ts. */
+
+html,
+body {
+	margin: 0;
+	width: 1200px;
+	height: 630px;
+	overflow: hidden;
+	background: var(--surface);
+}
+
+body {
+	font-family: 'Liberation Sans', Arial, sans-serif;
+	color: var(--text);
+	-webkit-font-smoothing: antialiased;
+}
+
+svg text {
+	font-family: 'Liberation Sans', Arial, sans-serif;
+}

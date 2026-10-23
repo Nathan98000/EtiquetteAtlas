@@ -1,11 +1,17 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { analytics, basePath, changeModule, origin } from './site.config.js';
+import { CHANGE_CARD, SHARE_DIR, SHARE_SOURCE } from './src/lib/share.ts';
+
+// Share images (FR-82; decision 88): `npm run cards` sets CARDS=on to build the card pages in
+// src/cards/ instead of the site, into .cards/, for scripts/share-images.js to photograph. That
+// build has its own page template (no beacon, no CSP) and generated files, and leaves build/ alone.
+const cards = process.env.CARDS === 'on';
 
 // SvelteKit hashes only the inline scripts it writes itself, so the theme script in app.html
 // (applied before first paint, NFR-30) gets its hash here and the policy keeps out
@@ -52,18 +58,58 @@ function withoutChangeModule(): Plugin {
 	};
 }
 
+/**
+ * FR-82, decision 90: publishes the PNGs `npm run cards` wrote to share-images/ under build/share/,
+ * as listed in its manifest, leaving out the change module's card in a build without it (R-6).
+ * Without them the build still succeeds, and check-build.js reports every missing image (AT-7).
+ */
+function shareImages(): Plugin {
+	const source = fileURLToPath(new URL(`./${SHARE_SOURCE}/`, import.meta.url));
+	return {
+		name: 'share-images',
+		apply: 'build',
+		generateBundle() {
+			if (this.environment.config.consumer !== 'client') return;
+			if (!existsSync(`${source}manifest.json`)) {
+				this.warn(`no share images in ${SHARE_SOURCE}/: run \`npm run cards\``);
+				return;
+			}
+			const manifest: { images: { path: string }[] } = JSON.parse(
+				readFileSync(`${source}manifest.json`, 'utf8')
+			);
+			for (const { path } of manifest.images) {
+				if (!changeModule && path === `${CHANGE_CARD}.png`) continue;
+				this.emitFile({
+					type: 'asset',
+					fileName: `${SHARE_DIR}/${path}`,
+					source: readFileSync(`${source}${path}`)
+				});
+			}
+		}
+	};
+}
+
 export default defineConfig({
 	plugins: [
 		...(changeModule ? [] : [withoutChangeModule()]),
+		...(cards ? [] : [shareImages()]),
 		sveltekit({
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
+			...(cards
+				? {
+						files: { routes: 'src/cards/routes', appTemplate: 'src/cards/app.html' },
+						outDir: '.svelte-kit-cards'
+					}
+				: {}),
 			// No SPA fallback: every route is prerendered to its own index.html (HR-2). Without the
 			// change module its stub routes are the only ones left unprerendered (R-6).
-			adapter: adapter({ strict: changeModule }),
+			adapter: cards
+				? adapter({ pages: '.cards', assets: '.cards' })
+				: adapter({ strict: changeModule }),
 			paths: {
 				base: basePath, // HR-1
 				origin,
@@ -75,26 +121,29 @@ export default defineConfig({
 			// inline scripts, because GitHub Pages cannot send headers (HR-7, NFR-32). Scripts and
 			// connections stay on this origin, except the analytics beacon's script and reporting
 			// hosts, as Cloudflare's FAQ asks for a manually embedded beacon (FR-90).
-			csp: {
-				mode: 'hash',
-				directives: {
-					'default-src': ['self'],
-					'script-src': ['self', ...inlineScripts, analytics.scriptOrigin],
-					'connect-src': ['self', analytics.reportOrigin],
-					// Svelte and SvelteKit set inline style attributes; NFR-32 constrains scripts
-					// and connections only.
-					'style-src': ['self', 'unsafe-inline'],
-					'img-src': ['self'],
-					'font-src': ['self'],
-					'object-src': ['none'],
-					'base-uri': ['self'],
-					'form-action': ['self']
-				}
-			},
-			prerender: { entries: ['*', '/404'] },
+			csp: cards
+				? undefined
+				: {
+						mode: 'hash',
+						directives: {
+							'default-src': ['self'],
+							'script-src': ['self', ...inlineScripts, analytics.scriptOrigin],
+							'connect-src': ['self', analytics.reportOrigin],
+							// Svelte and SvelteKit set inline style attributes; NFR-32 constrains scripts
+							// and connections only.
+							'style-src': ['self', 'unsafe-inline'],
+							'img-src': ['self'],
+							'font-src': ['self'],
+							'object-src': ['none'],
+							'base-uri': ['self'],
+							'form-action': ['self']
+						}
+					},
+			prerender: { entries: cards ? ['*'] : ['*', '/404'] },
 			// Small stylesheets go inline, so first paint waits on fewer requests (NFR-2). Inline
-			// styles are allowed by the CSP; scripts and data stay in hashed files (HR-3).
-			inlineStyleThreshold: 8192,
+			// styles are allowed by the CSP; scripts and data stay in hashed files (HR-3). Cards
+			// inline all their CSS, so each one is a single file.
+			inlineStyleThreshold: cards ? Infinity : 8192,
 			// Deterministic app version in CI; local builds fall back to a timestamp.
 			version: { name: process.env.GITHUB_SHA }
 		})
@@ -114,7 +163,7 @@ export default defineConfig({
 				test: {
 					name: 'server',
 					environment: 'node',
-					include: ['src/**/*.{test,spec}.{js,ts}'],
+					include: ['src/**/*.{test,spec}.{js,ts}', 'scripts/**/*.spec.js'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
 			}
