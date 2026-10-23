@@ -97,9 +97,10 @@ from them, the M1 rules in CLAUDE.md still apply.
   - `npx svelte-kit sync` when a new route's path does not type-check in `resolve()`;
   - `npm run preview` sends `cache-control: max-age=600`: add a throwaway query parameter when
     reloading a rebuilt page in a browser.
-- **Manual steps still open in `docs/SETUP.md`:** the analytics hostname check (Cloudflare Web
-  Analytics with the `github.io` hostname, or GoatCounter), and allowing Actions to open pull
-  requests for `pipeline.yml`. I'll tell you the outcome of the first if I have done it.
+- **Analytics hostname check: done.** Cloudflare Web Analytics accepted the `github.io` hostname,
+  so GoatCounter is not needed (§8.5; recorded in `docs/SETUP.md`). The beacon is not on the site
+  yet: M7 adds it (§3 below). Still open in `docs/SETUP.md`: allowing Actions to open pull
+  requests for `pipeline.yml`.
 - **Known gaps carried from M2 to M6** (out of scope unless I pick them in decision 12 below):
   - the layout shift when a `?society=` URL replaces prerendered text after mount, on the
     audiences and on `/change/?society=…` (decision 31);
@@ -127,6 +128,31 @@ from them, the M1 rules in CLAUDE.md still apply.
 
 ## 3. Already decided
 
+- **Analytics comes in M7: Cloudflare Web Analytics** (FR-90 to FR-92, §8.5, AT-9). The snippet
+  Cloudflare gave me, to load on every page, the 404 page included:
+
+  ```html
+  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "58ded44fdb764340973b62e1e32f48a6"}'></script><!-- End Cloudflare Web Analytics -->
+  ```
+
+  - The token is public: it ships in every page, so it is not a secret.
+  - It is an external script, not an inline one, so it needs no CSP hash. For a manually embedded
+    beacon, Cloudflare's Web Analytics FAQ
+    (https://developers.cloudflare.com/web-analytics/faq/) asks for
+    `https://static.cloudflareinsights.com` in `script-src` and `https://cloudflareinsights.com`
+    in `connect-src`, where the beacon posts to `/cdn-cgi/rum`. Allow exactly those two hosts
+    in `site/vite.config.ts`, nothing broader.
+  - `check-build.js` refuses any `https:` source in `script-src` and any third-party
+    `<script src>` today (NFR-31, NFR-32): teach it to accept exactly this script and these
+    hosts, and nothing else.
+  - No custom events (FR-91); quiz answers never reach it (C-12). Cloudflare's FAQ says it does
+    not log query strings.
+  - The method page states what analytics collects and links Cloudflare's privacy terms
+    (FR-92, NFR-34). Take that link from Cloudflare's own pages, or ask me; don't write it from
+    memory.
+  - AT-9: the only third-party requests go to those two hosts, and no cookie is set, on `build/`
+    now and on the deployed site after the push.
+  - How test runs and Lighthouse CI avoid counting visits is open (decision 1 below).
 - **Share images come in M7** for the home page, each module (Explore, Societies, Audiences,
   Change, Story and Method), each of the 150 cells and each of the 90 societies (FR-82), at
   1200 × 630 px with the view's headline finding, a simplified chart and the attribution line
@@ -152,8 +178,8 @@ from them, the M1 rules in CLAUDE.md still apply.
 ## 4. Non-negotiable rules (also in CLAUDE.md)
 
 - **Static site only:** no server, database, serverless function, cookie or paid service (C-2,
-  C-11). The browser fetches nothing from a third party (NFR-31), unless I confirm the analytics
-  beacon (decision 1 below); then only its hosts, added to the CSP.
+  C-11). The browser fetches nothing from a third party except the Cloudflare Web Analytics
+  beacon (NFR-31, §3 above): its script host and its reporting host, both in the CSP.
 - **Hashed assets:** data, JS and CSS ship content-hashed (HR-3). Share images may keep stable
   names (`check-build.js` already allows images); data still goes through `files.ts` and
   `load.ts`, and browser code never imports JSON.
@@ -190,7 +216,7 @@ Then wait for my go-ahead.
 
 | # | Open decision | Proposed default (confirm or change) |
 | --- | --- | --- |
-| 1 | Analytics (FR-90 to FR-92, §8.5, AT-9) | If I have done the hostname check, add the chosen beacon (Cloudflare Web Analytics, else GoatCounter) to every page with its script and reporting hosts in the CSP, no custom events (FR-91), the method page's analytics note (FR-92), and AT-9 asserting that the only third-party requests go to the beacon. If I haven't, FR-90 stays a gap at launch, AT-9 asserts no third-party request at all, and the method page says the site counts no visits. I'll tell you which at the go-ahead. |
+| 1 | Keeping test runs out of the analytics (FR-90, AT-9) | The built pages carry the beacon, as deployed. Playwright aborts requests to the two Cloudflare hosts in `e2e/helpers.ts` (a test still checks that every page has the beacon tag and that nothing else third-party is requested), and Lighthouse CI blocks them with `blockedUrlPatterns`, so CI and local runs send no page views. The beacon's own cost is measured once against the deployed site after the push. |
 | 2 | Share-image tool (FR-82, §3.1) | No new dependency: card pages rendered by the site's own Svelte components at 1200 × 630 and photographed with the Playwright Chromium already used for tests, in a script (`npm run cards`). The alternative is Satori with resvg and a self-hosted font, as §3.1 suggests, which needs new dependencies and a font licence. |
 | 3 | Where images are built and kept (R-9, NFR-50) | Generated in CI on Linux, so text renders the same every time, cached by a hash of `data/derived/`, the card templates and the attribution, and restored by the deploy; not committed to git, so data updates don't grow the repository's history. `npm run cards` builds them locally for review (in the Playwright Docker image for identical output). |
 | 4 | Which routes get their own image | The 247 FR-82 asks for. The 15 behavior pages and the 26 change society pages use their module's image; the 404 page has none. Without the change module, the Change image is not built and no page points to it. |
@@ -210,20 +236,23 @@ Then wait for my go-ahead.
 1. **Share images** (FR-82, FR-83, AT-7): templates, generation, caching in CI and the deploy,
    meta tags on every route, and checks that each route's image exists, has the right size and
    carries the attribution (AT-5's manual sample is mine).
-2. **Method page** (FR-70 to FR-73, FR-92, NFR-34, HR-8): settled text, the per-society table,
-   versions, checksums and the build date, the analytics note, no banner.
-3. **Audits.**
+2. **Analytics** (FR-90 to FR-92, NFR-32, AT-9): the beacon on every page, the CSP's two hosts,
+   `check-build.js` and the tests taught about them, test runs kept out of the counts.
+3. **Method page** (FR-70 to FR-73, FR-92, NFR-34, HR-8): settled text, the per-society table,
+   versions, checksums and the build date, the analytics note with Cloudflare's privacy link, no
+   banner.
+4. **Audits.**
    - Accessibility: axe as now, plus a manual-check list for me (NFR-13); fix what the audit
      finds.
    - Performance: Lighthouse CI as now, sizes against NFR-1 and NFR-5 including the images.
    - Compatibility: Firefox and WebKit runs (decision 9).
    - Content: the AT-12 pass (decision 11).
-4. **Acceptance tests:** AT-5 to AT-10 and AT-12 as automated checks where they can be (AT-8
+5. **Acceptance tests:** AT-5 to AT-10 and AT-12 as automated checks where they can be (AT-8
    through the `needs_raw` tests with the local raw files; AT-9 and AT-10 against `build/` now
    and the deployed URL after the push).
-5. **Visual regression** (decision 8) and **dependency audits** (decision 10).
-6. **The gaps you agree to close** (decision 12).
-7. **Docs.**
+6. **Visual regression** (decision 8) and **dependency audits** (decision 10).
+7. **The gaps you agree to close** (decision 12).
+8. **Docs.**
    - Update `CLAUDE.md`, the README and `docs/SETUP.md` where the site or the manual steps
      changed, including how to rebuild the share images.
    - Append new decisions to `docs/decisions.md` from 87 onward.
@@ -233,7 +262,9 @@ Then wait for my go-ahead.
 
 - [ ] Share images exist for the home page, each module, the 150 cells and the 90 societies, and
   every route's meta tags point to an existing image (FR-82, FR-83, AT-7).
-- [ ] The method page meets FR-70 to FR-72 (and FR-92 if analytics is in), without the banner.
+- [ ] The method page meets FR-70 to FR-72 and FR-92, without the banner.
+- [ ] Every page loads the Cloudflare Web Analytics beacon, with the CSP allowing only its two
+  hosts (FR-90, FR-91, NFR-32).
 - [ ] AT-5, AT-6, AT-8, AT-10 and AT-12 pass as automated checks; AT-7 likewise; AT-9 passes
   against `build/` and, after the push, the deployed site.
 - [ ] axe reports zero serious or critical issues on every route checked in both themes; visual

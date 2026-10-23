@@ -21,18 +21,20 @@ automated. Tick each item once it is done.
 
 ## Analytics (SRS §8.5)
 
-- [ ] **Try Cloudflare Web Analytics with the `github.io` hostname.** In the Cloudflare dashboard
+- [x] **Try Cloudflare Web Analytics with the `github.io` hostname.** In the Cloudflare dashboard
   (a free account is enough), open *Web Analytics → Add a site*. Enter the hostname
   `nathan98000.github.io` and choose the JavaScript snippet option for a site not proxied by
   Cloudflare. Record whether the hostname is accepted. If it is, note the site token from the
   snippet: it is public, since it ships in every page, so it is not a secret.
-- [ ] **If the hostname is rejected, use GoatCounter instead.** Create a free site at
-  https://www.goatcounter.com/ (for example `etiquette-atlas.goatcounter.com`) and note its
-  code.
+- **If the hostname is rejected, use GoatCounter instead.** Not needed: Cloudflare accepted the
+  hostname (below). For reference, the fallback was a free site at https://www.goatcounter.com/
+  (for example `etiquette-atlas.goatcounter.com`) and its code.
 
-Either way, report the outcome. In M2 the beacon is added to every page and its script and
-reporting hosts are added to the CSP in `site/vite.config.ts`, so the site still contacts no
-other third party (NFR-31, NFR-32).
+Outcome (23 October 2026): Cloudflare Web Analytics accepted `nathan98000.github.io`. Its site
+token is `58ded44fdb764340973b62e1e32f48a6`; it ships in every page, so it is public. M7 adds the
+beacon to every page and its script host (`static.cloudflareinsights.com`) and reporting host
+(`cloudflareinsights.com`) to the CSP in `site/vite.config.ts`, so the site still contacts no
+other third party (NFR-31, NFR-32; `docs/m7-kickoff.md`).
 
 ## Repository secrets
 
