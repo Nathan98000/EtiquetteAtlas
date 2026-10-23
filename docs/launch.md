@@ -10,7 +10,7 @@ is sent or published from a coding session.
 | Item | Status | Automated | Left to the maintainer |
 | --- | --- | --- | --- |
 | All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 (no collection sites, decision 9) and §2.4 (current browser versions tested automatically, the previous ones by hand, decision 98) pass as the SRS now words them (89993c7). Waived for v1.0 by the maintainer, not passed: the screen-reader checks (NFR-13), a real iPhone and the previous browser versions (NFR-20; decision 109) | CI on every pull request and deploy | Real devices: Chrome on Android and the current desktop browsers (NFR-20) |
-| Lighthouse, size and accessibility budgets met on the deployed URL | Met on both deploys of 23 October 2026 (below); on the second (6632baa): median LCP 0.88–1.35 s, CLS ≤ 0.012, TBT ≤ 79 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
+| Lighthouse, size and accessibility budgets met on the deployed URL | Met on all three deploys of 23 October 2026 (below); on the third (bad0529): median LCP 0.89–1.33 s, CLS ≤ 0.012, TBT ≤ 36 ms, Lighthouse accessibility 1.00 on 12 routes; 35.99 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105); reviewed by a fresh agent in place of a human reader, a departure from §9.4 (decision 110), its findings below | — | — |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026) | Both, in CI | Look at a sample of images (AT-5, below) |
 | Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107) | `npm run test:deployed` | Check that page views reach the Cloudflare dashboard (`docs/SETUP.md`) |
@@ -107,6 +107,17 @@ and the launch docs), with every CI job green:
   deploy (≤ 1 ms) though the only change was the method page's text: the laptop was busy (load
   average 6 to 13), and single runs of an unchanged route ranged from 0 to 110 ms.
 - axe on the deployed URL: 40 passed.
+
+Results of the third deploy (commit bad0529, 23 October 2026: the method page's corrections, L-2 to
+L-19, the applied SRS edits and the waivers). Every CI job's steps passed; the API kept showing the
+site job as in progress after its last step, a stale status, as the deploy that needs it ran.
+
+- `npm run test:deployed`: 2 passed, with reports naming the page by its path and no query string.
+- `npm run check:deployed`: 940 files, 35.99 MB of 60 MB, largest 0.50 MB, no cookies; only the 289
+  HTML files differed from a local build, by the version marker.
+- axe on the deployed URL: 40 passed.
+- `LHCI_DEPLOYED=1 npm run lhci`, run alone: every assertion met. Medians: LCP 0.89–1.33 s, CLS ≤
+  0.012, TBT ≤ 36 ms, accessibility 1.00.
 
 Still to do:
 
