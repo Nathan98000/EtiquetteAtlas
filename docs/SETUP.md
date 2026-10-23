@@ -36,12 +36,18 @@ the beacon is on every page, and its script host (`static.cloudflareinsights.com
 host (`cloudflareinsights.com`) are the only third parties in the CSP (`site/vite.config.ts`,
 `site/site.config.js`; NFR-31, NFR-32).
 
-- [ ] **After the first deploy with the beacon, confirm it counts.** Open a few pages of
+- [x] **After the first deploy with the beacon, confirm it counts.** Open a few pages of
   https://nathan98000.github.io/EtiquetteAtlas/ in a browser without an ad blocker, then check
   *Web Analytics* in the Cloudflare dashboard for page views on `nathan98000.github.io` (they can
   take a few minutes). Note whether moving between views (society, sample) counts as extra page
-  views. Test runs send nothing: Playwright stubs the beacon and Lighthouse CI blocks it. A page
-  opened from `npm run preview` in an ordinary browser does send a page view, for `localhost`.
+  views. Runs against `build/` send nothing: Playwright stubs the beacon and Lighthouse CI blocks
+  it. The deployed checks run the real beacon (`npm run test:deployed`, `LHCI_DEPLOYED=1 npm run
+  lhci`). A page opened from `npm run preview` in an ordinary browser does send a page view, for
+  `localhost`.
+
+  Outcome (23 October 2026): 188 visits and 191 page views, nearly all from the deployed checks.
+  Each full load without a referrer is a visit; a view change is a page view but not a visit
+  (decision 107).
 
 ## Repository secrets
 
@@ -52,7 +58,7 @@ host (`cloudflareinsights.com`) are the only third parties in the CSP (`site/vit
 
 ## Dependency updates (NFR-33)
 
-- [ ] **Turn on Dependabot alerts.** *Settings → Code security → Dependabot alerts: Enable*.
+- [x] **Turn on Dependabot alerts.** *Settings → Code security → Dependabot alerts: Enable*.
   Version updates need no setting: `.github/dependabot.yml` asks for weekly grouped pull requests
   for npm, uv and GitHub Actions. Optionally enable *Dependabot security updates* too. CI already
   runs `npm audit --omit=dev` and `uv audit` on every pull request. A `@playwright/test` update
@@ -81,7 +87,10 @@ Nothing here needs a setting; it is what to look at once the site is announced.
 
 - **What to watch:**
   - *Cloudflare Web Analytics* for `nathan98000.github.io`: visits, top pages and referrers.
-    Ad blockers undercount it (R-12), so it shows rough trends only.
+    Ad blockers undercount it (R-12), so it shows rough trends only. Read trends from Visits
+    (decision 107), and note when the deployed checks run: each round adds about 50 visits
+    (`npm run test:deployed` about 15, `LHCI_DEPLOYED=1 npm run lhci` 36; axe and
+    `npm run check:deployed` send none). Everything up to the announcement is mostly those.
   - *Bandwidth:* GitHub Pages has a soft limit of about 100 GB a month and shows no meter; at
     1–2 MB per typical visit (SRS §8.2) that is roughly 50,000 to 100,000 visits a month. If
     Cloudflare's monthly visits approach 50,000, or GitHub writes about the site's traffic, the

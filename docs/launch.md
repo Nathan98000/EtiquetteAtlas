@@ -13,7 +13,7 @@ is sent or published from a coding session.
 | Lighthouse, size and accessibility budgets met on the deployed URL | Met on all three deploys of 23 October 2026 (below); on the third (bad0529): median LCP 0.89–1.33 s, CLS ≤ 0.012, TBT ≤ 36 ms, Lighthouse accessibility 1.00 on 12 routes; 35.99 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105); reviewed by a fresh agent in place of a human reader, a departure from §9.4 (decision 110), its findings below | — | — |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026) | Both, in CI | Look at a sample of images (AT-5, below) |
-| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107) | `npm run test:deployed` | Check that page views reach the Cloudflare dashboard (`docs/SETUP.md`) |
+| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107). Counting confirmed in the dashboard, 23 October 2026: 188 visits, 191 page views | `npm run test:deployed` | — |
 | Social cards checked for the home page, one cell and one society | Tags and images on every route (AT-7) | — | The validators below (NFR-61) |
 | Optional courtesy note to the GSN authors | Not sent: the maintainer's decision (decision 108); the change module stays on, and `CHANGE_MODULE=off` removes it in one deploy (R-6) | — | — |
 
@@ -121,9 +121,10 @@ site job as in progress after its last step, a stale status, as the deploy that 
 
 Still to do:
 
-- [ ] confirm page views reach the Cloudflare dashboard (`docs/SETUP.md`); how view changes count
-  is settled (decision 107);
-- [ ] turn on Dependabot alerts (`docs/SETUP.md`);
+- [x] confirm page views reach the Cloudflare dashboard: 188 visits and 191 page views by the
+  evening of 23 October 2026, nearly all the deployed checks' own full loads, each a visit; the
+  few extra page views match their view changes (decision 107);
+- [x] turn on Dependabot alerts (23 October 2026);
 - [x] run axe on the deployed URL (above).
 
 ## Before the announcement
