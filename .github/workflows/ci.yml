@@ -65,11 +65,11 @@ jobs:
         run: npm run check:build
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
-      # AT-1, AT-2, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1) and redraw
+      # AT-1 to AT-4, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1) and redraw
       # times (NFR-4).
       - name: Playwright end-to-end and accessibility tests
         run: npm run test:e2e
-      # NFR-2 and AT-1 on eleven routes under Lighthouse's mobile profile, with the runner's Chrome.
+      # NFR-2 and AT-1 on twelve routes under Lighthouse's mobile profile, with the runner's Chrome.
       - name: Lighthouse CI
         run: npm run lhci
 

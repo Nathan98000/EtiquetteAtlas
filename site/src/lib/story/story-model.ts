@@ -2,7 +2,7 @@
  * The guided story (FR-64): four to six steps that open with the paper's main finding, then the
  * most universal cell, the most culture-dependent cell, the audience effect and the largest
  * difference since the early 2000s, and hand over to the explorer. Each step's cell or behavior is
- * chosen from All data on the raw scale (decisions 81 and 82), so the story follows the data; the
+ * chosen from All data on the raw scale (decisions 82 and 83), so the story follows the data; the
  * change step exists only in a build with the change module (R-6, decision 75).
  */
 

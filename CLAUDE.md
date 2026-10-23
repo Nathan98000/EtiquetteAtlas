@@ -9,8 +9,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - Column-level data notes: `docs/reference/gsn-data-profile.md`. It is local only (git-ignored)
   because it quotes respondent-level values: never commit it or copy values out of it.
 - Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
-  (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4), `docs/m5-kickoff.md` (M5). Manual
-  GitHub and analytics steps: `docs/SETUP.md`.
+  (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4), `docs/m5-kickoff.md` (M5),
+  `docs/m6-kickoff.md` (M6). Manual GitHub and analytics steps: `docs/SETUP.md`.
 - Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
   Method-page drafts: `docs/method-notes.md`. Output formats: `data/derived/README.md`.
 
@@ -75,16 +75,20 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
     `change-model.ts`). Also beeswarm, map (lazy), strip, legends and tables; `*-model.ts` hold
     their pure logic; `colors.ts` the palettes.
   - `src/lib/components/`: header, control bar, society picker, facts panel, similar-societies
-    list, the audiences' filters, the change pages' provenance note and scale note, and shared
-    controls (`Segmented`, `Toggle`, `SortSelect`, `StepLinks`, `SampleNotice`).
+    list, the audiences' filters, the change pages' provenance note and scale note, the quiz's
+    reveal (`QuizReveal`, loaded on first interaction), the story's steps (`StoryStep`,
+    `StoryChange`), and shared controls (`Segmented`, `Toggle`, `SortSelect`, `StepLinks`,
+    `SampleNotice`).
+  - `src/lib/quiz/`: `items.ts` (the three quiz items, FR-60), `quiz-model.ts` (an answer among
+    the society estimates and a society's responses) and `quiz-store.ts` (the one sessionStorage
+    key). `src/lib/story/story-model.ts` picks the story's steps from All data.
   - `src/lib/server/derived.ts`: All-data aggregates for build-time summaries only;
     `server/change.ts` holds the change file's, read only by the change routes.
   - `src/lib/change-module.ts`: `CHANGE_MODULE`, whether this build has the change module (R-6).
-  - Routes: `/` (intro), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
+  - Routes: `/` (the quiz), `/story` (the guided story), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
     `/societies` (index) and `/societies/[society]` (90 fingerprints, with `?compare=`),
     `/audiences` (15 small multiples) and `/audiences/[behavior]` (15 slopegraphs), `/change`
-    (the 26 societies in both surveys) and `/change/[society]` (26 pages), `/method` (draft), and
-    a placeholder for `/story`.
+    (the 26 societies in both surveys) and `/change/[society]` (26 pages), and `/method` (draft).
 - `.github/workflows/`: `ci.yml` (pull requests; reused by deploy), `deploy.yml` (push to `main`
   → GitHub Pages), `pipeline.yml` (manual).
 
@@ -115,7 +119,7 @@ npm run preview                 # serves build/ like Pages: http://localhost:417
 npm run lint && npm run check && npm run test:unit -- --run
 npm run test:e2e                # builds, serves, runs Playwright (once: npx playwright install chromium)
 PORT=4392 npm run test:e2e      # the same on another port if 4173 is taken
-npm run lhci                    # Lighthouse CI on build/ (11 routes, mobile profile; also honours PORT)
+npm run lhci                    # Lighthouse CI on build/ (12 routes, mobile profile; also honours PORT)
 ```
 
 Pipeline coverage as CI runs it: `uv run pytest -m "not needs_raw" --cov` (80% floor, NFR-53).
@@ -162,9 +166,13 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   with `changeHref(code, state)`, which opens the overview with `?society=` for a society without
   2000–2003 data; pass `withSort` false from outside the module. Routes may have their own
   defaults (`defaultsFor`): the change routes sort by difference unless the URL says otherwise.
-- The change module can be removed in one build (`CHANGE_MODULE=off`, R-6, decision 75): guard
-  anything of it outside `src/routes/change/` with `CHANGE_MODULE`, keep its data in
-  `change-files.ts` and `server/change.ts`, and check the off build with `check:build`.
+- The change module can be removed in one build (`CHANGE_MODULE=off`, R-6, decisions 75 and
+  85): guard anything of it outside `src/routes/change/` with `CHANGE_MODULE`, keep its data in
+  `change-files.ts` and `server/change.ts`, list components only it uses in `vite.config.ts`'s
+  `withoutChangeModule`, and check the off build with `check:build`.
+- Quiz answers are read and written only through `quiz-store.ts` (FR-63, C-12, decision 80):
+  never in a URL, request, log or error message. The story shows All data whatever the sample
+  toggle (decision 82).
 - Colours come from `charts/colors.ts` and the tokens in `app.css`: pass `scoreStyle()` or
   `regionStyle()` and the `score` or `region` class, which pick the theme's colour. Check new
   colours for 3:1 (marks) and 4.5:1 (text) in both themes; `colors.spec.ts` does so for the

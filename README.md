@@ -6,12 +6,13 @@ in 90 societies judge 15 everyday behaviors (eating, kissing, using a phone…) 
 [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB) and published at
 **https://nathan98000.github.io/EtiquetteAtlas/**.
 
-Status: milestone M5 (change since the early 2000s, live but not announced). The etiquette
+Status: milestone M6 (quiz and guided story, live but not announced). The home page opens with
+a three-question quiz, and a guided story walks through the main findings. The etiquette
 matrix, the drill-down for each of the 150 behavior–situation pairs, a fingerprint for each of
 the 90 societies, the audiences module (each behavior alone, in front of colleagues or
 classmates and in front of management or professors) and the change module (26 societies
 against a survey from 2000–2003) work, with the society picker, sample and scale toggles,
-compare mode and permalinks; the quiz and story arrive in M6. The requirements are in
+compare mode and permalinks; M7 polishes the site before launch. The requirements are in
 [`The Etiquette Atlas Software Requirements Specification.md`](<The Etiquette Atlas Software Requirements Specification.md>).
 
 ## How it works
@@ -104,7 +105,7 @@ npm run check:build            # checks the build and reports first-load sizes a
 npm run preview                # serves build/ like GitHub Pages at http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
 npm run test:e2e               # builds, serves and runs the Playwright tests, axe included
-npm run lhci                   # Lighthouse CI on eleven routes under the mobile profile
+npm run lhci                   # Lighthouse CI on twelve routes under the mobile profile
 ```
 
 `npm run preview`, `npm run test:e2e` and `npm run lhci` use port 4173; set `PORT` to use
@@ -120,15 +121,16 @@ set the repository variable `CHANGE_MODULE` to `off` (see [`docs/SETUP.md`](docs
 
 ### How the site is put together
 
-- **Routes** (`site/src/routes/`): `/` is a short intro, `/explore` the matrix (a list below
+- **Routes** (`site/src/routes/`): `/` opens with the quiz, `/story` is the guided story,
+  `/explore` the matrix (a list below
   640 px), `/explore/[behavior]/[situation]` the drill-down for each of the 150 cells,
   `/societies` an index of the 90 societies and `/societies/[society]` each society's
   fingerprint (its difference from the global average in every cell, its most similar
   societies, its facts and a comparison with any other society), `/audiences` small multiples
   of the 15 behaviors by audience and `/audiences/[behavior]` each behavior's slopegraph,
   `/change` the 26 societies in both the 2000–2003 survey and the GSN and `/change/[society]`
-  each of them, pair by pair, and `/method` a draft method page. `/story` is a placeholder until
-  M6. Every route is prerendered to its own `index.html` with
+  each of them, pair by pair, and `/method` a draft method page. Every route is prerendered to
+  its own `index.html` with
   its title, description, canonical URL and a one-sentence summary built from All data at build
   time, so it reads without JavaScript.
 - **Data** (`site/src/lib/data/`): each file in `data/derived/` is imported with `?url` in
@@ -138,7 +140,9 @@ set the repository variable `CHANGE_MODULE` to `off` (see [`docs/SETUP.md`](docs
   outlines when the map nears the screen; a fingerprint loads `global-`, `cells-` and
   `similarity-<sample>.json`, and the dumbbell's code only in compare mode; the audiences routes
   load `contexts-<sample>.json` and the change routes `change-<sample>.json` (listed apart in
-  `change-files.ts`), and nothing else. Each file is decoded once (`model.ts` checks its shape)
+  `change-files.ts`). The quiz loads `global-` and `cells-<sample>.json` once the reader turns to
+  a question and `distributions-<sample>.json` once a society is chosen; the story loads each
+  step's file as the step nears the screen. Each file is decoded once (`model.ts` checks its shape)
   and kept in memory; a failed load shows a message with a retry.
 - **State**: the society, sample, scale, sort, comparison, the drill-down's toggles and the
   audiences' filters live in the query string (`src/lib/state/`), except on a fingerprint or a
@@ -181,8 +185,24 @@ actionlint for the workflows.
 
 ## Changing the quiz items
 
-The quiz (FR-60) arrives in milestone M6, with its three items set in a configuration file. This
-section will then say where that file lives and how to change it.
+The quiz's three items (FR-60) are set in
+[`site/src/lib/quiz/items.ts`](site/src/lib/quiz/items.ts), asked in the order listed. Each item
+is a behavior and a situation, by the IDs in SRS §4.2 (also in `site/src/lib/data/grid.ts`):
+
+```ts
+export const QUIZ_ITEMS: readonly QuizItem[] = [
+	{ behavior: 'eat', situation: 'restaurant' },
+	{ behavior: 'sing', situation: 'funeral' },
+	{ behavior: 'listen', situation: 'library' }
+];
+```
+
+To change one, edit its IDs and run `npm run test:unit -- --run` from `site/`: the tests refuse
+anything but three different cells, and check that each item has estimates and response counts
+for most societies in every sample. The question's wording ("How appropriate is it to eat in a
+restaurant?") is built from the item's behavior and situation, so nothing else needs editing.
+Then update the expected texts in `site/e2e/quiz.e2e.ts`, which name the current items, and
+run `npm run test:e2e`.
 
 ## Licences and credit
 

@@ -19,7 +19,7 @@ const inlineScripts = [...appHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map
  * R-6: a build without the change module (CHANGE_MODULE=off) compiles the change routes and the
  * components only they and the story's change step use to stubs, the routes not prerendered, and
  * swaps the module holding the change files' URLs for one with none, so no change page, chart code
- * or 2000–2003 aggregate reaches build/ (decision 75).
+ * or 2000–2003 aggregate reaches build/ (decisions 75 and 85).
  */
 function withoutChangeModule(): Plugin {
 	const at = (path: string) => fileURLToPath(new URL(path, import.meta.url));

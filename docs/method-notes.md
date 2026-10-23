@@ -265,6 +265,43 @@ reproduces Table 1 within ±0.02 (NFR-51). The site reads the bounds as stored (
 under All data 980 society–pairs are higher, 747 lower and 1,392 within. Small samples (10 to 29
 GSN respondents) occur only under Attention check, in 177 society–pairs (decision 69).
 
+## The quiz
+
+On the method page as `#quiz` since M6 (decisions 78 to 80 and 86).
+
+**For readers.** On the home page you can rate three behaviors in situations on the six answers
+the survey offered. The question wording is the atlas's own; the six answers are the survey's.
+Your answer is placed among each society's average answer in the sample you chose. An average is
+the middle of many people's answers, while yours is a single answer on one of the six points, so
+"above the average answer of respondents in 4 societies" says where your answer falls, not how you
+compare with anyone. If you choose a society, you also see how many of its respondents gave each
+answer. Societies with fewer than 10 respondents for a question are left out and counted apart.
+Your answers stay in the browser tab and are never sent anywhere.
+
+**Technical.** FR-60 to FR-63. Response k sits at k − 3.5. It is compared in hundredths with the
+societies' shrunken estimates on the raw scale (decision 32), whatever the scale toggle; a
+society's responses come from `distributions-<s>.json` (DR-4), whose counts add up to its n. The
+answers are kept in one sessionStorage key, `etiquette-atlas:quiz`, so a reload keeps them and a
+new tab starts empty (AT-3).
+
+## The guided story
+
+On `/story/` since M6 (decisions 81 to 85); its charts link to the method sections they draw on.
+
+**For readers.** The tour opens with the paper's main finding: norms vary "far more across
+situations than across societies". In the paper's model the standard deviation between situated
+behaviors is 0.31 on the −2.5 to +2.5 scale, between societies 0.19, and for everything else,
+individual respondents and noise, 1.11. These are the paper's estimates; the atlas does not
+compute them. The next steps show the pair societies agree on most, the pair they disagree on
+most, the largest audience effect and the largest difference between the 2000–2003 and
+2023–2024 surveys, all from All data.
+
+**Technical.** SRS §4.8 for the paper's numbers. The steps are chosen at build time: the cells
+with the least and most disagreement τ on the raw scale (FR-16), the behavior with the largest
+drop from alone to management or professors (decision 58), and the largest difference averaged
+over the societies in both surveys (decision 71). Without the change module the story has five
+steps (R-6).
+
 ## Society facts
 
 On the method page as `#facts` since M3 (decision 50).
