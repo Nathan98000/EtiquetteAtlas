@@ -61,7 +61,10 @@ test('AT-9, FR-90, NFR-31: every page loads the beacon, and contacts no other th
 	expect(session.filter((key) => !ALLOWED_SESSION_KEY.test(key))).toEqual([]);
 });
 
-test('FR-91, C-12: nothing sent to the analytics carries a quiz answer', async ({
+// Decision 94: the privacy notice says the analytics record a page's address without its query
+// string, where the view's choices live. The live beacon strips it before sending, on a full load
+// and on a view change alike; the society or pair in a path is part of the address it records.
+test('FR-91, C-12, decision 94: nothing sent to the analytics carries a quiz answer or the query string', async ({
 	page,
 	context
 }) => {
@@ -76,11 +79,15 @@ test('FR-91, C-12: nothing sent to the analytics carries a quiz answer', async (
 	await page.getByRole('button', { name: 'See where your answer falls' }).click();
 	await expect(page.locator('.beeswarm .marker-label')).toBeVisible();
 	await page.goto(url('explore/?society=chl&sample=paper'), { waitUntil: 'networkidle' });
+	// A view change moves the query string in place, which the live beacon reports as a page view.
+	await page.locator('input[name="sample"][value="attention"]').check();
+	await expect(page).toHaveURL(/sample=attention/);
 	if (BEACON_LIVE) await page.waitForTimeout(1500);
 
 	expect(reports.length).toBeGreaterThan(0);
 	for (const report of reports) {
 		expect(report).not.toMatch(/extremely appropriate|eat\/restaurant|etiquette-atlas:quiz/);
+		expect(report).not.toMatch(/\b(society|sample|scale|compare)=/);
 	}
 	expect(await context.cookies()).toEqual([]);
 	expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
