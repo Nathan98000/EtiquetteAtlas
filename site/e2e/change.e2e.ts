@@ -363,7 +363,10 @@ test('FR-7, FR-52: "About this chart" opens the method page’s change section',
 		'Change since the early 2000s'
 	);
 	await expect(section).toContainText('not a change in anyone');
-	await expect(section).toContainText('individual answers are not public');
+	// C-6, finding L-4: the provenance as the companion files give it, without calling the file
+	// private, as the versions table links it.
+	await expect(section).toContainText('individual answers as provided to them privately');
+	await expect(section).not.toContainText('not public');
 });
 
 test.describe('without JavaScript', () => {

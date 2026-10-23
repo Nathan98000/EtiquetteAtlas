@@ -69,10 +69,12 @@
 			Everything here comes from the
 			<a href={attribution.dataUrl} rel="external">Global Study of Everyday Norms</a>:
 			{all.respondents} people in {all.societies} societies rated how appropriate 15 everyday behaviors
-			are in 10 situations, between July 2023 and May 2024. Most respondents were recruited through universities
-			and online panels, so they are not a random sample of each country, and more than half are students.
-			That is why the atlas speaks of "respondents in Chile" rather than "Chileans". The atlas shows summaries
-			of their answers, never an individual answer, and never a summary of fewer than 10 people.
+			are in 10 situations, between July 2023 and May 2024. They were convenience samples, recruited in
+			different ways at each site (by email, social media or survey organizations), so they are not a
+			random sample of each country, and more than half are recorded as students. That is why the atlas
+			speaks of "respondents in Chile" rather than "Chileans". The atlas shows summaries of their answers,
+			never an individual answer, and never a score or a count of answers for a group of fewer than 10
+			people.
 		</p>
 		<p>
 			The atlas describes how answers differ, not why. A difference between two societies can also
@@ -168,7 +170,9 @@
 			Scores from small groups of respondents bounce around more. To keep a few unusual answers from
 			making a society look extreme, the default view pulls each society's score part of the way
 			toward the average of all societies. Scores based on many respondents barely move; scores
-			based on few move more. You can switch to the raw scores at any time.
+			based on few move more. A shrunken score's interval comes from a formula that combines the
+			society's own uncertainty with that of the average of all societies. On a pair's page, the
+			Estimate toggle switches to the raw scores.
 		</p>
 	</section>
 
@@ -176,8 +180,8 @@
 		<h2>The global picture</h2>
 		<p>
 			The matrix shows the average score of all societies for each pair, with every society counting
-			equally, however many respondents it had. So the 829 respondents in the United States count as
-			much as the 71 in Chile.
+			equally, however many respondents it had. In All data, the 829 respondents in the United
+			States count as much as the 71 in Chile.
 		</p>
 	</section>
 
@@ -186,19 +190,20 @@
 		<p>
 			For each pair, disagreement measures how far apart societies are. Some of the spread between
 			society scores is just the noise of surveying a few dozen people per society, so we subtract
-			that noise: what remains is our estimate of how much societies really differ. It is in the
-			same units as the scores: a disagreement of 0.5 means societies typically sit about half a
-			point above or below the global average. On a pair's page, the band around the global average
-			spans one disagreement either side.
+			that noise: what remains is our estimate of how much respondents in different societies really
+			differ. It is in the same units as the scores: a disagreement of 0.5 means societies typically
+			sit about half a point above or below the global average. On a pair's page, the band around
+			the global average spans one disagreement either side.
 		</p>
 	</section>
 
 	<section id="centered">
 		<h2>Centered scores</h2>
 		<p>
-			Some groups of respondents use the top of the scale more than others, in every situation. The
-			centered view removes each society's overall tendency, so you see where it is stricter or
-			looser than usual for itself. The GSN paper makes no such adjustment; it is our addition.
+			Respondents in some societies rate nearly everything higher than respondents elsewhere; the
+			data cannot tell whether that is general leniency or a way of using the scale. The centered
+			view removes each society's overall tendency, so you see where it is stricter or looser than
+			usual for itself. The GSN paper makes no such adjustment; it is our addition.
 		</p>
 	</section>
 
@@ -250,9 +255,9 @@
 			stricter about the same things and looser about the same things. The score is the correlation
 			between their two fingerprints, from −1 to 1: 1 would mean exactly the same pattern, 0 no
 			shared pattern. It measures how alike the answers are, not how related the cultures are. We
-			compare two societies only when both have at least 120 of the 150 pairs with 10 or more
-			respondents, so a few societies have no similar societies listed. Centering shifts all of a
-			society's scores by the same amount, so the scale toggle does not change similarity.
+			compare two societies only when at least 120 of the 150 pairs have 10 or more respondents in
+			both, so a few societies have no similar societies listed. Centering shifts all of a society's
+			scores by the same amount, so the scale toggle does not change similarity.
 		</p>
 	</section>
 
@@ -261,11 +266,11 @@
 		<p>
 			Each society's page shows how many people responded in the chosen sample, the share flagged as
 			students, the languages people took the survey in, and the months of fieldwork; the table at
-			the end of this page lists them all. Student status was recorded by the collection sites
-			rather than asked in the questionnaire, and some sites recorded none, so we show the share
-			with no status as well. Fieldwork months are those in which at least 10 respondents started.
-			The collection sites themselves are never shown, as they could help identify respondents.
-			Regions are the GSN authors' four-way grouping (see The map).
+			the end of this page lists them all. Student status was not collected the same way at every
+			site: some asked respondents, some recorded it for everyone they recruited, and some recorded
+			none, so we show the share with no status as well. Fieldwork months are those in which at
+			least 10 respondents started. The collection sites themselves are never shown, as they could
+			help identify respondents. Regions are the GSN authors' four-way grouping (see The map).
 		</p>
 	</section>
 
@@ -291,14 +296,15 @@
 		</p>
 		<p>
 			These charts always show raw scores. Centering subtracts each society's average over the 150
-			situations, which these questions are not part of, and the audience effect compares a society
-			with itself, so the way a society's respondents use the scale mostly cancels out.
+			behavior–situation pairs, which these questions are not part of, and the audience effect
+			compares a society with itself, so the way a society's respondents use the scale mostly
+			cancels out.
 		</p>
 		<p>
 			Women and men respondents are shown for all societies together only: within one society, a
-			behavior's answers from women or from men in front of one audience rest on about 11
-			respondents in the median society. Respondents who answered "other" or preferred not to say
-			are left out of this split, though they count everywhere else.
+			behavior in front of one audience was rated by about 55 respondents in the median case, and
+			men are about a third of respondents, so each group would be small. Respondents who answered
+			"other" or preferred not to say are left out of this split, though they count everywhere else.
 		</p>
 		<!-- FR-43, decision 66. -->
 		<p>
@@ -337,22 +343,25 @@
 	<section id="story">
 		<h2>The guided story</h2>
 		<p>
-			The guided story opens with the GSN paper's main finding: norms vary "far more across
-			situations than across societies". In the paper's statistical model, judgments differ between
-			situated behaviors with a standard deviation of 0.31 on the −2.5 to +2.5 scale, between
-			societies with 0.19, and for everything else, individual respondents and noise, with 1.11.
-			These are the paper's estimates; the atlas does not compute them. The story's other steps are
-			chosen from All data, whatever sample you picked elsewhere.
+			The guided story opens with one of the GSN paper's conclusions: norms vary "far more across
+			situations than across societies". In the paper's statistical model, after the predictors it
+			uses, judgments differ between situated behaviors with a standard deviation of 0.31 on the
+			−2.5 to +2.5 scale (on top of 0.36 between the 15 behaviors themselves), between societies
+			with 0.19 and between individual respondents with 0.50; single ratings vary around all of
+			these with 1.11, what the model leaves unexplained. These are the paper's estimates for its
+			preregistered sample of 17,288 respondents (its Supplementary Table 9); the atlas does not
+			compute them. The story's other steps are chosen from All data, whatever sample you picked
+			elsewhere.
 		</p>
 	</section>
 
 	<section id="rank">
 		<h2>Ranks</h2>
 		<p>
-			A society's rank counts the societies with a higher score for the pair, among those shown for
-			the chosen sample, estimate and scale; societies with equal scores share a rank. Ranks move
-			with the uncertainty of the scores, so neighbouring ranks often differ by less than the
-			intervals.
+			A society's rank is one more than the number of societies with a higher score for the pair,
+			among those shown for the chosen sample, estimate and scale; societies with equal scores share
+			a rank. Ranks move with the uncertainty of the scores, so neighbouring ranks often differ by
+			less than the intervals.
 		</p>
 	</section>
 
@@ -371,10 +380,10 @@
 		<h2>What the atlas cannot tell you</h2>
 		<ul>
 			<li>
-				<strong>What a country thinks.</strong> Respondents were mostly recruited through
-				universities and online panels: {data.students.students}% of all respondents were recorded
-				as students, and no status was recorded for another {data.students.unknown}%. A society's
-				score describes its respondents, not its population.
+				<strong>What a country thinks.</strong> Respondents were convenience samples, recruited in
+				different ways at each site: {data.students.students}% of all respondents were recorded as
+				students, and no status was recorded for another {data.students.unknown}%. A society's score
+				describes its respondents, not its population.
 			</li>
 			<li>
 				<strong>Why answers differ.</strong> The atlas shows where answers differ and by how much. It
@@ -382,12 +391,13 @@
 			</li>
 			<li>
 				<strong>Whether every translation measures the same thing.</strong> The GSN authors tested whether
-				the questionnaire works the same way across languages only for its scale of values, not for the
+				the questionnaire works the same way across societies only for its scale of values, where it held
+				in part (the same structure everywhere, but not full measurement invariance), and not for the
 				ratings of appropriateness the atlas shows. Some differences between societies may come from wording.
 			</li>
 			<li>
-				<strong>How judgments change over time.</strong> The ratings were collected between July 2023
-				and May 2024, at one point in time for each respondent.
+				<strong>How any one person's views changed.</strong> Each respondent answered once, between July
+				2023 and May 2024; the change pages compare two surveys of different people.
 			</li>
 		</ul>
 	</section>
@@ -403,15 +413,16 @@
 				to it, the country, the browser, operating system and device type, and how fast the page
 				loaded. The address names the page you opened, such as a society's or a pair's. The choices
 				the atlas keeps in the query string (a society picked on other pages, the sample, the scale)
-				are not sent, and neither are your quiz answers. Cloudflare says it uses no cookies or
-				browser storage for this and does not fingerprint visitors by their IP address or browser.
-				See <a href={CLOUDFLARE_PRIVACY} rel="external">Cloudflare's privacy policy</a>.
+				are not sent, and neither are your quiz answers. Like any server your browser contacts,
+				Cloudflare receives your IP address. Cloudflare says it uses no cookies or browser storage
+				for this and does not fingerprint visitors by their IP address or browser. See
+				<a href={CLOUDFLARE_PRIVACY} rel="external">Cloudflare's privacy policy</a>.
 			</li>
 			<li>
 				<strong>Your browser's storage.</strong> If you pick a theme, your choice is kept in your browser's
 				local storage. If you take the quiz, your answers are kept in the tab's session storage until
-				you close it. The browser also keeps scroll positions there, so Back returns you to where you
-				were. None of this leaves your browser.
+				you close it. The site also keeps scroll positions there, so Back returns you to where you were.
+				None of this leaves your browser.
 			</li>
 			<li>
 				<strong>Hosting.</strong> GitHub, which hosts the site on GitHub Pages, logs visitors' IP addresses.

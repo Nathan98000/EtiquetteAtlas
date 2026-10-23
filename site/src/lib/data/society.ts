@@ -55,8 +55,8 @@ export function listText(items: readonly string[]): string {
 }
 
 /**
- * The share flagged as students, as stored (decision 11). Student status was recorded by the
- * collection sites, and some recorded none.
+ * The share flagged as students, as stored (decision 11). Sites collected student status
+ * differently: some asked, some recorded it for everyone they recruited, some recorded none.
  */
 export function studentText(share: number, unknown: number): string {
 	if (unknown >= 100) return 'not recorded';

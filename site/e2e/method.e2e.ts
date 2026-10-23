@@ -80,6 +80,37 @@ test('FR-92, NFR-34, HR-8: the privacy notice covers analytics, storage and host
 	await expect(page.locator('#limits')).toContainText('recorded as students');
 });
 
+test('§4.8, AT-12: the method page says what the paper and the data support (findings L-2 to L-17)', async ({
+	page
+}) => {
+	await page.goto(url('method/'));
+	const section = (id: string) => page.locator(`#${id}`);
+	// L-2, L-16: the paper's model, from its Supplementary Table 9.
+	await expect(section('story')).toContainText("one of the GSN paper's conclusions");
+	await expect(section('story')).toContainText('between individual respondents with 0.50');
+	await expect(section('story')).toContainText('1.11, what the model leaves unexplained');
+	// L-3, L-11: how respondents were recruited, and what is never shown.
+	await expect(section('data')).toContainText('convenience samples');
+	await expect(section('data')).toContainText('never a score or a count of answers for a group');
+	for (const id of ['data', 'limits']) await expect(section(id)).not.toContainText('online panels');
+	// L-5, L-6: shrinkage is turned off by the Estimate toggle, and its interval is a formula.
+	await expect(section('shrinkage')).toContainText(
+		'the Estimate toggle switches to the raw scores'
+	);
+	await expect(section('shrinkage')).toContainText('interval comes from a formula');
+	// L-8, L-9: the audiences' respondent counts from the aggregates, and 150 pairs.
+	await expect(section('audiences')).toContainText('about 55 respondents in the median case');
+	await expect(section('audiences')).toContainText('150 behavior–situation pairs');
+	// L-10, L-12, L-13, L-14.
+	await expect(section('facts')).toContainText('not collected the same way at every site');
+	await expect(section('limits')).toContainText('across societies only for its scale of values');
+	await expect(section('similar')).toContainText('respondents in both');
+	await expect(section('rank')).toContainText('one more than the number of societies');
+	// L-17: Cloudflare receives the IP address; the site keeps the scroll positions.
+	await expect(section('privacy')).toContainText('Cloudflare receives your IP address');
+	await expect(section('privacy')).toContainText('The site also keeps scroll positions');
+});
+
 test('NFR-10, decision 106: the About section says how to report an accessibility problem', async ({
 	page
 }) => {

@@ -46,8 +46,9 @@
 		{:else}&nbsp;{/if}
 	</p>
 	<p class="note">
-		Student status was recorded by the collection sites, not asked in the survey. Collection sites
-		are not shown, to protect respondents' privacy.
+		Student status was not collected the same way at every site: some asked, some recorded it for
+		everyone they recruited, some recorded none. Collection sites are not shown, to protect
+		respondents' privacy.
 		<a href={resolve('method/#facts')}>About these facts</a>
 	</p>
 </section>
