@@ -74,3 +74,41 @@ host (`cloudflareinsights.com`) are the only third parties in the CSP (`site/vit
   (or set it to `on`) and redeploy to bring the module back. Leave it unset otherwise.
 - [ ] **Optional:** a branch rule on `main` requiring the CI checks. Pushes to `main` already run
   them before any deploy, so this matters only if collaborators join.
+
+## After the launch
+
+Nothing here needs a setting; it is what to look at once the site is announced.
+
+- **What to watch:**
+  - *Cloudflare Web Analytics* for `nathan98000.github.io`: visits, top pages and referrers.
+    Ad blockers undercount it (R-12), so it shows rough trends only.
+  - *Bandwidth:* GitHub Pages has a soft limit of about 100 GB a month and shows no meter; at
+    1–2 MB per typical visit (SRS §8.2) that is roughly 50,000 to 100,000 visits a month. If
+    Cloudflare's monthly visits approach 50,000, or GitHub writes about the site's traffic, the
+    question of the Cloudflare fallback (HR-9) or a custom domain (C-1) comes back: both change
+    the address, so decide before moving, and leave a redirect page at the old address (R-8).
+  - *Dependabot:* the weekly grouped pull requests for npm, uv and Actions (merge when CI is
+    green; a `@playwright/test` update needs the steps under "Dependency updates" above) and, once
+    turned on, its alerts.
+  - *Issues:* corrections and accessibility reports arrive as GitHub issues (the method page's
+    About section, decision 106). Triage them as the launch findings were (`docs/launch.md`):
+    a factual, wording, accessibility or privacy problem is fixed; an improvement goes to
+    `docs/v1.1.md`.
+  - *Workflow failures:* by default GitHub notifies whoever pushed when a workflow fails. A failed
+    *Deploy* publishes nothing, so the live site stays at the last good deploy.
+- **The address:** `https://nathan98000.github.io/EtiquetteAtlas/` comes from the account's and
+  the repository's names, and the base path is case-sensitive. Renaming either breaks every
+  shared link (R-8).
+- **Rolling back a bad deploy:** revert the commit (`git revert <sha>`) and push to `main`. The
+  *Deploy* workflow runs every CI check again and publishes the reverted build, so `main` and the
+  site stay in step. Then run the deployed checks in `docs/launch.md` ("After the push").
+- **Taking the 2000–2003 comparison down:** the `CHANGE_MODULE` variable under "Later" above, then
+  rerun *Deploy*; nothing else changes.
+- **Rebuilding after an OSF change (R-11):** `uv run pipeline download` and `verify` fail when OSF
+  publishes a new version of a file. Review the new file, update its entry in
+  `pipeline/sources.toml` (version, size, MD5) in a commit of its own, and push it. Then run
+  *Pipeline* by hand (*Actions → Pipeline → Run workflow*): it rebuilds `data/derived/` and, if
+  anything changed, opens a pull request that changes only that folder (it needs the permission
+  under "Later"). Close and reopen the pull request to run CI, read the diff, and merge: the
+  deploy rebuilds the share images and publishes the new data. The method page's versions table
+  follows the manifest.

@@ -6,8 +6,10 @@ in 90 societies judge 15 everyday behaviors (eating, kissing, using a phone…) 
 [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB) and published at
 **https://nathan98000.github.io/EtiquetteAtlas/**.
 
-Status: milestone M7 (polish, live but not announced; the public launch follows
-[`docs/launch.md`](docs/launch.md)). The home page opens with a three-question quiz, and a guided
+Status: public launch (v1.0.0) in progress. Every module is live at the address above, not yet
+announced; [`docs/launch.md`](docs/launch.md) lists what is left before the announcement,
+[`CHANGELOG.md`](CHANGELOG.md) describes the release and [`docs/v1.1.md`](docs/v1.1.md) what comes
+next. The home page opens with a three-question quiz, and a guided
 story walks through the main findings. The etiquette matrix, the drill-down for each of the 150
 behavior–situation pairs, a fingerprint for each of the 90 societies, the audiences module (each
 behavior alone, in front of colleagues or classmates and in front of management or professors)
@@ -34,7 +36,7 @@ data/derived/        committed aggregate outputs
 site/                SvelteKit app (static adapter)
 tests/               pytest suites for the pipeline (site tests live in site/)
 .github/workflows/   ci.yml, deploy.yml, pipeline.yml
-docs/                decisions, method-note drafts, kickoff notes and manual setup steps
+docs/                decisions, method notes, kickoff notes, setup steps, launch list, v1.1 backlog
 ```
 
 ## Setup
