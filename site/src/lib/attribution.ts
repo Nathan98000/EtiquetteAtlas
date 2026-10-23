@@ -28,7 +28,7 @@ export const audienceCredit = {
 	/** Short form for the credit line on the audiences routes. */
 	short: 'Simpson, Eriksson, Vartanova, Strimling et al. (2026)',
 	authors:
-		'Simpson, B., Eriksson, K., Vartanova, I., Strimling, P., Merchan Tamayo, J. P., Abdi, K. A., … & Tung, H.',
+		'Simpson, B., Eriksson, K., Vartanova, I., Strimling, P., Merchan Tamayo, J. P., Abdi, K. A., … & Van Lange, P. A. M.',
 	year: 2026,
 	title:
 		'How norms depend on the presence and status of observers: the relational contingency of everyday behaviors in 90 societies',

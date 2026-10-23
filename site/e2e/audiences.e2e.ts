@@ -360,6 +360,9 @@ test('FR-43: the audiences routes and the method page credit the 2026 analysis o
 		expect(html).toContain('<cite>American Sociological Review</cite>');
 		expect(html).toContain('href="https://doi.org/10.1177/00031224261464586" rel="external"');
 	}
+	// Finding L-7: the last of the paper's 158 authors, as Crossref lists them.
+	const method = await (await request.get(url('method/'))).text();
+	expect(method).toMatch(/(&amp;|&) Van Lange, P\. A\. M\./);
 });
 
 test.describe('FR-87: without JavaScript', () => {
