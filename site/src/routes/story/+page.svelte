@@ -105,7 +105,7 @@
 	const SD_ROWS: SdRow[] = [
 		{ label: 'Between situated behaviors', sd: PAPER_SD.situations },
 		{ label: 'Between societies', sd: PAPER_SD.societies },
-		{ label: 'Everything else: individual respondents and noise', sd: PAPER_SD.residual }
+		{ label: 'Single ratings, beyond what the model explains', sd: PAPER_SD.residual }
 	];
 	const sdColumns: Column<SdRow>[] = [
 		{ header: 'Source of variation', text: (r) => r.label, rowHeader: true },
@@ -117,7 +117,7 @@
 
 <Seo
 	title="A guided tour"
-	description="A short guided tour of what the Global Study of Everyday Norms shows, from its main finding, that norms vary more across situations than across societies, to where societies agree and disagree and who's watching."
+	description="A short guided tour of what the Global Study of Everyday Norms shows, from one of its conclusions, that norms vary more across situations than across societies, to where societies agree and disagree and who's watching."
 	imageAlt="{SHARE_ALT.story} Between situated behaviors {spread(
 		PAPER_SD.situations
 	)}; between societies {spread(PAPER_SD.societies)}."
@@ -172,13 +172,11 @@
 	>
 		{#snippet text()}
 			<p>
-				The paper behind this atlas found that everyday norms vary "far more across situations than
-				across societies". In its model, two situated behaviors typically differ by more (a standard
-				deviation of {spread(PAPER_SD.situations)} on the −2.5 to +2.5 scale) than two societies do ({spread(
-					PAPER_SD.societies
-				)}), and both are small next to how much individual respondents differ ({spread(
-					PAPER_SD.residual
-				)}).
+				The paper behind this atlas concludes that everyday norms vary "far more across situations
+				than across societies". In its model, two situated behaviors typically differ by more (a
+				standard deviation of {spread(PAPER_SD.situations)} on the −2.5 to +2.5 scale) than two societies
+				do ({spread(PAPER_SD.societies)}), and both are small next to how much single ratings vary
+				beyond what the model explains ({spread(PAPER_SD.residual)}).
 			</p>
 			<p>
 				The rest of this tour shows what that looks like in the answers.
@@ -193,8 +191,8 @@
 					PAPER_SD.situations
 				)} between situated behaviors, {spread(PAPER_SD.societies)} between societies and {spread(
 					PAPER_SD.residual
-				)} for everything else."
-				about={resolve('method/#disagreement')}
+				)} for single ratings, beyond what the model explains."
+				about={resolve('method/#story')}
 			>
 				{#snippet chart()}
 					<ul class="bars" aria-label="Standard deviations in the paper's model">

@@ -1,5 +1,5 @@
 /**
- * The guided story (FR-64): four to six steps that open with the paper's main finding, then the
+ * The guided story (FR-64): four to six steps that open with one of the paper's conclusions, then the
  * most universal cell, the most culture-dependent cell, the audience effect and the largest
  * difference since the early 2000s, and hand over to the explorer. Each step's cell or behavior is
  * chosen from All data on the raw scale (decisions 82 and 83), so the story follows the data; the
@@ -15,7 +15,8 @@ import type { ChangeCells, ContextCells, GlobalCells, SocietyCells } from '../da
 
 /**
  * The paper's model (Eriksson et al. 2025), as SRS §4.8 states it: the standard deviation between
- * societies, between situated behaviors and of everything else (individual respondents and noise).
+ * societies, between situated behaviors and of single ratings beyond what the model explains (its
+ * Supplementary Table 9: the residual SD, apart from respondents' own 0.50 and behaviors' 0.36).
  * The atlas does not estimate these itself.
  */
 export const PAPER_SD = { situations: 0.31, societies: 0.19, residual: 1.11 } as const;

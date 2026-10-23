@@ -275,7 +275,7 @@ function storyCard(): CardData {
 		kicker: 'The guided story',
 		headline: 'Norms vary far more across situations than across societies',
 		detail: [
-			'The main finding of the GSN paper, and the first step of a short tour: where societies ' +
+			'A conclusion of the GSN paper, and the first step of a short tour: where societies ' +
 				'agree, where they disagree most, and who is watching.'
 		],
 		layout: 'side',

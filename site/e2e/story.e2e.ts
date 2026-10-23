@@ -25,6 +25,14 @@ test.describe('FR-64: the guided story', () => {
 		await expect(finding).toContainText('"far more across situations than across societies"');
 		await expect(finding).toContainText('0.31');
 		await expect(finding).toContainText('0.19');
+		// Finding L-2: 1.11 is single ratings beyond the model, not individual respondents.
+		await expect(finding).toContainText('single ratings vary beyond what the model explains');
+		await expect(finding).not.toContainText('individual respondents');
+		// FR-7, finding L-15: the chart's note is the method page's section on the story.
+		await expect(finding.getByRole('link', { name: 'About this chart' })).toHaveAttribute(
+			'href',
+			/\/method\/#story$/
+		);
 		await expect(finding.getByRole('link', { name: 'Eriksson et al. (2025)' })).toHaveAttribute(
 			'href',
 			'https://doi.org/10.1038/s44271-025-00324-4'
