@@ -35,8 +35,9 @@
 
 	const vs = $derived(view.state);
 
-	// NFR-3: the change file loads on the change routes only.
-	const change = new Resource(() => loadChange(view.state.sample));
+	// NFR-3: the change file loads on the change routes only, once the URL's sample applies
+	// (decision 31), so a link with ?sample= fetches one change file rather than two.
+	const change = new Resource(() => (view.ready ? loadChange(view.state.sample) : undefined));
 	const societies = new Resource(() => loadSocieties());
 	const file = $derived(change.current?.sample === vs.sample ? change.current : undefined);
 	const n = $derived(file?.codes.length ?? CHANGE_SOCIETIES.length);

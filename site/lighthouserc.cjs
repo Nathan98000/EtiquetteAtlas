@@ -1,4 +1,4 @@
-// Lighthouse CI on nine representative routes, under Lighthouse's default mobile profile
+// Lighthouse CI on eleven representative routes, under Lighthouse's default mobile profile
 // (simulated mid-range phone on a slow 4G connection): NFR-2 and AT-1. The pages are served from
 // build/ the way GitHub Pages serves them, gzip included (scripts/serve-pages.js). PORT moves the
 // server off 4173 when another preview holds it.
@@ -19,6 +19,8 @@ module.exports = {
 				page('societies/chl/'),
 				page('audiences/'),
 				page('audiences/usemphone/?society=chl'),
+				page('change/'),
+				page('change/jpn/?sample=attention'),
 				page('method/')
 			],
 			numberOfRuns: 3,

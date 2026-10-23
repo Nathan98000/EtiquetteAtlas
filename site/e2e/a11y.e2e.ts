@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import {
+	arrowsReady,
 	audiencesReady,
 	expect,
 	matrixReady,
@@ -35,6 +36,22 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 		}
 	},
 	{ path: 'audiences/argue/?split=gender', ready: slopeReady },
+	// FR-53: a society without 2000–2003 data, with the strips below the arrows.
+	{ path: 'change/?society=chl', ready: arrowsReady },
+	{
+		// Small samples, and a pair's details on screen.
+		path: 'change/prt/?sample=attention',
+		ready: async (page) => {
+			await arrowsReady(page);
+			await page.locator('#arrows-rows > li').first().hover();
+			// The details panel is shown from 1024 px; narrower, each row lists its values.
+			if ((page.viewportSize()?.width ?? 0) >= 1024) {
+				await expect(page.getByRole('complementary', { name: 'Details' })).toContainText(
+					'2000–2003 survey'
+				);
+			}
+		}
+	},
 	{ path: 'method/', ready: async () => {} }
 ];
 

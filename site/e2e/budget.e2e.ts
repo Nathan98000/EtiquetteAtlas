@@ -4,6 +4,7 @@ import { gzipSync } from 'node:zlib';
 import type { Page } from '@playwright/test';
 import { basePath } from '../site.config.js';
 import {
+	arrowsReady,
 	audiencesReady,
 	expect,
 	matrixReady,
@@ -45,6 +46,8 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	},
 	{ path: 'audiences/', ready: audiencesReady },
 	{ path: 'audiences/usemphone/?society=chl', ready: slopeReady },
+	{ path: 'change/', ready: arrowsReady },
+	{ path: 'change/jpn/?sample=attention', ready: arrowsReady },
 	{ path: 'method/', ready: async () => {} }
 ];
 

@@ -92,6 +92,11 @@ export async function slopeReady(page: Page) {
 	await expect(page.locator('.slopegraph [data-context="0"]')).toBeAttached();
 }
 
+/** The change routes' arrows are drawn once the first row has its points (FR-50). */
+export async function arrowsReady(page: Page) {
+	await expect(page.locator('#arrows-rows circle.dot').first()).toBeVisible();
+}
+
 /** Presses Tab until the locator has focus, as a keyboard user would (NFR-13). */
 export async function tabTo(page: Page, target: Locator, max = 40) {
 	for (let i = 0; i < max; i++) {
