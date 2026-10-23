@@ -1,20 +1,39 @@
 # Launch readiness
 
 The public launch follows M7 once SRS §9.4's checklist is complete (decision 104). This page maps
-each item to what is done, what runs automatically and what is left to the maintainer, then gives
-the manual checklists. Nothing here is sent or published from a coding session.
+each item to what is done, what runs automatically and what is left to the maintainer, records the
+launch checks' findings and what happened to each, then gives the manual checklists. Nothing here
+is sent or published from a coding session.
 
 ## §9.4 checklist
 
 | Item | Status | Automated | Left to the maintainer |
 | --- | --- | --- | --- |
-| All Must requirements pass their tests | Passing at the end of M7 (below), on `build/` and, for AT-9 and AT-10, on the deployed site | CI on every pull request and deploy | Screen readers (NFR-13); real devices (NFR-20) |
-| Lighthouse, size and accessibility budgets met on the deployed URL | Lighthouse and size met on the deployed site, 23 October 2026: LCP 0.87–1.16 s, CLS ≤ 0.012, TBT ≤ 1 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB | `LHCI_DEPLOYED=1 npm run lhci`, `npm run check:deployed`, axe below | axe on the deployed URL (below) |
-| Method page reviewed by a second reader | Text settled (decision 93) | — | The reader's checklist below |
-| Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit | Both, in CI | Look at a sample of images (AT-5, below) |
-| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204) and sets no cookie or storage | `npm run test:deployed` | Check the Cloudflare dashboard (`docs/SETUP.md`) |
+| All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 and NFR-20 pass only as `docs/srs-changes.md` rewords them: FR-34 lists collection sites, which the site leaves out as quasi-identifying (decision 9; `site` is a forbidden column, C-5), and NFR-20 names the two latest versions of each browser, of which Playwright runs only the current one (decision 98) | CI on every pull request and deploy | Screen readers (NFR-13); real devices (NFR-20); accept or reject the FR-34 and §2.4/NFR-20 edits |
+| Lighthouse, size and accessibility budgets met on the deployed URL | Met on the deployed site, 23 October 2026: LCP 0.87–1.16 s, CLS ≤ 0.012, TBT ≤ 1 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
+| Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105) | — | The reader's checklist below |
+| Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026) | Both, in CI | Look at a sample of images (AT-5, below) |
+| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105) | `npm run test:deployed` | Check the Cloudflare dashboard (`docs/SETUP.md`), including whether view changes count as page views (launch decision 4) |
 | Social cards checked for the home page, one cell and one society | Tags and images on every route (AT-7) | — | The validators below (NFR-61) |
-| Optional courtesy note to the GSN authors | — | — | The points below |
+| Optional courtesy note to the GSN authors | — | — | The points below; a draft on request. If it is sent, a preview window of about a week before the announcement, with the change module on unless the authors object (R-6) |
+
+## Findings
+
+Findings from the launch checks, the maintainer's and the coding session's, with what happened to
+each. Each is one of:
+
+- **launch-blocking**: fails a Must; a factual, data-wording or wording-rule error (FR-73, FR-52,
+  §6.5); an accessibility problem; a broken or wrongly credited share card (NFR-40, AT-5, FR-82); a
+  privacy problem (DR-9, C-12, NFR-30 to NFR-34); something broken in a §2.4 browser. Fixed before
+  the announcement, with a test where one can catch it again.
+- **v1.1**: a Should that only partly holds, an improvement, a cosmetic issue that does not hurt
+  reading, anything needing a new feature. Listed in `docs/v1.1.md` under the same ID.
+- **not a defect**: behaviour a requirement or decision sets, with its reference.
+- **data error**: the pipeline and `data/derived/` change only once the maintainer agrees.
+
+| ID | Finding | Page | Requirement | Category | Fix or reason | Commit |
+| --- | --- | --- | --- | --- | --- | --- |
+| L-1 | The privacy notice said nothing chosen in the atlas is sent to the analytics, but a society's or pair's page has it in the path the beacon records | `/method/#privacy` | FR-92, NFR-34 | Launch-blocking (factual) | The notice now says the address names the page, and that the query string's choices and the quiz answers are not sent; `npm run test:deployed` fails on a query string in what the beacon sends, after a view change too (decision 105) | 8bd7fae, 8cc1038 |
 
 ## After the push
 
@@ -28,7 +47,7 @@ LHCI_DEPLOYED=1 npm run lhci   # NFR-2 on the deployed URL, beacon included
 DEPLOYED_ORIGIN=https://nathan98000.github.io npx playwright test e2e/a11y.e2e.ts --project=chromium
 ```
 
-The first three each count a few page views in the analytics.
+The first three each count a few page views in the analytics; the axe run stubs the beacon.
 
 Results of the first M7 deploy (commit e83dfed, 23 October 2026):
 
@@ -42,23 +61,50 @@ Results of the first M7 deploy (commit e83dfed, 23 October 2026):
   transfers 10.5 KB, so the largest first load is about 110 KB of JS and CSS against NFR-1's
   200 KB.
 
+Launch checks on the same deploy (23 October 2026):
+
+- axe on the deployed URL (the last command above): 40 passed. No serious or critical issue on the
+  18 routes in both themes, nothing scrolls sideways at 320, 640 or 1024 px, and transitions are
+  off under reduced motion.
+- Off-site links (SRS §9.1), checked once from `build/` rather than in CI, where outside sites would
+  fail it intermittently: the 12 links a reader can follow (the four DOIs, the OSF deposit's five
+  downloads, the licence, the repository and Cloudflare's privacy policy) resolve. science.org and
+  SAGE answer a script with 403 after doi.org redirects to them, as they do any client that is not
+  a browser.
+- The beacon (version 2026.10.1) removes the query string and fragment from the page address and
+  the referrer before sending them (decision 105).
+
 Still to do:
 
 - [ ] confirm page views in the Cloudflare dashboard, and whether moving between views counts
-  extra page views (`docs/SETUP.md`);
+  extra page views (`docs/SETUP.md`, launch decision 4);
 - [ ] turn on Dependabot alerts (`docs/SETUP.md`);
-- [ ] run axe on the deployed URL (the last command above).
+- [x] run axe on the deployed URL (above).
+
+## Before the announcement
+
+What the launch needs beyond §9.4's list:
+
+- [ ] **R-13** (maintainer): check again that no similar interactive has been published.
+- [ ] **R-8:** the address is final. The account's and repository's names set it
+  (`https://nathan98000.github.io/EtiquetteAtlas/`, case-sensitive), so neither is renamed after
+  the announcement; if the site ever moves, a redirect page stays at the old address.
+- [ ] The SRS edits the maintainer accepts are applied (`docs/srs-changes.md`).
+- [ ] Every launch-blocking finding is fixed, and the rest are in `docs/v1.1.md`.
+- [ ] The launch commit is deployed with CI green and the four commands above pass on it;
+  `v1.0.0` is tagged on it locally. Pushing the tag and creating a GitHub release are the
+  maintainer's (`CHANGELOG.md`).
 
 ## Acceptance tests
 
-| Test | How it is checked | State at the end of M7 |
+| Test | How it is checked | State (launch) |
 | --- | --- | --- |
 | AT-1 | Lighthouse CI on `/explore` (mobile); Playwright checks the 150-row list | Pass |
 | AT-2 | Playwright: a cell URL with `society` and `sample` | Pass |
 | AT-3 | Playwright: the quiz's requests, storage and reload | Pass |
 | AT-4 | `check-build.js` and Playwright on `/change/` | Pass |
 | AT-5 | `check-build.js` (every page); `share-images.js` (every image's text) | Automated part passes; manual sample left |
-| AT-6 | axe on 18 routes in both themes; keyboard paths in Playwright | Pass; screen readers left |
+| AT-6 | axe on 18 routes in both themes; keyboard paths in Playwright | Pass on `build/`, and axe on the deployed site; screen readers left |
 | AT-7 | `check-build.js` (every route, 247 images); `e2e/share.e2e.ts` | Pass |
 | AT-8 | `uv run pytest -m needs_raw` (a fresh build matches the committed files; the paper's counts) | Pass (local raw files) |
 | AT-9 | `e2e/analytics.e2e.ts` on `build/`; `npm run test:deployed` | Pass on `build/` and on the deployed site |
@@ -81,6 +127,9 @@ For each task, note anything unannounced, announced twice, out of order or unrea
 - [ ] **Drill-down:** the beeswarm's dots in order; a society's rank; "Show uncertainty"; the map;
   previous and next pairs; the table views.
 - [ ] **Society picker:** type-ahead, arrow keys, Enter, Escape; the selection announced.
+- [ ] **Global controls:** the sample, scale and theme controls announce their name and state, and
+  the views' change is announced or reachable; each chart's "About this chart" link lands on its
+  method section (FR-7).
 - [ ] **Fingerprint and compare:** the grid's ▲ ▼ announced in words; the similar societies; the
   compare picker and the dumbbell rows.
 - [ ] **Audiences and change:** the slopegraph's columns with the arrow keys; the arrows' rows and
@@ -98,7 +147,9 @@ emulated Pixel. Before launch, open the home page, a cell, a fingerprint, the st
 page on:
 
 - [ ] an iPhone (Safari) and an Android phone (Chrome), portrait and landscape;
-- [ ] desktop Safari, Firefox, Chrome and Edge, including one previous major version if at hand.
+- [ ] desktop Safari, Firefox, Chrome and Edge, and the previous major version of each (§2.4
+  names the two latest; optional only if the maintainer accepts the §2.4/NFR-20 edit in
+  `docs/srs-changes.md`).
 
 ## Share images (AT-5, NFR-61)
 
