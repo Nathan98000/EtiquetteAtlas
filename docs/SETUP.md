@@ -49,5 +49,10 @@ other third party (NFR-31, NFR-32).
   workflow permissions read-only: only that workflow's `pull-request` job asks for write access.
   GitHub does not run CI on pull requests opened by `GITHUB_TOKEN`, so close and reopen each
   pipeline pull request to run `ci.yml` before merging (merging runs it again before deploying).
+- [ ] **Only if the 2000–2003 comparison must come down (SRS R-6, decision 75):** under
+  *Settings → Secrets and variables → Actions → Variables*, add the repository variable
+  `CHANGE_MODULE` with the value `off`, then rerun *Deploy*. The deployed site then has no change
+  pages, links, sitemap entries, method section, 2000–2003 credit or data. Delete the variable
+  (or set it to `on`) and redeploy to bring the module back. Leave it unset otherwise.
 - [ ] **Optional:** a branch rule on `main` requiring the CI checks. Pushes to `main` already run
   them before any deploy, so this matters only if collaborators join.

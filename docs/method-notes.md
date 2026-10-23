@@ -236,19 +236,34 @@ seed key.
 
 ## Change since the early 2000s
 
-**For readers.** For 26 societies, a survey from 2000–2003 (Gelfand and colleagues) asked about
-12 of the same behaviors in the same 10 situations. We compare the two surveys' average scores.
-They are different people, recruited differently, two decades apart, so a difference is a
-difference between two surveys, not a change in anyone's views. We show only summaries of the
-older survey, never its individual answers.
+On the method page as `#change` since M5 (decisions 67 to 77); the change pages link to it from
+their provenance note and their charts' "About this chart".
+
+**For readers.** For 26 societies, a survey from 2000–2003 by Gelfand and colleagues asked about
+12 of the same behaviors in the same 10 situations; resting, shouting in anger and using a mobile
+phone were not asked then. The change pages compare the two surveys' average answers for each
+society and pair. The surveys asked different people, recruited in different ways, with
+different questionnaires, about 20 years apart. A difference is therefore a difference between
+two surveys, not a change in anyone's views, and it does not say why the answers differ. Only
+summaries of the older survey are shown, each society's average for each pair, never an
+individual answer: the GSN authors note that its individual answers are not public.
+
+Both surveys are shown as raw averages, whatever the scale toggle says, because the older survey
+has no centered scores. A difference counts as higher or lower in 2023–2024 only when its 95%
+interval excludes 0; an interval that ends exactly at 0 counts as within. Without a society, the
+pages average the societies in both surveys (26, or 22 in the Paper's sample), which are not the
+90-society averages shown elsewhere.
 
 **Technical.** DR-13 and C-6. Per society and cell: n, mean and SD for each wave and the
 difference GSN − 2000–2003, with a percentile interval of the replicate differences. The GSN
 side uses the main bootstrap; the older side resamples its respondent keys (country +
 ResponseId) within each society; five keys appear to hold two respondents' ratings and are kept
-as one resampling unit (decision 13). Behavior summaries follow the paper's Table 1: a society's change
-for a behavior is its mean difference over that behavior's situations; Israel has no laugh ×
-party cell in the older survey. The build reproduces Table 1 within ±0.02 (NFR-51).
+as one resampling unit (decision 13), so an older-survey n counts ratings. Behavior summaries
+follow the paper's Table 1: a society's change for a behavior is its mean difference over that
+behavior's situations; Israel has no laugh × party cell in the older survey. The build
+reproduces Table 1 within ±0.02 (NFR-51). The site reads the bounds as stored (decision 68):
+under All data 980 society–pairs are higher, 747 lower and 1,392 within. Small samples (10 to 29
+GSN respondents) occur only under Attention check, in 177 society–pairs (decision 69).
 
 ## Society facts
 

@@ -9,8 +9,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - Column-level data notes: `docs/reference/gsn-data-profile.md`. It is local only (git-ignored)
   because it quotes respondent-level values: never commit it or copy values out of it.
 - Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
-  (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4). Manual GitHub and analytics steps:
-  `docs/SETUP.md`.
+  (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4), `docs/m5-kickoff.md` (M5). Manual
+  GitHub and analytics steps: `docs/SETUP.md`.
 - Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
   Method-page drafts: `docs/method-notes.md`. Output formats: `data/derived/README.md`.
 
@@ -58,27 +58,33 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   budgets; `e2e/` holds Playwright tests, which import `test` and `expect` from `e2e/helpers.ts`
   so every page load waits for the app to mount; `lighthouserc.cjs` configures Lighthouse CI. Vitest
   specs sit next to the code as `*.spec.ts`.
-  - `src/lib/data/`: `grid.ts` (IDs, slugs, wording), `files.ts` (`?url` imports), `model.ts`
-    (decoders and typed tables), `load.ts` (cache and retry), `resource.svelte.ts` (a load in a
+  - `src/lib/data/`: `grid.ts` (IDs, slugs, wording), `files.ts` (`?url` imports; the change
+    files sit apart in `change-files.ts`, which the R-6 switch swaps out), `model.ts` (decoders,
+    typed tables and `CHANGE_SOCIETIES`), `load.ts` (cache and retry), `resource.svelte.ts` (a load in a
     component), `derive.ts` (sorts, ranks, summaries), `format.ts` (numbers and phrases),
     `society.ts` (facts and similar societies in words).
   - `src/lib/state/`: `url.ts` (query-string state), `view.svelte.ts` (reading it, `setView`,
-    `withView`, `societyHref` for fingerprints and `audiencesHref` for the audiences),
-    `theme.svelte.ts`.
+    `withView`, `societyHref` for fingerprints, `audiencesHref` for the audiences and `changeHref`
+    for the change pages), `theme.svelte.ts`.
   - `src/lib/charts/`: `Grid.svelte`, `BarList.svelte` and `DataTable.svelte` are the shared 15 ×
     10 grid (keyboard, details), phone list and table; the matrix (`Matrix*`) and the fingerprint
     (`Fingerprint*`) wrap them. `Slopegraph.svelte` draws the audiences' focused chart and small
     panels (`audience-model.ts`, `AudienceDetails.svelte`); `SeriesKey.svelte` tells lines apart
-    by shape and line style. Also beeswarm, map (lazy), strip, dumbbell (lazy, compare mode),
-    legends and tables; `*-model.ts` hold their pure logic; `colors.ts` the palettes.
+    by shape and line style. `Dumbbell.svelte` draws two values per row for compare mode (lazy)
+    and, with arrows, for the change routes (`ChangeArrows.svelte`, `ChangeStrip.svelte`,
+    `change-model.ts`). Also beeswarm, map (lazy), strip, legends and tables; `*-model.ts` hold
+    their pure logic; `colors.ts` the palettes.
   - `src/lib/components/`: header, control bar, society picker, facts panel, similar-societies
-    list, the audiences' filters, and shared controls (`Segmented`, `Toggle`, `SortSelect`,
-    `StepLinks`).
-  - `src/lib/server/derived.ts`: All-data aggregates for build-time summaries only.
+    list, the audiences' filters, the change pages' provenance note and scale note, and shared
+    controls (`Segmented`, `Toggle`, `SortSelect`, `StepLinks`, `SampleNotice`).
+  - `src/lib/server/derived.ts`: All-data aggregates for build-time summaries only;
+    `server/change.ts` holds the change file's, read only by the change routes.
+  - `src/lib/change-module.ts`: `CHANGE_MODULE`, whether this build has the change module (R-6).
   - Routes: `/` (intro), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
     `/societies` (index) and `/societies/[society]` (90 fingerprints, with `?compare=`),
-    `/audiences` (15 small multiples) and `/audiences/[behavior]` (15 slopegraphs), `/method`
-    (draft), placeholders for `/change`, `/story`.
+    `/audiences` (15 small multiples) and `/audiences/[behavior]` (15 slopegraphs), `/change`
+    (the 26 societies in both surveys) and `/change/[society]` (26 pages), `/method` (draft), and
+    a placeholder for `/story`.
 - `.github/workflows/`: `ci.yml` (pull requests; reused by deploy), `deploy.yml` (push to `main`
   → GitHub Pages), `pipeline.yml` (manual).
 
@@ -104,11 +110,12 @@ Site, from `site/` (npm; Node 26 in CI, 24+ locally):
 npm ci
 npm run dev                     # dev server under /EtiquetteAtlas/
 npm run build && npm run check:build
+CHANGE_MODULE=off npm run build && CHANGE_MODULE=off npm run check:build  # R-6: without the change module
 npm run preview                 # serves build/ like Pages: http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
 npm run test:e2e                # builds, serves, runs Playwright (once: npx playwright install chromium)
 PORT=4392 npm run test:e2e      # the same on another port if 4173 is taken
-npm run lhci                    # Lighthouse CI on build/ (7 routes, mobile profile; also honours PORT)
+npm run lhci                    # Lighthouse CI on build/ (11 routes, mobile profile; also honours PORT)
 ```
 
 Pipeline coverage as CI runs it: `uv run pytest -m "not needs_raw" --cov` (80% floor, NFR-53).
@@ -151,7 +158,13 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   the path, not the query (decision 44): link to a fingerprint with `societyHref(code, state)`,
   and `setView({ society })` there moves between fingerprints. The audiences' `scope`, `actor`
   and `split` follow the reader within that module only (decision 57): link there with
-  `audiencesHref(behavior, state)`.
+  `audiencesHref(behavior, state)`. A change page's society is its path too (decision 67): link
+  with `changeHref(code, state)`, which opens the overview with `?society=` for a society without
+  2000–2003 data; pass `withSort` false from outside the module. Routes may have their own
+  defaults (`defaultsFor`): the change routes sort by difference unless the URL says otherwise.
+- The change module can be removed in one build (`CHANGE_MODULE=off`, R-6, decision 75): guard
+  anything of it outside `src/routes/change/` with `CHANGE_MODULE`, keep its data in
+  `change-files.ts` and `server/change.ts`, and check the off build with `check:build`.
 - Colours come from `charts/colors.ts` and the tokens in `app.css`: pass `scoreStyle()` or
   `regionStyle()` and the `score` or `region` class, which pick the theme's colour. Check new
   colours for 3:1 (marks) and 4.5:1 (text) in both themes; `colors.spec.ts` does so for the
