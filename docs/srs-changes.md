@@ -7,15 +7,18 @@ decision behind it.
 
 ## Proposed, not applied
 
-| Requirement | Current wording | Proposed wording | Why |
-| --- | --- | --- | --- |
-| §3.2 | The layout's root folder `etiquette-atlas/` | `EtiquetteAtlas/` | The repository's name, as the accepted slug edit and §11.2 now say |
-| §11.2 | "- [ ] Send the GSN authors a courtesy note before launch, …?" | "- [x] … Closed: no note was sent (the maintainer's decision, 23 October 2026); whether the OSF licence covers the 2000–2003 extract stays unasked, and `CHANGE_MODULE=off` removes the module if that is ever questioned (R-6)." | Decision 108 |
+None.
 
 ## Applied
 
 All 28 lines below were accepted by the maintainer on 23 October 2026 and applied in commit 89993c7,
-with the SRS's date line moved to 23 October 2026. None was rejected.
+with the SRS's date line moved to 23 October 2026. None was rejected. Two more, proposed at the
+launch, were accepted and applied the same day in commit ff12017:
+
+| Requirement | Wording before | Applied wording | Why |
+| --- | --- | --- | --- |
+| §3.2 | The layout's root folder `etiquette-atlas/` | `EtiquetteAtlas/` | The repository's name, as the slug edit and §11.2 now say |
+| §11.2 | "- [ ] Send the GSN authors a courtesy note before launch, …?" | "- [x] … Closed: no note was sent (the maintainer's decision, 23 October 2026); whether the OSF licence covers the 2000–2003 extract stays unasked, and `CHANGE_MODULE=off` removes the module if that is ever questioned (R-6)." | Decision 108 |
 
 ### Wording that no longer matched the site
 

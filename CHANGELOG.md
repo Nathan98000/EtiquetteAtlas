@@ -62,6 +62,14 @@ M7; the launch adds only fixes (SRS §10).
   included, but not the query string or the quiz answers (decision 105).
 - The method page says how to report an accessibility problem (decision 106).
 
+### Not checked before release
+
+- Screen readers (VoiceOver, NVDA), a real iPhone and each browser's previous version were not
+  checked by hand (NFR-13, NFR-20; decision 109). Automated accessibility and browser tests stood
+  in, and these checks come first in `docs/v1.1.md`.
+- The method page was reviewed by an AI agent rather than a human second reader (§9.4; decision
+  110).
+
 ### Milestones
 
 | Milestone | Date | Exit criteria (SRS §10) |
