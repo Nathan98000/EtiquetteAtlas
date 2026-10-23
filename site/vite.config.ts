@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
@@ -13,16 +15,42 @@ const inlineScripts = [...appHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map
 	([, body]) => `sha256-${createHash('sha256').update(body).digest('base64')}` as const
 );
 
+/**
+ * R-6: a build without the change module (CHANGE_MODULE=off) compiles the change routes to stubs
+ * that are not prerendered and swaps the module holding the change files' URLs for one with none,
+ * so no change page, chart code or 2000–2003 aggregate reaches build/ (decision 75).
+ */
+function withoutChangeModule(): Plugin {
+	const routes = fileURLToPath(new URL('./src/routes/change/', import.meta.url));
+	const files = fileURLToPath(new URL('./src/lib/data/change-files.ts', import.meta.url));
+	return {
+		name: 'without-change-module',
+		enforce: 'pre',
+		async resolveId(source, importer, options) {
+			const resolved = await this.resolve(source, importer, { ...options, skipSelf: true });
+			return resolved?.id === files ? files.replace(/\.ts$/, '.off.ts') : null;
+		},
+		load(id) {
+			if (!id.startsWith(routes)) return null;
+			if (id.endsWith('.svelte')) return '';
+			if (id.endsWith('.ts')) return 'export const prerender = false;';
+			return null;
+		}
+	};
+}
+
 export default defineConfig({
 	plugins: [
+		...(changeModule ? [] : [withoutChangeModule()]),
 		sveltekit({
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			// No SPA fallback: every route is prerendered to its own index.html (HR-2).
-			adapter: adapter({ strict: true }),
+			// No SPA fallback: every route is prerendered to its own index.html (HR-2). Without the
+			// change module its stub routes are the only ones left unprerendered (R-6).
+			adapter: adapter({ strict: changeModule }),
 			paths: {
 				base: basePath, // HR-1
 				origin,

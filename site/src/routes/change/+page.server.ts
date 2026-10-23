@@ -8,7 +8,8 @@ import {
 	societyStrip,
 	societyStripSummary
 } from '#lib/charts/change-model.ts';
-import { changeAll, societies } from '#lib/server/derived.ts';
+import { changeAll } from '#lib/server/change.ts';
+import { societies } from '#lib/server/derived.ts';
 import type { PageServerLoad } from './$types';
 
 // FR-83, FR-87: the overview's summaries from All data at build time, as short strings (decision

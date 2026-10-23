@@ -34,11 +34,16 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
-      # The base path comes from site/site.config.js (HR-1).
+      # The base path comes from site/site.config.js (HR-1). Setting the repository variable
+      # CHANGE_MODULE to "off" deploys the site without the change module (R-6, decision 75).
       - name: Build
         run: npm run build
+        env:
+          CHANGE_MODULE: ${{ vars.CHANGE_MODULE }}
       - name: Check the build
         run: npm run check:build
+        env:
+          CHANGE_MODULE: ${{ vars.CHANGE_MODULE }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site/build

@@ -2,7 +2,8 @@ import { error } from '@sveltejs/kit';
 import { changeChartSummary, changeSummary, societyChange } from '#lib/charts/change-model.ts';
 import { respondentsIn } from '#lib/data/format.ts';
 import { CHANGE_SOCIETIES } from '#lib/data/model.ts';
-import { changeAll, societies } from '#lib/server/derived.ts';
+import { changeAll } from '#lib/server/change.ts';
+import { societies } from '#lib/server/derived.ts';
 import { societyCode } from '#lib/state/url.ts';
 import type { EntryGenerator, PageServerLoad } from './$types';
 

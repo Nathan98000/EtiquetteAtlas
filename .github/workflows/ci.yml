@@ -54,9 +54,14 @@ jobs:
         run: npm run check
       - name: Vitest
         run: npm run test:unit -- --run
+      # R-6: the site also builds without the change module, leaving no trace of it (decision 75).
+      - name: Build and check without the change module (R-6)
+        run: npm run build && npm run check:build
+        env:
+          CHANGE_MODULE: 'off'
       - name: Build
         run: npm run build
-      - name: Check the build and first-load budgets (HR-1 to HR-7, NFR-1, NFR-5, NFR-40, FR-83)
+      - name: Check the build and first-load budgets (HR-1 to HR-7, NFR-1, NFR-5, NFR-40, FR-83, AT-4)
         run: npm run check:build
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
@@ -64,7 +69,7 @@ jobs:
       # times (NFR-4).
       - name: Playwright end-to-end and accessibility tests
         run: npm run test:e2e
-      # NFR-2 and AT-1 on seven routes under Lighthouse's mobile profile, with the runner's Chrome.
+      # NFR-2 and AT-1 on eleven routes under Lighthouse's mobile profile, with the runner's Chrome.
       - name: Lighthouse CI
         run: npm run lhci
 
