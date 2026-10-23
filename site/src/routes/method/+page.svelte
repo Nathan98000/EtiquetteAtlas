@@ -399,12 +399,13 @@
 		<ul>
 			<li>
 				<strong>Analytics.</strong> Every page loads Cloudflare Web Analytics to count visits. For
-				each page view it records the page's address without its query string (where the atlas keeps
-				your choices), the site that linked to it, the country, the browser, operating system and
-				device type, and how fast the page loaded. Cloudflare says it uses no cookies or browser
-				storage for this and does not fingerprint visitors by their IP address or browser. Nothing
-				you choose or answer in the atlas is sent to it. See
-				<a href={CLOUDFLARE_PRIVACY} rel="external">Cloudflare's privacy policy</a>.
+				each page view it records the page's address without its query string, the site that linked
+				to it, the country, the browser, operating system and device type, and how fast the page
+				loaded. The address names the page you opened, such as a society's or a pair's. The choices
+				the atlas keeps in the query string (a society picked on other pages, the sample, the scale)
+				are not sent, and neither are your quiz answers. Cloudflare says it uses no cookies or
+				browser storage for this and does not fingerprint visitors by their IP address or browser.
+				See <a href={CLOUDFLARE_PRIVACY} rel="external">Cloudflare's privacy policy</a>.
 			</li>
 			<li>
 				<strong>Your browser's storage.</strong> If you pick a theme, your choice is kept in your browser's
@@ -465,7 +466,8 @@
 			<cite>{attribution.journal}</cite>
 			{attribution.volume}, and the
 			<a href={attribution.dataUrl} rel="external">OSF deposit</a>. The site's code is under the MIT
-			licence; mistakes can be reported as an issue on
+			licence; mistakes, and any part of the site you cannot reach or use with your browser,
+			keyboard or assistive technology, can be reported as an issue on
 			<a href={attribution.codeUrl} rel="external">GitHub</a>.
 		</p>
 	</section>

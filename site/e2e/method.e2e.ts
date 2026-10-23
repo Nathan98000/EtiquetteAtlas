@@ -66,6 +66,10 @@ test('FR-92, NFR-34, HR-8: the privacy notice covers analytics, storage and host
 	const privacy = page.locator('#privacy');
 	await expect(privacy).toContainText('Cloudflare Web Analytics');
 	await expect(privacy).toContainText('without its query string');
+	// Decision 105: a society's or pair's page is in the address; quiz answers are not sent.
+	await expect(privacy).toContainText("such as a society's or a pair's");
+	await expect(privacy).toContainText('neither are your quiz answers');
+	await expect(privacy).not.toContainText('Nothing you choose');
 	await expect(privacy.getByRole('link', { name: "Cloudflare's privacy policy" })).toHaveAttribute(
 		'href',
 		'https://www.cloudflare.com/privacypolicy/'
@@ -74,6 +78,18 @@ test('FR-92, NFR-34, HR-8: the privacy notice covers analytics, storage and host
 	await expect(privacy).toContainText('session storage');
 	await expect(privacy).toContainText("logs visitors' IP addresses");
 	await expect(page.locator('#limits')).toContainText('recorded as students');
+});
+
+test('NFR-10, decision 106: the About section says how to report an accessibility problem', async ({
+	page
+}) => {
+	await page.goto(url('method/'));
+	const about = page.locator('#about');
+	await expect(about).toContainText('assistive technology, can be reported as an issue');
+	await expect(about.getByRole('link', { name: 'GitHub' })).toHaveAttribute(
+		'href',
+		'https://github.com/Nathan98000/EtiquetteAtlas'
+	);
 });
 
 test.describe('without JavaScript', () => {

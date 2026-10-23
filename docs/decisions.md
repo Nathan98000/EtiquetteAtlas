@@ -4,9 +4,11 @@ Decisions taken where the SRS was open or needed interpretation. Code comments a
 notes cite them as "decision N". Decisions 1–14 were posed in `docs/m1-kickoff.md`; 15–23 were
 added during M1 planning; 24–43 were agreed in M2 planning (`docs/m2-kickoff.md`); 44–56 in M3
 planning (`docs/m3-kickoff.md`); 57–66 in M4 planning (`docs/m4-kickoff.md`); 67–77 in M5
-planning (`docs/m5-kickoff.md`); 78–86 in M6 planning (`docs/m6-kickoff.md`); 87 onward in M7
-(`docs/m7-kickoff.md`, whose open decisions 1–14 they settle). Decisions up to 77 were agreed by the
-maintainer on 22 October 2026, 78 onward on 23 October 2026.
+planning (`docs/m5-kickoff.md`); 78–86 in M6 planning (`docs/m6-kickoff.md`); 87–104 in M7
+(`docs/m7-kickoff.md`, whose open decisions 1–14 they settle); 105 onward for the public launch
+(`docs/launch-kickoff.md`, whose open decisions 1–10 were agreed as recommended, and the findings in
+`docs/launch.md`). Decisions up to 77 were agreed by the maintainer on 22 October 2026, 78 onward on
+23 October 2026.
 
 | # | Topic | Decision |
 | --- | --- | --- |
@@ -114,3 +116,5 @@ maintainer on 22 October 2026, 78 onward on 23 October 2026.
 | 102 | The deployed site (AT-9, AT-10, §9.4; M7 "already decided") | Checked after a push the maintainer approves: `npm run test:deployed` (the beacon live: only its two hosts contacted, no cookie, nothing stored but the allowed keys, no quiz answer in what it sends), `npm run check:deployed` (every file of `build/` fetched from Pages uncompressed: total against 60 MB, largest file against 5 MB, nothing missing, no Set-Cookie) and `LHCI_DEPLOYED=1 npm run lhci` (the twelve routes with the beacon, for the launch checklist's budgets). |
 | 103 | SRS edits (M7 decision 13) | Collected in `docs/srs-changes.md`, one line each with the requirement, its wording, the proposed wording and the decision behind it; the SRS itself is unchanged. |
 | 104 | Launch readiness (M7 decision 14) | `docs/launch.md` maps SRS §9.4's checklist to what is done, what is automated and what is left to the maintainer, with the manual checklists for screen readers, social cards, real devices, the share images' attribution and the method page's second reader. |
+| 105 | What the privacy notice says about the page's address (FR-92, NFR-34; finding L-1, amends 94) | The live beacon (version 2026.10.1) strips the query string and fragment from the page address and the referrer before it sends them, and reports a view change as a page view. A society's or pair's page has it in the path (fingerprints, cells, behavior and change pages), so "nothing you choose or answer in the atlas is sent" was too broad. The notice now says the address names the page, such as a society's or a pair's, and that the choices kept in the query string (a society picked on other pages, the sample, the scale) and the quiz answers are not sent. `npm run test:deployed` makes a view change and fails on any `society=`, `sample=`, `scale=` or `compare=` in what the beacon sends. |
+| 106 | Reporting an accessibility problem (NFR-10; launch decision 10) | NFR-10 claims WCAG 2.2 AA and the manual checks may miss something, so the method page's About section says that mistakes, and any part of the site a reader cannot reach or use with their browser, keyboard or assistive technology, can be reported as an issue on GitHub. |
