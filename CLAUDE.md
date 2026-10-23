@@ -10,7 +10,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   because it quotes respondent-level values: never commit it or copy values out of it.
 - Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
   (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4), `docs/m5-kickoff.md` (M5),
-  `docs/m6-kickoff.md` (M6), `docs/m7-kickoff.md` (M7). Manual GitHub and analytics steps:
+  `docs/m6-kickoff.md` (M6), `docs/m7-kickoff.md` (M7), `docs/launch-kickoff.md` (public launch).
+  Manual GitHub and analytics steps:
   `docs/SETUP.md`. What is left before the public launch: `docs/launch.md`. Proposed SRS edits
   (not applied): `docs/srs-changes.md`.
 - Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
