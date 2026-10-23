@@ -482,6 +482,88 @@ export class Societies {
 	}
 }
 
+export interface DistributionsDoc {
+	sample: string;
+	grid: GridDoc;
+	societies: { code: string[] };
+	cells: {
+		n: Num[];
+		sd: Num[];
+		c1: Num[];
+		c2: Num[];
+		c3: Num[];
+		c4: Num[];
+		c5: Num[];
+		c6: Num[];
+	};
+}
+
+/** How a society's respondents answered one cell (DR-4): counts of the six responses (§4.3). */
+export interface ResponseCounts {
+	/** Respondents, at least 10 (DR-9). */
+	n: number;
+	sd: number;
+	/** Respondents choosing response 1 (extremely inappropriate) to 6 (extremely appropriate). */
+	counts: readonly [number, number, number, number, number, number];
+}
+
+const COUNT_KEYS = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'] as const;
+
+/**
+ * `distributions-<sample>.json`: society × cell response counts (DR-4), for the quiz (FR-61). Row
+ * `s × 150 + c` is society `s` and cell `c`; a row below 10 respondents, or not asked, is null.
+ * The counts of every row are checked to add up to its n.
+ */
+export class Distributions {
+	readonly sample: SampleId;
+	readonly codes: readonly string[];
+	readonly #index: Map<string, number>;
+	readonly #c: DistributionsDoc['cells'];
+
+	constructor(json: unknown, sample: SampleId) {
+		const where = `distributions-${sample}.json`;
+		check(isObject(json), `${where} is not an object`);
+		checkSample(json, sample, where);
+		checkGrid(json, where);
+		const societies = table(json.societies, `${where} societies`, ['code'], rows(json.societies));
+		const codes = societies.code as string[];
+		const c = table(
+			json.cells,
+			`${where} cells`,
+			['n', 'sd', ...COUNT_KEYS],
+			codes.length * CELL_COUNT
+		) as unknown as DistributionsDoc['cells'];
+		for (let i = 0; i < c.n.length; i++) {
+			const n = c.n[i];
+			if (n === null) continue;
+			const total = COUNT_KEYS.reduce((sum, k) => sum + (c[k][i] ?? Number.NaN), 0);
+			check(total === n && n >= 10, `${where} has a row whose counts do not add up to its n`);
+		}
+		this.sample = sample;
+		this.codes = codes;
+		this.#index = new Map(codes.map((code, i) => [code, i]));
+		this.#c = c;
+	}
+
+	/** The society's row in this sample, or undefined when it is not in the sample. */
+	indexOf(code: string): number | undefined {
+		return this.#index.get(code);
+	}
+
+	/** The society's response counts for a cell, or null below 10 respondents or not asked. */
+	counts(society: number, cell: number): ResponseCounts | null {
+		const i = society * CELL_COUNT + cell;
+		const c = this.#c;
+		const n = c.n[i];
+		if (n === null) return null;
+		return {
+			n,
+			sd: c.sd[i] ?? 0,
+			counts: COUNT_KEYS.map((k) => c[k][i] as number) as unknown as ResponseCounts['counts']
+		};
+	}
+}
+
 export interface SimilarityDoc {
 	sample: string;
 	pairs: { code: string[]; rank: number[]; other: string[]; r: number[]; n_cells: number[] };

@@ -10,6 +10,7 @@ import {
 	ChangeCells,
 	ContextCells,
 	DataError,
+	Distributions,
 	GlobalCells,
 	Similarity,
 	Societies,
@@ -53,6 +54,11 @@ export function loadSimilarity(sample: SampleId): Promise<Similarity> {
 /** Audiences and actor gender (DR-12; NFR-3: only on the audiences routes). */
 export function loadContexts(sample: SampleId): Promise<ContextCells> {
 	return cached(FILES.contexts[sample], (json) => new ContextCells(json, sample));
+}
+
+/** Response counts (DR-4; NFR-3: only for the quiz, once a society is chosen). */
+export function loadDistributions(sample: SampleId): Promise<Distributions> {
+	return cached(FILES.distributions[sample], (json) => new Distributions(json, sample));
 }
 
 /** The 2000–2003 comparison (DR-13; NFR-3: only on the change routes). */

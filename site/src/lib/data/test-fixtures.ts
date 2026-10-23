@@ -9,6 +9,7 @@ import type {
 	CellsDoc,
 	ChangeDoc,
 	ContextsDoc,
+	DistributionsDoc,
 	GlobalDoc,
 	SampleId,
 	SimilarityDoc,
@@ -268,6 +269,40 @@ export function changeDoc(sample: SampleId = 'all'): ChangeDoc {
 			mean_plus: CHANGE_BEHAVIORS.map(() => 0.03),
 			sd: CHANGE_BEHAVIORS.map(() => 0.3),
 			increased: CHANGE_BEHAVIORS.map((_, b) => b % 3)
+		}
+	};
+}
+
+/**
+ * Response counts on the full grid, matching cellsDoc's statuses: 50 respondents a cell (12 for
+ * BBB's small sample in cell 1), null where CCC has too few responses (cell 0) or was not asked
+ * (cell 2). AAA's counts lean inappropriate, BBB's sit in the middle, CCC's lean appropriate.
+ */
+export function distributionsDoc(sample: SampleId = 'all'): DistributionsDoc {
+	const rows = CODES.flatMap((_, s) => cells().map((c) => ({ s, c })));
+	const counts = ({ s, c }: { s: number; c: number }): number[] | null => {
+		if (s === 2 && (c === 0 || c === 2)) return null;
+		if (s === 1 && c === 1) return [1, 2, 3, 3, 2, 1];
+		return [
+			[20, 15, 10, 3, 1, 1],
+			[5, 10, 10, 10, 10, 5],
+			[1, 1, 3, 10, 15, 20]
+		][s];
+	};
+	const column = (k: number) => rows.map((r) => counts(r)?.[k] ?? null);
+	return {
+		sample,
+		grid: grid(),
+		societies: { code: [...CODES] },
+		cells: {
+			n: rows.map((r) => counts(r)?.reduce((a, b) => a + b, 0) ?? null),
+			sd: rows.map((r) => (counts(r) ? 1.2 : null)),
+			c1: column(0),
+			c2: column(1),
+			c3: column(2),
+			c4: column(3),
+			c5: column(4),
+			c6: column(5)
 		}
 	};
 }

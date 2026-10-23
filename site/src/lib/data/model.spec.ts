@@ -6,6 +6,7 @@ import {
 	ChangeCells,
 	ContextCells,
 	DataError,
+	Distributions,
 	GlobalCells,
 	SAMPLES,
 	Similarity,
@@ -18,6 +19,7 @@ import {
 	cellsDoc,
 	changeDoc,
 	contextsDoc,
+	distributionsDoc,
 	globalDoc,
 	similarityDoc,
 	societiesDoc
@@ -309,6 +311,29 @@ describe('DR-13, C-6: the two surveys, as society × pair aggregates', () => {
 	});
 });
 
+describe('DR-4, FR-61: response counts for the quiz', () => {
+	const d = new Distributions(distributionsDoc(), 'all');
+
+	it('gives a society’s six response counts for a cell, or null without enough responses', () => {
+		expect(d.codes).toEqual(['AAA', 'BBB', 'CCC']);
+		expect(d.counts(0, 5)).toEqual({ n: 50, sd: 1.2, counts: [20, 15, 10, 3, 1, 1] });
+		expect(d.counts(1, 1)?.n).toBe(12);
+		expect(d.counts(2, 0)).toBeNull();
+		expect(d.counts(2, 2)).toBeNull();
+		expect(d.indexOf('CCC')).toBe(2);
+	});
+
+	it('FR-86: refuses counts that do not add up, or a short table', () => {
+		const sum = distributionsDoc();
+		sum.cells.c6[3] = 2;
+		expect(() => new Distributions(sum, 'all')).toThrow(/do not add up/);
+		const short = distributionsDoc();
+		short.cells.c3.pop();
+		expect(() => new Distributions(short, 'all')).toThrow(/cells\.c3 has/);
+		expect(() => new Distributions(distributionsDoc('paper'), 'all')).toThrow(DataError);
+	});
+});
+
 describe('FR-86: malformed files are refused with a DataError', () => {
 	it('rejects another grid order', () => {
 		const doc = globalDoc();
@@ -388,6 +413,22 @@ describe('§4.6: the committed data/derived files decode', () => {
 		expect(shown).toBe(change.codes.length * 120 - 1);
 		expect(below10).toBe(0);
 	});
+
+	it.each(SAMPLES)(
+		'distributions-%s.json: counts exactly where the cells file has a value',
+		(sample) => {
+			const d = new Distributions(derived(`distributions-${sample}.json`), sample);
+			const cells = new SocietyCells(derived(`cells-${sample}.json`), sample);
+			expect(d.codes).toEqual(cells.codes);
+			let mismatches = 0;
+			for (let s = 0; s < d.codes.length; s++) {
+				for (let c = 0; c < CELL_COUNT; c++) {
+					if ((d.counts(s, c) !== null) !== cells.status(s, c) <= Status.Small) mismatches += 1;
+				}
+			}
+			expect(mismatches).toBe(0);
+		}
+	);
 
 	it('societies.json', () => {
 		const societies = new Societies(derived('societies.json'));

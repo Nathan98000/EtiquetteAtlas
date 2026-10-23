@@ -12,6 +12,9 @@ import cellsAttention from '../../../../data/derived/cells-attention.json?url';
 import similarityAll from '../../../../data/derived/similarity-all.json?url';
 import similarityPaper from '../../../../data/derived/similarity-paper.json?url';
 import similarityAttention from '../../../../data/derived/similarity-attention.json?url';
+import distributionsAll from '../../../../data/derived/distributions-all.json?url';
+import distributionsPaper from '../../../../data/derived/distributions-paper.json?url';
+import distributionsAttention from '../../../../data/derived/distributions-attention.json?url';
 import contextsAll from '../../../../data/derived/contexts-all.json?url';
 import contextsPaper from '../../../../data/derived/contexts-paper.json?url';
 import contextsAttention from '../../../../data/derived/contexts-attention.json?url';
@@ -24,5 +27,10 @@ export const FILES = {
 	cells: { all: cellsAll, paper: cellsPaper, attention: cellsAttention },
 	similarity: { all: similarityAll, paper: similarityPaper, attention: similarityAttention },
 	contexts: { all: contextsAll, paper: contextsPaper, attention: contextsAttention },
+	distributions: {
+		all: distributionsAll,
+		paper: distributionsPaper,
+		attention: distributionsAttention
+	},
 	land
 } as const;
