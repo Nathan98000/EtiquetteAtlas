@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { attribution as a } from '#lib/attribution.ts';
+	import { comparison } from '#lib/change-text.ts';
 </script>
 
 <!-- FR-52, NFR-41, C-6: on every change page, prerendered so it reads without JavaScript. The
@@ -16,7 +17,7 @@
 	<p>
 		Only summaries of the 2000–2003 survey are shown: each society's average for each pair, never an
 		individual answer. 2000–2003 data:
-		<a href={a.comparisonUrl} rel="external">{a.comparison}</a>, shared by the GSN authors ({a.authors},
+		<a href={comparison.url} rel="external">{comparison.text}</a>, shared by the GSN authors ({a.authors},
 		{a.year}) in their <a href={a.dataUrl} rel="external">deposit on OSF</a>. The method page
 		explains <a href={resolve('method/#change')}>how the surveys are compared</a>.
 	</p>

@@ -14,6 +14,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import SampleNotice from '#lib/components/SampleNotice.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import { CHANGE_SHARE_ALT } from '#lib/change-text.ts';
 	import { count, respondentsIn } from '#lib/data/format.ts';
 	import { CELLS, cellParams } from '#lib/data/grid.ts';
 	import { loadChange, loadSocieties } from '#lib/data/load.ts';
@@ -73,6 +74,7 @@
 <Seo
 	title={data.title}
 	description="How {who} judged 12 everyday behaviors in 10 situations in 2023–2024, against respondents there in a survey from 2000–2003: differences between two surveys, not change in individuals."
+	imageAlt={CHANGE_SHARE_ALT}
 />
 
 <div class="change-page">

@@ -7,6 +7,7 @@
  */
 
 import { audienceRows } from '../charts/audience-model';
+import { STORY_CHANGE_TITLE } from '../change-text';
 import { globalChange } from '../charts/change-model';
 import { extremes, largestFirst } from '../data/derive';
 import { ALONE, MANAGEMENT } from '../data/grid';
@@ -105,6 +106,6 @@ export const STEP_TITLE: Record<StepId, string> = {
 	universal: 'Where societies agree',
 	dependent: 'Where societies disagree most',
 	audience: 'Who is watching',
-	change: 'Two surveys, 20 years apart',
+	change: STORY_CHANGE_TITLE,
 	explore: 'Explore for yourself'
 };

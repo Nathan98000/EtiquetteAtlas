@@ -404,9 +404,13 @@ if (changeModule) {
 		problems.push(`R-6: ${file} is in a build without the change module`);
 	}
 	if (sitemap.includes('/change/')) problems.push('R-6: the sitemap lists the change pages');
-	for (const file of files.filter((f) => /\.(html|js)$/.test(f))) {
+	for (const file of files.filter((f) => /\.(html|js|json|xml)$/.test(f))) {
 		const text = readFileSync(join(root, file), 'utf8');
 		if (text.includes('data-provenance')) problems.push(`R-6: ${file} holds the change module`);
+		// Decision 95: not even dead text about the 2000–2003 survey.
+		if (/2000[–-]2003|Gelfand|early 2000s/.test(text)) {
+			problems.push(`R-6: ${file} mentions the 2000–2003 survey`);
+		}
 		if (file.endsWith('.html')) {
 			if (text.includes(`href="${basePath}/change/`)) {
 				problems.push(`R-6: ${file} links to the change module`);

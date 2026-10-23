@@ -26,7 +26,8 @@ describe('FR-82, FR-83: the share image each route points to (decision 89)', () 
 	});
 
 	it('describes every module card for its alt text', () => {
-		const modules = ['home', 'explore', 'societies', 'audiences', CHANGE_CARD, 'story', 'method'];
+		// The change card's alt text is the change module's own (change-text.ts, R-6).
+		const modules = ['home', 'explore', 'societies', 'audiences', 'story', 'method'];
 		expect(Object.keys(SHARE_ALT).sort()).toEqual([...modules].sort());
 		for (const text of Object.values(SHARE_ALT)) expect(text.length).toBeGreaterThan(60);
 	});

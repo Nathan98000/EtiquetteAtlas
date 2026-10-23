@@ -482,6 +482,82 @@ export class Societies {
 	}
 }
 
+/** One OSF file the pipeline read, pinned by version and checksum (DR-1). */
+export interface SourceFile {
+	name: string;
+	osfVersion: number;
+	md5: string;
+	url: string;
+}
+
+/**
+ * `manifest.json`: the build's settings and the OSF files it read (FR-72): the pipeline version,
+ * the build date (decision 20), the bootstrap's replicates and seed, the smallest group shown and
+ * the three samples' sizes.
+ */
+export class Manifest {
+	readonly pipelineVersion: string;
+	readonly buildDate: string;
+	readonly replicates: number;
+	readonly seed: number;
+	readonly intervalLevel: number;
+	readonly minGroupSize: number;
+	readonly smallSampleBelow: number;
+	readonly samples: Record<SampleId, { respondents: number; societies: number }>;
+	readonly sources: readonly SourceFile[];
+
+	constructor(json: unknown) {
+		const where = 'manifest.json';
+		check(isObject(json), `${where} is not an object`);
+		const text = (key: string) => {
+			check(typeof json[key] === 'string', `${where} lacks ${key}`);
+			return json[key] as string;
+		};
+		const whole = (key: string) => {
+			check(Number.isInteger(json[key]), `${where} lacks ${key}`);
+			return json[key] as number;
+		};
+		this.pipelineVersion = text('pipeline_version');
+		this.buildDate = text('build_date');
+		check(/^\d{4}-\d{2}-\d{2}$/.test(this.buildDate), `${where} has a malformed build date`);
+		this.replicates = whole('replicates');
+		this.seed = whole('seed');
+		this.intervalLevel = whole('interval_level');
+		this.minGroupSize = whole('min_group_size');
+		this.smallSampleBelow = whole('small_sample_below');
+		check(isObject(json.samples), `${where} has no samples`);
+		const samples = json.samples;
+		this.samples = Object.fromEntries(
+			SAMPLES.map((sample) => {
+				const s = samples[sample];
+				check(
+					isObject(s) && Number.isInteger(s.respondents) && Number.isInteger(s.societies),
+					`${where} samples.${sample} is incomplete`
+				);
+				return [sample, { respondents: s.respondents as number, societies: s.societies as number }];
+			})
+		) as Record<SampleId, { respondents: number; societies: number }>;
+		check(Array.isArray(json.sources) && json.sources.length > 0, `${where} lists no sources`);
+		this.sources = json.sources.map((source: unknown, i: number) => {
+			check(
+				isObject(source) &&
+					typeof source.name === 'string' &&
+					Number.isInteger(source.osf_version) &&
+					typeof source.md5 === 'string' &&
+					/^[0-9a-f]{32}$/.test(source.md5) &&
+					typeof source.url === 'string',
+				`${where} sources[${i}] is incomplete`
+			);
+			return {
+				name: source.name,
+				osfVersion: source.osf_version as number,
+				md5: source.md5,
+				url: source.url
+			};
+		});
+	}
+}
+
 export interface DistributionsDoc {
 	sample: string;
 	grid: GridDoc;

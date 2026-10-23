@@ -11,6 +11,7 @@
 	import Slopegraph from '#lib/charts/Slopegraph.svelte';
 	import SocietyTable from '#lib/charts/SocietyTable.svelte';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { STORY_CHANGE_TITLE } from '#lib/change-text.ts';
 	import AudienceCredit from '#lib/components/AudienceCredit.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
@@ -108,7 +109,7 @@
 
 <Seo
 	title="A guided tour"
-	description="Five or six steps through what the Global Study of Everyday Norms shows: norms vary more across situations than across societies, where societies agree and disagree, who's watching, and two surveys 20 years apart."
+	description="A short guided tour of what the Global Study of Everyday Norms shows, from its main finding, that norms vary more across situations than across societies, to where societies agree and disagree and who's watching."
 	imageAlt="{SHARE_ALT.story} Between situated behaviors {spread(
 		PAPER_SD.situations
 	)}; between societies {spread(PAPER_SD.societies)}."
@@ -373,7 +374,7 @@
 				</li>
 				<li><a href={audiencesHref(null, vs)}>Who's watching: all 15 behaviors by audience</a></li>
 				{#if CHANGE_MODULE}
-					<li><a href={changeHref(vs.society, vs, false)}>Two surveys, 20 years apart</a></li>
+					<li><a href={changeHref(vs.society, vs, false)}>{STORY_CHANGE_TITLE}</a></li>
 				{/if}
 				<li><a href={resolve('method/')}>How the numbers are made</a></li>
 			</ul>

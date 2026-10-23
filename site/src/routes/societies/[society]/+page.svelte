@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { societyChangeLink } from '#lib/change-text.ts';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
 	import CompareTable from '#lib/charts/CompareTable.svelte';
 	import {
@@ -287,7 +288,7 @@
 	{#if CHANGE_MODULE && inChangeSurvey(code)}
 		<p class="more-link">
 			<a href={changeHref(code, vs, false)}>
-				How {who} answered in 2023–2024 and in a survey from 2000–2003
+				{societyChangeLink(who)}
 			</a>
 		</p>
 	{/if}

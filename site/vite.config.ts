@@ -24,13 +24,15 @@ const inlineScripts = [...appHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map
 /**
  * R-6: a build without the change module (CHANGE_MODULE=off) compiles the change routes and the
  * components only they and the story's change step use to stubs, the routes not prerendered, and
- * swaps the module holding the change files' URLs for one with none, so no change page, chart code
- * or 2000–2003 aggregate reaches build/ (decisions 75 and 85).
+ * swaps the modules holding the change files' URLs and the module's words for empty ones, so no
+ * change page, chart code, 2000–2003 aggregate or text about them reaches build/ (decisions 75, 85
+ * and 95).
  */
 function withoutChangeModule(): Plugin {
 	const at = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 	const routes = at('./src/routes/change/');
-	const files = at('./src/lib/data/change-files.ts');
+	// Modules swapped for their `.off.ts` twin: the change files' URLs and the module's words.
+	const swapped = new Set([at('./src/lib/data/change-files.ts'), at('./src/lib/change-text.ts')]);
 	const components = new Set(
 		[
 			'charts/ChangeArrows.svelte',
@@ -38,6 +40,8 @@ function withoutChangeModule(): Plugin {
 			'charts/ChangeStrip.svelte',
 			'components/ChangeProvenance.svelte',
 			'components/ChangeScaleNote.svelte',
+			'components/MethodChange.svelte',
+			'components/MethodChangeLink.svelte',
 			'components/StoryChange.svelte'
 		].map((path) => at(`./src/lib/${path}`))
 	);
@@ -46,7 +50,7 @@ function withoutChangeModule(): Plugin {
 		enforce: 'pre',
 		async resolveId(source, importer, options) {
 			const resolved = await this.resolve(source, importer, { ...options, skipSelf: true });
-			return resolved?.id === files ? files.replace(/\.ts$/, '.off.ts') : null;
+			return resolved && swapped.has(resolved.id) ? resolved.id.replace(/\.ts$/, '.off.ts') : null;
 		},
 		load(id) {
 			if (components.has(id)) return '';

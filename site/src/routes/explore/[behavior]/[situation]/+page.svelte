@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { cellChangeLink } from '#lib/change-text.ts';
 	import Beeswarm from '#lib/charts/Beeswarm.svelte';
 	import BehaviorStrip from '#lib/charts/BehaviorStrip.svelte';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
@@ -189,9 +190,11 @@
 		{#if CHANGE_MODULE && CHANGE_BEHAVIORS.includes(behavior)}
 			<p class="more-link">
 				<a href={changeHref(vs.society, vs, false)}>
-					{selectedSociety && inChangeSurvey(selectedSociety.code)
-						? `Respondents in ${place(selectedSociety.code, selectedSociety.name)} compared with a survey from 2000–2003`
-						: 'Respondents in 26 societies in 2000–2003 and 2023–2024'}
+					{cellChangeLink(
+						selectedSociety && inChangeSurvey(selectedSociety.code)
+							? place(selectedSociety.code, selectedSociety.name)
+							: null
+					)}
 				</a>
 			</p>
 		{/if}

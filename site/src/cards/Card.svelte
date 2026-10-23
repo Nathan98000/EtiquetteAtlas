@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { attribution as a } from '#lib/attribution.ts';
+	import { comparison } from '#lib/change-text.ts';
 	import { DIVERGING } from '#lib/charts/colors.ts';
 	import type { Layout } from './model';
 
@@ -43,7 +44,7 @@
 	<footer data-attribution>
 		Data: {a.authors} ({a.year}). {a.title}. {a.journal}
 		{a.volume}. {a.dataName}, {bare(a.dataUrl)}, licensed {a.license} ({bare(a.licenseUrl)}).
-		{#if comparisonCredit}2000–2003 comparison data: {a.comparison}.{/if}
+		{#if comparisonCredit}{comparison.label}: {comparison.text}.{/if}
 		{a.note}
 		<strong>{site}</strong>
 	</footer>

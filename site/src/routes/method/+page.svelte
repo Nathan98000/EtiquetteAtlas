@@ -1,21 +1,36 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo.svelte';
+	import MethodChange from '#lib/components/MethodChange.svelte';
+	import MethodChangeLink from '#lib/components/MethodChangeLink.svelte';
+	import SocietyFacts from '#lib/components/SocietyFacts.svelte';
 	import { attribution, audienceCredit } from '#lib/attribution.ts';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { listText } from '#lib/data/society.ts';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+
+	const all = $derived(data.samples.find((s) => s.sample === 'all')!);
+	const others = $derived(data.samples.filter((s) => s.sample !== 'all'));
+	// Cloudflare's privacy policy, as linked from its Web Analytics page (FR-92, decision 94).
+	const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
 </script>
 
-<!-- FR-7 in M2: a draft method page with anchored sections that each "About this chart" link
-     opens; FR-70 completes it in M7 (decision 30). Text drafted in docs/method-notes.md. -->
+<!-- FR-70 to FR-73, FR-92, NFR-34, HR-8 (decision 93): the method in plain language, from
+     docs/method-notes.md, with §4.8's caveats, the per-society table, each sample's effect, the
+     versions and checksums, and the privacy notice. Each chart's "About this chart" opens its
+     section (FR-7). -->
 <Seo
 	title="Method"
-	description="How The Etiquette Atlas turns the Global Study of Everyday Norms into scores, intervals and disagreement, in plain language."
+	description="How The Etiquette Atlas turns the Global Study of Everyday Norms into scores, intervals and disagreement, what it cannot tell you, and where every number comes from."
 />
 
 <article class="page">
 	<h1>Method</h1>
-	<p class="draft">
-		Draft: this page is being written. It will add per-society tables, file versions and more detail
-		before the atlas is announced.
+	<p class="lede">
+		How the atlas turns the answers of {all.respondents} respondents into the scores, ranges and charts
+		you see, what it cannot tell you, and where everything comes from. Each chart's "About this chart"
+		link opens its section here.
 	</p>
 	<nav aria-label="On this page">
 		<ul>
@@ -35,11 +50,16 @@
 			<li><a href="#similar">Similar societies</a></li>
 			<li><a href="#facts">Society facts</a></li>
 			<li><a href="#audiences">Who's watching?</a></li>
-			{#if CHANGE_MODULE}<li><a href="#change">Change since the early 2000s</a></li>{/if}
+			{#if CHANGE_MODULE}<MethodChangeLink />{/if}
 			<li><a href="#quiz">The quiz</a></li>
+			<li><a href="#story">The guided story</a></li>
 			<li><a href="#rank">Ranks</a></li>
 			<li><a href="#map">The map</a></li>
+			<li><a href="#limits">What the atlas cannot tell you</a></li>
 			<li><a href="#privacy">Privacy</a></li>
+			<li><a href="#versions">Versions and checksums</a></li>
+			<li><a href="#about">About the atlas</a></li>
+			<li><a href="#societies">Every society in the data</a></li>
 		</ul>
 	</nav>
 
@@ -47,12 +67,12 @@
 		<h2>Where the numbers come from</h2>
 		<p>
 			Everything here comes from the
-			<a href={attribution.dataUrl} rel="external">Global Study of Everyday Norms</a>: 25,422 people
-			in 90 societies rated how appropriate 15 everyday behaviors are in 10 situations, between July
-			2023 and May 2024. Most respondents were recruited through universities and online panels, so
-			they are not a random sample of each country, and more than half are students. That is why the
-			atlas speaks of "respondents in Chile" rather than "Chileans". The atlas shows summaries of
-			their answers, never an individual answer, and never a summary of fewer than 10 people.
+			<a href={attribution.dataUrl} rel="external">Global Study of Everyday Norms</a>:
+			{all.respondents} people in {all.societies} societies rated how appropriate 15 everyday behaviors
+			are in 10 situations, between July 2023 and May 2024. Most respondents were recruited through universities
+			and online panels, so they are not a random sample of each country, and more than half are students.
+			That is why the atlas speaks of "respondents in Chile" rather than "Chileans". The atlas shows summaries
+			of their answers, never an individual answer, and never a summary of fewer than 10 people.
 		</p>
 		<p>
 			The atlas describes how answers differ, not why. A difference between two societies can also
@@ -66,15 +86,39 @@
 		<ul>
 			<li><strong>All data</strong> (the default): everyone who rated at least one behavior.</li>
 			<li>
-				<strong>Paper's sample</strong>: the respondents behind the main figures of the GSN paper,
-				in 71 societies. It leaves out people who took the survey after February 2024, and Kuwait.
+				<strong>Paper's sample</strong>: the respondents behind the main figures of the GSN paper.
+				It leaves out people who took the survey after February 2024, and Kuwait.
 			</li>
 			<li>
 				<strong>Attention check</strong>: respondents who passed a check that they were reading
-				carefully, in the 80 societies with enough of them.
+				carefully, in the societies the GSN authors kept with it.
 			</li>
 		</ul>
-		<p>Societies outside the chosen sample read "not in this sample".</p>
+		<h3>What each sample changes</h3>
+		<!-- FR-71: each toggle's effect, from the committed files at build time. -->
+		<ul>
+			<li>
+				<strong>{all.label}</strong>: {all.respondents} respondents in {all.societies} societies.
+			</li>
+			{#each others as sample (sample.sample)}
+				<li>
+					<strong>{sample.label}</strong>: {sample.respondents} respondents in {sample.societies} societies.
+					It leaves out {sample.leftOut.length} societies: {listText(sample.leftOut)}. Across the
+					150 pairs, the average of all societies moves by {sample.shift?.mean} on average and by at most
+					{sample.shift?.max} from All data.
+				</li>
+			{/each}
+		</ul>
+		<p>
+			With fewer respondents, a society's scores rest on fewer answers: their intervals widen, more
+			pairs read "too few responses", and ranks can move. Societies outside the chosen sample read
+			"not in this sample". The guided story always shows All data.
+		</p>
+		<p>
+			The paper's statistical models use a further subset, the 17,288 respondents with every answer
+			those models need. The atlas does not offer it; it uses it only to check that it rebuilds the
+			paper's samples exactly.
+		</p>
 	</section>
 
 	<section id="scale">
@@ -101,9 +145,10 @@
 		<p>
 			Every score comes with a range: the 95% interval. It shows how much the score could move if
 			the same society had been surveyed again with different respondents. We find it by re-drawing
-			each society's respondents at random, with replacement, 2,000 times and recomputing everything
-			each time; the interval holds the middle 95% of the results. Narrow ranges mean many
-			respondents who largely agree.
+			each society's respondents at random, with replacement, {data.versions.replicates} times and recomputing
+			everything each time; the interval holds the middle 95% of the results. Narrow ranges mean many
+			respondents who largely agree. The intervals treat the set of societies as fixed: they reflect who
+			was surveyed within each society, not which societies took part.
 		</p>
 	</section>
 
@@ -215,12 +260,12 @@
 		<h2>Society facts</h2>
 		<p>
 			Each society's page shows how many people responded in the chosen sample, the share flagged as
-			students, the languages people took the survey in, and the months of fieldwork. Student status
-			was recorded by the collection sites rather than asked in the questionnaire, and some sites
-			recorded none, so we show the share with no status as well. Fieldwork months are those in
-			which at least 10 respondents started. The collection sites themselves are never shown,
-			because they could help identify respondents. Regions are the GSN authors' four-way grouping
-			(see The map).
+			students, the languages people took the survey in, and the months of fieldwork; the table at
+			the end of this page lists them all. Student status was recorded by the collection sites
+			rather than asked in the questionnaire, and some sites recorded none, so we show the share
+			with no status as well. Fieldwork months are those in which at least 10 respondents started.
+			The collection sites themselves are never shown, as they could help identify respondents.
+			Regions are the GSN authors' four-way grouping (see The map).
 		</p>
 	</section>
 
@@ -265,47 +310,7 @@
 		</p>
 	</section>
 
-	<!-- FR-52, FR-70, NFR-41, §4.7, §4.8; decisions 67 to 75. Left out of a build without the
-	     change module (R-6). -->
-	{#if CHANGE_MODULE}
-		<section id="change">
-			<h2>Change since the early 2000s</h2>
-			<p>
-				For 26 societies, a survey from 2000–2003 by Gelfand and colleagues asked about 12 of the
-				same behaviors in the same 10 situations; resting, shouting in anger and using a mobile
-				phone were not asked then. The change pages compare the two surveys' average answers for
-				each society and pair. The surveys asked different people, recruited in different ways, with
-				different questionnaires, about 20 years apart. A difference is therefore a difference
-				between two surveys, not a change in anyone's views, and it does not say why the answers
-				differ. Only summaries of the older survey are shown, each society's average for each pair,
-				never an individual answer: the GSN authors note that its individual answers are not public.
-			</p>
-			<p>
-				Both surveys are shown as raw averages on the −2.5 to +2.5 scale, whatever the scale toggle
-				says, because the older survey has no centered scores. The difference is the 2023–2024
-				average minus the 2000–2003 average, with a 95% interval from resampling each survey's
-				respondents within each society. A difference counts as higher or lower in 2023–2024 only
-				when its interval excludes 0; an interval that ends exactly at 0 counts as within. In the
-				older survey a pair rests on 107 to 312 ratings. In the newer one, pairs with 10 to 29
-				respondents are marked as small samples; they occur only in the Attention check sample.
-				Israel's 2000–2003 data have no value for laughing out loud at a party.
-			</p>
-			<p>
-				Without a society, the pages average the societies in both surveys: 26, or 22 in the Paper's
-				sample, which leaves out South Korea, the Netherlands, Portugal and Turkey. These are not
-				the averages of all 90 societies shown elsewhere. A society's mean difference averages its
-				pairs. A behavior's averages its 10 situations within each society, then the societies, as
-				in Table 1 of Eriksson et al. ({attribution.year}), which the Paper's sample reproduces; its
-				count of societies "above 0" includes differences within their intervals.
-			</p>
-			<p>
-				2000–2003 data: <a href={attribution.comparisonUrl} rel="external"
-					>{attribution.comparison}</a
-				>, shared by the GSN authors in their
-				<a href={attribution.dataUrl} rel="external">deposit on OSF</a>.
-			</p>
-		</section>
-	{/if}
+	{#if CHANGE_MODULE}<MethodChange />{/if}
 
 	<!-- FR-60, FR-61, FR-63; decisions 78 to 80. -->
 	<section id="quiz">
@@ -325,6 +330,19 @@
 			Your answers stay in this browser tab: they are kept in its session storage, so a reload keeps
 			them, and they disappear when you close the tab or choose "Start again". They are never sent,
 			logged or put in the page's address.
+		</p>
+	</section>
+
+	<!-- FR-64, §4.8; decisions 81 to 83. -->
+	<section id="story">
+		<h2>The guided story</h2>
+		<p>
+			The guided story opens with the GSN paper's main finding: norms vary "far more across
+			situations than across societies". In the paper's statistical model, judgments differ between
+			situated behaviors with a standard deviation of 0.31 on the −2.5 to +2.5 scale, between
+			societies with 0.19, and for everything else, individual respondents and noise, with 1.11.
+			These are the paper's estimates; the atlas does not compute them. The story's other steps are
+			chosen from All data, whatever sample you picked elsewhere.
 		</p>
 	</section>
 
@@ -348,28 +366,136 @@
 		</p>
 	</section>
 
+	<!-- §4.8, FR-73, R-2, R-4. -->
+	<section id="limits">
+		<h2>What the atlas cannot tell you</h2>
+		<ul>
+			<li>
+				<strong>What a country thinks.</strong> Respondents were mostly recruited through
+				universities and online panels: {data.students.students}% of all respondents were recorded
+				as students, and no status was recorded for another {data.students.unknown}%. A society's
+				score describes its respondents, not its population.
+			</li>
+			<li>
+				<strong>Why answers differ.</strong> The atlas shows where answers differ and by how much. It
+				does not say what makes one society's respondents stricter than another's.
+			</li>
+			<li>
+				<strong>Whether every translation measures the same thing.</strong> The GSN authors tested whether
+				the questionnaire works the same way across languages only for its scale of values, not for the
+				ratings of appropriateness the atlas shows. Some differences between societies may come from wording.
+			</li>
+			<li>
+				<strong>How judgments change over time.</strong> The ratings were collected between July 2023
+				and May 2024, at one point in time for each respondent.
+			</li>
+		</ul>
+	</section>
+
+	<!-- FR-92, NFR-34, HR-8, C-11, NFR-30; decision 94. -->
 	<section id="privacy">
 		<h2>Privacy</h2>
+		<p>The atlas sets no cookies and asks for no personal data.</p>
+		<ul>
+			<li>
+				<strong>Analytics.</strong> Every page loads Cloudflare Web Analytics to count visits. For
+				each page view it records the page's address without its query string (where the atlas keeps
+				your choices), the site that linked to it, the country, the browser, operating system and
+				device type, and how fast the page loaded. Cloudflare says it uses no cookies or browser
+				storage for this and does not fingerprint visitors by their IP address or browser. Nothing
+				you choose or answer in the atlas is sent to it. See
+				<a href={CLOUDFLARE_PRIVACY} rel="external">Cloudflare's privacy policy</a>.
+			</li>
+			<li>
+				<strong>Your browser's storage.</strong> If you pick a theme, your choice is kept in your browser's
+				local storage. If you take the quiz, your answers are kept in the tab's session storage until
+				you close it. The browser also keeps scroll positions there, so Back returns you to where you
+				were. None of this leaves your browser.
+			</li>
+			<li>
+				<strong>Hosting.</strong> GitHub, which hosts the site on GitHub Pages, logs visitors' IP addresses.
+			</li>
+		</ul>
+	</section>
+
+	<!-- FR-72; decision 20. -->
+	<section id="versions" class="wide">
+		<h2>Versions and checksums</h2>
 		<p>
-			The atlas sets no cookies and collects no personal data. If you pick a theme, your choice is
-			kept in your browser's local storage and never leaves it. If you take the quiz, your answers
-			are kept in the tab's session storage until you close it, and never leave it either. GitHub,
-			which hosts the site, logs visitors' IP addresses.
+			The numbers on this site were built on {data.versions.buildDate} by version {data.versions
+				.pipeline}
+			of the atlas's pipeline, from these files of the GSN deposit on OSF. Each file is checked against
+			its MD5 checksum before use, and the build stops if one has changed.
 		</p>
+		<table>
+			<caption>OSF files read by the pipeline</caption>
+			<thead>
+				<tr>
+					<th scope="col">File</th>
+					<th scope="col">OSF version</th>
+					<th scope="col">MD5 checksum</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each data.versions.files as file (file.name)}
+					<tr>
+						<th scope="row"><a href={file.url} rel="external">{file.name}</a></th>
+						<td>{file.version}</td>
+						<td><code>{file.md5}</code></td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		<p>
+			Intervals use {data.versions.replicates} replicates drawn from a fixed seed ({data.versions
+				.seed}), so rebuilding from the same files gives exactly the same numbers. The pipeline and
+			the site are open source: <a href={attribution.codeUrl} rel="external">code on GitHub</a>.
+		</p>
+	</section>
+
+	<section id="about">
+		<h2>About the atlas</h2>
+		<p>
+			The Etiquette Atlas is an independent, non-commercial site. It is not made, reviewed or
+			endorsed by the authors of the Global Study of Everyday Norms; it builds on the data they
+			shared under
+			<a href={attribution.licenseUrl} rel="license external">{attribution.license}</a>. To cite the
+			data, cite {attribution.authors} ({attribution.year}),
+			<a href={attribution.articleUrl} rel="external">{attribution.title}</a>,
+			<cite>{attribution.journal}</cite>
+			{attribution.volume}, and the
+			<a href={attribution.dataUrl} rel="external">OSF deposit</a>. The site's code is under the MIT
+			licence; mistakes can be reported as an issue on
+			<a href={attribution.codeUrl} rel="external">GitHub</a>.
+		</p>
+	</section>
+
+	<!-- FR-71: every society's sample sizes, student share and languages. -->
+	<section id="societies" class="wide">
+		<h2>Every society in the data</h2>
+		<SocietyFacts />
 	</section>
 </article>
 
 <style>
+	/* Text keeps its measure; the two tables may use more of the width. */
 	.page {
-		max-width: var(--measure);
+		max-width: 64rem;
 		margin: 0 auto;
 		padding: 2rem var(--gutter) 0;
 	}
 
-	.draft {
-		padding: 0.75rem 1rem;
-		border-left: 4px solid var(--accent);
-		background: var(--surface-muted);
+	.page > :not(.wide) {
+		max-width: var(--measure);
+		margin-inline: auto;
+	}
+
+	.wide > :not(table) {
+		max-width: var(--measure);
+	}
+
+	.lede {
+		font-size: var(--text-lg);
 	}
 
 	nav ul {
@@ -380,5 +506,38 @@
 	section {
 		scroll-margin-top: 1rem;
 		margin-top: 2rem;
+	}
+
+	h3 {
+		font-size: var(--text-md);
+		margin-bottom: 0.5rem;
+	}
+
+	table {
+		border-collapse: collapse;
+		width: 100%;
+		font-size: var(--text-sm);
+	}
+
+	caption {
+		text-align: left;
+		padding-bottom: 0.5rem;
+	}
+
+	th,
+	td {
+		padding: 0.3rem 0.4rem;
+		border-bottom: 1px solid var(--border);
+		text-align: left;
+		vertical-align: top;
+		overflow-wrap: anywhere;
+	}
+
+	thead th {
+		border-bottom: 2px solid var(--border-strong);
+	}
+
+	code {
+		font-size: 0.8125rem;
 	}
 </style>

@@ -8,6 +8,7 @@ import {
 	DataError,
 	Distributions,
 	GlobalCells,
+	Manifest,
 	SAMPLES,
 	Similarity,
 	Societies,
@@ -356,6 +357,32 @@ describe('FR-86: malformed files are refused with a DataError', () => {
 		doc.cells.tau[4] = null;
 		expect(() => new GlobalCells(doc, 'all')).toThrow(/missing values/);
 		expect(() => new Societies([])).toThrow(DataError);
+	});
+});
+
+describe('FR-72: the manifest', () => {
+	it('gives the pipeline version, the build date and each OSF file with its version and MD5', () => {
+		const manifest = new Manifest(derived('manifest.json'));
+		expect(manifest.pipelineVersion).toMatch(/^\d+\.\d+\.\d+$/);
+		expect(manifest.buildDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+		expect(manifest.replicates).toBe(2000);
+		expect(manifest.intervalLevel).toBe(95);
+		expect(manifest.minGroupSize).toBe(10);
+		expect(manifest.samples.all).toEqual({ respondents: 25422, societies: 90 });
+		expect(manifest.samples.paper).toEqual({ respondents: 18656, societies: 71 });
+		expect(manifest.samples.attention).toEqual({ respondents: 15599, societies: 80 });
+		expect(manifest.sources.map((s) => s.name)).toContain('gsn-situations-clean-long.csv');
+		for (const source of manifest.sources) {
+			expect(source.md5).toMatch(/^[0-9a-f]{32}$/);
+			expect(source.url).toMatch(/^https:\/\/osf\.io\/download\//);
+		}
+	});
+
+	it('refuses a manifest without checksums', () => {
+		const doc = derived('manifest.json') as { sources: { md5: string }[] };
+		doc.sources[0].md5 = 'abc';
+		expect(() => new Manifest(doc)).toThrow(/sources\[0\] is incomplete/);
+		expect(() => new Manifest({})).toThrow(DataError);
 	});
 });
 

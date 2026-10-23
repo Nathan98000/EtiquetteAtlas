@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_BASE_PATH, normalizeBasePath, parseSwitch } from '../../site.config.js';
 import { attribution } from './attribution';
+import { comparison } from './change-text';
 
 describe('HR-1: base path from config', () => {
 	it('defaults to the case-sensitive repository path', () => {
@@ -50,6 +51,7 @@ describe('NFR-40: attribution', () => {
 	});
 
 	it('credits the 2000–2003 comparison data (NFR-41)', () => {
-		expect(attribution.comparison).toMatch(/^Gelfand et al\. \(2011\)/);
+		expect(comparison.text).toMatch(/^Gelfand et al\. \(2011\)/);
+		expect(comparison.url).toBe('https://doi.org/10.1126/science.1197754');
 	});
 });

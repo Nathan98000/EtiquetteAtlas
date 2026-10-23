@@ -49,7 +49,8 @@ export function shareCard(
 
 /**
  * FR-83, decision 89: what each module's card shows, for its alt text. Index pages add their own
- * summary; a cell's and a society's pages describe their own card.
+ * summary; a cell's and a society's pages describe their own card, and the change pages pass
+ * change-text.ts's (R-6).
  */
 export const SHARE_ALT: Record<string, string> = {
 	home: 'A grid of 15 everyday behaviors in 10 situations, each pair coloured from orange (inappropriate) to blue (appropriate) by its average judgment.',
@@ -59,8 +60,6 @@ export const SHARE_ALT: Record<string, string> = {
 		"A world map with a mark for each of the 90 societies, shaped and coloured by the GSN authors' four regions.",
 	audiences:
 		"Lines for the 15 behaviors' average judgments when alone, in front of colleagues or classmates and in front of management or professors, over all societies, with the largest and the smallest drop named.",
-	[CHANGE_CARD]:
-		'For each of the 12 behaviors asked in both surveys, its average difference between the 2000–2003 and 2023–2024 surveys, marked where it lies beyond its 95% interval.',
 	story:
 		"Bars comparing how much judgments vary between situated behaviors and between societies in the GSN paper's model.",
 	method:
