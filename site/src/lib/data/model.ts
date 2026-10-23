@@ -10,7 +10,18 @@
  * - Rows below 10 respondents carry only a status (DR-9, FR-27): they have no estimate here.
  */
 
-import { BEHAVIORS, CELL_COUNT, CONTEXTS, SITUATIONS } from './grid';
+import {
+	BEHAVIORS,
+	CELL_COUNT,
+	CHANGE_BEHAVIORS,
+	CHANGE_CELLS,
+	CONTEXTS,
+	SITUATIONS,
+	cellIndex,
+	type Behavior,
+	type Cell,
+	type Situation
+} from './grid';
 
 export type SampleId = 'all' | 'paper' | 'attention';
 export const SAMPLES: readonly SampleId[] = ['all', 'paper', 'attention'];
@@ -693,5 +704,328 @@ export class ContextCells {
 			this.#byGender,
 			GENDER_ROWS[gender].first + behavior * CONTEXT_COUNT + context
 		);
+	}
+}
+
+/**
+ * The 26 societies in both surveys (DR-13, §4.4), as in `change-all.json`; the paper's sample keeps
+ * 22 of them. Links and the change routes need the list before any file loads, so it is written
+ * here and every change file is checked against it.
+ */
+export const CHANGE_SOCIETIES = [
+	'AUS',
+	'BRA',
+	'CHN',
+	'DEU',
+	'ESP',
+	'EST',
+	'FRA',
+	'GBR',
+	'GRC',
+	'HUN',
+	'IND',
+	'ISL',
+	'ISR',
+	'ITA',
+	'JPN',
+	'KOR',
+	'MEX',
+	'MYS',
+	'NLD',
+	'NZL',
+	'PAK',
+	'POL',
+	'PRT',
+	'SGP',
+	'TUR',
+	'USA'
+] as const;
+
+/** Whether the society is in the 2000–2003 survey: whether it has change pages. */
+export function inChangeSurvey(code: string | null | undefined): boolean {
+	return !!code && (CHANGE_SOCIETIES as readonly string[]).includes(code);
+}
+
+export interface ChangeDoc {
+	sample: string;
+	source: string;
+	grid: GridDoc;
+	societies: {
+		code: string[];
+		n0: Num[];
+		diff: Num[];
+		diff_minus: Num[];
+		diff_plus: Num[];
+		n_cells: number[];
+	};
+	cells: {
+		n0: Num[];
+		mean0: Num[];
+		sd0: Num[];
+		n1: Num[];
+		mean1: Num[];
+		sd1: Num[];
+		diff: Num[];
+		diff_minus: Num[];
+		diff_plus: Num[];
+	};
+	global: {
+		n_societies: Num[];
+		mean0: Num[];
+		mean1: Num[];
+		diff: Num[];
+		diff_minus: Num[];
+		diff_plus: Num[];
+	};
+	behaviors: {
+		behavior: string[];
+		n_societies: Num[];
+		mean: Num[];
+		mean_minus: Num[];
+		mean_plus: Num[];
+		sd: Num[];
+		increased: Num[];
+	};
+}
+
+/** One survey's aggregate for a society and pair (DR-13). */
+export interface SurveyValue {
+	/** Ratings in 2000–2003 (decision 13), respondents in 2023–2024; at least 10 (DR-9). */
+	n: number;
+	mean: number;
+	sd: number;
+}
+
+/** A society's pair in both surveys. */
+export interface ChangePair {
+	/** The 2000–2003 survey; null when either survey lacks the pair. */
+	older: SurveyValue | null;
+	/** The 2023–2024 survey (GSN); null when either survey lacks the pair. */
+	newer: SurveyValue | null;
+	/** 2023–2024 minus 2000–2003 with its 95% interval; null when either survey lacks the pair. */
+	diff: Estimate | null;
+}
+
+/** The societies in both surveys together, for one pair (FR-53). */
+export interface ChangeGlobal {
+	/** Societies with the pair in both surveys: 26, or 25 where Israel lacks it. */
+	societies: number;
+	older: number;
+	newer: number;
+	diff: Estimate;
+}
+
+/** A society's mean difference over its pairs (DR-13). */
+export interface ChangeSociety {
+	code: string;
+	/** 2000–2003 respondents. */
+	respondents: number | null;
+	diff: Estimate;
+	/** Pairs in both surveys: 120, or 119 for Israel. */
+	cells: number;
+}
+
+/** A behavior's mean difference over its situations and societies, as in the paper's Table 1. */
+export interface ChangeBehavior {
+	behavior: Behavior;
+	societies: number;
+	diff: Estimate;
+	/** Spread of the societies' differences. */
+	sd: number;
+	/** Societies whose difference is above 0, beyond their interval or not. */
+	increased: number;
+}
+
+const CHANGE_CELL_KEYS = [
+	'n0',
+	'mean0',
+	'sd0',
+	'n1',
+	'mean1',
+	'sd1',
+	'diff',
+	'diff_minus',
+	'diff_plus'
+] as const;
+const CHANGE_SOCIETY_KEYS = ['code', 'n0', 'diff', 'diff_minus', 'diff_plus', 'n_cells'] as const;
+const CHANGE_GLOBAL_KEYS = [
+	'n_societies',
+	'mean0',
+	'mean1',
+	'diff',
+	'diff_minus',
+	'diff_plus'
+] as const;
+const CHANGE_BEHAVIOR_KEYS = [
+	'n_societies',
+	'mean',
+	'mean_minus',
+	'mean_plus',
+	'sd',
+	'increased'
+] as const;
+
+function bounds(value: number, minus: number, plus: number): Estimate {
+	return { value, lo: round2(value - minus), hi: round2(value + plus) };
+}
+
+/**
+ * `change-<sample>.json`: the 2000–2003 survey (Gelfand et al. 2011) against the GSN for the
+ * societies in both, as society × pair aggregates only (DR-13, C-6). The 120 pairs are the 12
+ * behaviors both asked × 10 situations, checked by ID; `cells` gives each pair's place in the
+ * 150-cell grid. A pair missing from either survey is null throughout. There is no status,
+ * share, shrunken or centered value: both surveys' means are raw.
+ */
+export class ChangeCells {
+	readonly sample: SampleId;
+	/** The provenance line the pipeline writes (C-6, NFR-41). */
+	readonly source: string;
+	readonly codes: readonly string[];
+	/** The pairs in file order, with their 150-cell indices. */
+	readonly cells: readonly Cell[];
+	readonly #index: Map<string, number>;
+	readonly #c: ChangeDoc['cells'];
+	readonly #societies: ChangeDoc['societies'];
+	readonly #global: Record<(typeof CHANGE_GLOBAL_KEYS)[number], number[]>;
+	readonly behaviors: readonly ChangeBehavior[];
+
+	constructor(json: unknown, sample: SampleId) {
+		const where = `change-${sample}.json`;
+		check(isObject(json), `${where} is not an object`);
+		checkSample(json, sample, where);
+		check(typeof json.source === 'string' && json.source !== '', `${where} has no source`);
+		check(isObject(json.grid), `${where} has no grid`);
+		const { behaviors, situations } = json.grid;
+		check(
+			JSON.stringify(behaviors) === JSON.stringify(CHANGE_BEHAVIORS) &&
+				JSON.stringify(situations) === JSON.stringify(SITUATIONS),
+			`${where} has a different behavior or situation order`
+		);
+		// Each pair by its IDs, not by its position (decision 67).
+		const cells = (behaviors as Behavior[]).flatMap((behavior) =>
+			(situations as Situation[]).map((situation) => ({
+				index: cellIndex(behavior, situation),
+				behavior,
+				situation
+			}))
+		);
+		check(
+			cells.length === CHANGE_CELLS.length,
+			`${where} has ${cells.length} pairs, not ${CHANGE_CELLS.length}`
+		);
+		const societies = table(
+			json.societies,
+			`${where} societies`,
+			CHANGE_SOCIETY_KEYS,
+			rows(json.societies)
+		) as unknown as ChangeDoc['societies'];
+		const known = CHANGE_SOCIETIES as readonly string[];
+		check(
+			societies.code.every((code) => known.includes(code)),
+			`${where} lists a society that is not in both surveys`
+		);
+		this.#c = table(
+			json.cells,
+			`${where} cells`,
+			CHANGE_CELL_KEYS,
+			societies.code.length * cells.length
+		) as unknown as ChangeDoc['cells'];
+		const global = table(json.global, `${where} global`, CHANGE_GLOBAL_KEYS, cells.length);
+		this.#global = Object.fromEntries(
+			CHANGE_GLOBAL_KEYS.map((k) => [k, numbers(global[k] as Num[], `${where} global.${k}`)])
+		) as Record<(typeof CHANGE_GLOBAL_KEYS)[number], number[]>;
+		const b = table(
+			json.behaviors,
+			`${where} behaviors`,
+			['behavior', ...CHANGE_BEHAVIOR_KEYS],
+			CHANGE_BEHAVIORS.length
+		);
+		check(
+			JSON.stringify(b.behavior) === JSON.stringify(CHANGE_BEHAVIORS),
+			`${where} behaviors are in another order`
+		);
+		const bn = Object.fromEntries(
+			CHANGE_BEHAVIOR_KEYS.map((k) => [k, numbers(b[k] as Num[], `${where} behaviors.${k}`)])
+		) as Record<(typeof CHANGE_BEHAVIOR_KEYS)[number], number[]>;
+		this.behaviors = CHANGE_BEHAVIORS.map((behavior, i) => ({
+			behavior,
+			societies: bn.n_societies[i],
+			diff: bounds(bn.mean[i], bn.mean_minus[i], bn.mean_plus[i]),
+			sd: bn.sd[i],
+			increased: bn.increased[i]
+		}));
+		this.sample = sample;
+		this.source = json.source;
+		this.codes = societies.code;
+		this.cells = cells;
+		this.#societies = societies;
+		this.#index = new Map(societies.code.map((code, i) => [code, i]));
+	}
+
+	/** The society's row in this sample, or undefined when it is not in both surveys here. */
+	indexOf(code: string): number | undefined {
+		return this.#index.get(code);
+	}
+
+	/** Society s, pair k (an index into `cells`). */
+	pair(society: number, k: number): ChangePair {
+		const i = society * this.cells.length + k;
+		const c = this.#c;
+		const [n0, mean0, sd0, n1, mean1, sd1, diff] = [
+			c.n0[i],
+			c.mean0[i],
+			c.sd0[i],
+			c.n1[i],
+			c.mean1[i],
+			c.sd1[i],
+			c.diff[i]
+		];
+		if (
+			n0 === null ||
+			mean0 === null ||
+			sd0 === null ||
+			n1 === null ||
+			mean1 === null ||
+			sd1 === null ||
+			diff === null
+		) {
+			return { older: null, newer: null, diff: null };
+		}
+		return {
+			older: { n: n0, mean: mean0, sd: sd0 },
+			newer: { n: n1, mean: mean1, sd: sd1 },
+			diff: bounds(diff, c.diff_minus[i] ?? 0, c.diff_plus[i] ?? 0)
+		};
+	}
+
+	/** One society's 120 pairs in file order. */
+	row(society: number): ChangePair[] {
+		return this.cells.map((_, k) => this.pair(society, k));
+	}
+
+	/** The societies in both surveys together, for pair k (FR-53). */
+	global(k: number): ChangeGlobal {
+		const g = this.#global;
+		return {
+			societies: g.n_societies[k],
+			older: g.mean0[k],
+			newer: g.mean1[k],
+			diff: bounds(g.diff[k], g.diff_minus[k], g.diff_plus[k])
+		};
+	}
+
+	/** Each society's mean difference over its pairs, in file order (by code). */
+	societies(): ChangeSociety[] {
+		const s = this.#societies;
+		return s.code.map((code, i) => {
+			const diff = s.diff[i];
+			check(diff !== null, `change-${this.sample}.json has a society with no difference`);
+			return {
+				code,
+				respondents: s.n0[i],
+				diff: bounds(diff, s.diff_minus[i] ?? 0, s.diff_plus[i] ?? 0),
+				cells: s.n_cells[i]
+			};
+		});
 	}
 }

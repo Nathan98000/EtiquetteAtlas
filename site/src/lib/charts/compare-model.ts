@@ -4,7 +4,7 @@
  */
 
 import { CELLS, headline, phrase, type Cell } from '../data/grid';
-import { cents, orderBy } from '../data/derive';
+import { cents, largestFirst } from '../data/derive';
 import { score } from '../data/format';
 import {
 	missingText,
@@ -67,8 +67,7 @@ export function comparison(
 			unmatched.push({ ...cell, headline: headline(cell), reason: reasons.join('; ') });
 		}
 	}
-	const order = orderBy(shown.length, (i) => cents(Math.abs(shown[i].gap)), true);
-	return { pairs: order.map((i) => shown[i]), unmatched };
+	return { pairs: largestFirst(shown, (p) => p.gap), unmatched };
 }
 
 /**

@@ -124,6 +124,17 @@ export function cellIndex(behavior: Behavior, situation: Situation): number {
 	return BEHAVIORS.indexOf(behavior) * SITUATIONS.length + SITUATIONS.indexOf(situation);
 }
 
+/**
+ * The 12 behaviors the 2000–2003 survey asked (§4.2, DR-13): the first 12, in the same order.
+ * Rest, shouting in anger and using a mobile phone were not asked then.
+ */
+export const CHANGE_BEHAVIORS: readonly Behavior[] = BEHAVIORS.slice(0, 12);
+
+/** The 120 pairs both surveys asked, in grid order; `index` is still the 150-cell index. */
+export const CHANGE_CELLS: readonly Cell[] = CELLS.filter((cell) =>
+	CHANGE_BEHAVIORS.includes(cell.behavior)
+);
+
 /** URL slugs use the IDs with hyphens (§4.2): `job_interview` → `job-interview`. */
 export function slug(id: string): string {
 	return id.replaceAll('_', '-');

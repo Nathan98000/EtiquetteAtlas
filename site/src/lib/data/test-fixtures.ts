@@ -4,9 +4,10 @@
  * not-asked cell.
  */
 
-import { BEHAVIORS, CELL_COUNT, CONTEXTS, SITUATIONS } from './grid';
+import { BEHAVIORS, CELL_COUNT, CHANGE_BEHAVIORS, CONTEXTS, SITUATIONS } from './grid';
 import type {
 	CellsDoc,
+	ChangeDoc,
 	ContextsDoc,
 	GlobalDoc,
 	SampleId,
@@ -202,6 +203,71 @@ export function contextsDoc(sample: SampleId = 'all'): ContextsDoc {
 			mean_minus: genders.map(() => 0.07),
 			mean_plus: genders.map(() => 0.08),
 			share: genders.map((r) => (r.gender === 'Woman' ? 57 : 53))
+		}
+	};
+}
+
+/** The change fixture's societies: real codes, since the decoder checks them (decision 67). */
+export const CHANGE_CODES = ['GBR', 'JPN'] as const;
+
+/**
+ * Two societies × 120 pairs (DR-13). Pair k's 2000–2003 mean is fixtureMean(k) and every interval
+ * offset is 0.1 unless said otherwise.
+ *
+ * - GBR: +0.5 where k mod 3 is 0 (40 higher), −0.4 where it is 1 (40 lower), +0.05 where it is 2
+ *   (40 within), except pair 2: +0.1 with an interval from exactly 0.00 (within).
+ * - JPN: +0.2 everywhere (higher), except pair 0: −1.5 (lower, the largest), pair 5: 12
+ *   respondents (small sample), and pair 19 (laughing out loud at a party), in neither survey.
+ * - Together: +0.3 for pairs 0–59, −0.3 for 60–119, except pair 100: 0.0 (within); pair 19 rests
+ *   on one society.
+ */
+export function changeDoc(sample: SampleId = 'all'): ChangeDoc {
+	const pairs = Array.from({ length: CHANGE_BEHAVIORS.length * SITUATIONS.length }, (_, k) => k);
+	const rows = CHANGE_CODES.flatMap((_, s) => pairs.map((k) => ({ s, k })));
+	const missing = ({ s, k }: { s: number; k: number }) => s === 1 && k === 19;
+	const diff = ({ s, k }: { s: number; k: number }) =>
+		s === 0 ? (k === 2 ? 0.1 : [0.5, -0.4, 0.05][k % 3]) : k === 0 ? -1.5 : 0.2;
+	const value = <T>(row: { s: number; k: number }, v: T): T | null => (missing(row) ? null : v);
+	const globalDiff = (k: number) => (k === 100 ? 0 : k < 60 ? 0.3 : -0.3);
+	return {
+		sample,
+		source: '2000–2003: Gelfand et al. (2011); society–cell aggregates only',
+		grid: { behaviors: [...CHANGE_BEHAVIORS], situations: [...SITUATIONS] },
+		societies: {
+			code: [...CHANGE_CODES],
+			n0: [200, 180],
+			diff: [0.05, 0.19],
+			diff_minus: [0.07, 0.09],
+			diff_plus: [0.07, 0.09],
+			n_cells: [120, 119]
+		},
+		cells: {
+			n0: rows.map((r) => value(r, 150)),
+			mean0: rows.map((r) => value(r, fixtureMean(r.k))),
+			sd0: rows.map((r) => value(r, 1)),
+			n1: rows.map((r) => value(r, r.s === 1 && r.k === 5 ? 12 : 50)),
+			mean1: rows.map((r) => value(r, round(fixtureMean(r.k) + diff(r)))),
+			sd1: rows.map((r) => value(r, 1.1)),
+			diff: rows.map((r) => value(r, diff(r))),
+			diff_minus: rows.map((r) => value(r, 0.1)),
+			diff_plus: rows.map((r) => value(r, 0.1))
+		},
+		global: {
+			n_societies: pairs.map((k) => (k === 19 ? 1 : 2)),
+			mean0: pairs.map(fixtureMean),
+			mean1: pairs.map((k) => round(fixtureMean(k) + globalDiff(k))),
+			diff: pairs.map(globalDiff),
+			diff_minus: pairs.map(() => 0.05),
+			diff_plus: pairs.map(() => 0.05)
+		},
+		behaviors: {
+			behavior: [...CHANGE_BEHAVIORS],
+			n_societies: CHANGE_BEHAVIORS.map(() => 2),
+			mean: CHANGE_BEHAVIORS.map((_, b) => round((b - 5) * 0.1)),
+			mean_minus: CHANGE_BEHAVIORS.map(() => 0.03),
+			mean_plus: CHANGE_BEHAVIORS.map(() => 0.03),
+			sd: CHANGE_BEHAVIORS.map(() => 0.3),
+			increased: CHANGE_BEHAVIORS.map((_, b) => b % 3)
 		}
 	};
 }

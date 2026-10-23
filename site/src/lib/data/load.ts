@@ -4,8 +4,10 @@
  */
 
 import type { Topology } from 'topojson-specification';
+import { CHANGE_FILES } from './change-files';
 import { FILES } from './files';
 import {
+	ChangeCells,
 	ContextCells,
 	DataError,
 	GlobalCells,
@@ -51,6 +53,12 @@ export function loadSimilarity(sample: SampleId): Promise<Similarity> {
 /** Audiences and actor gender (DR-12; NFR-3: only on the audiences routes). */
 export function loadContexts(sample: SampleId): Promise<ContextCells> {
 	return cached(FILES.contexts[sample], (json) => new ContextCells(json, sample));
+}
+
+/** The 2000–2003 comparison (DR-13; NFR-3: only on the change routes). */
+export function loadChange(sample: SampleId): Promise<ChangeCells> {
+	if (!CHANGE_FILES) return Promise.reject(new DataError('This build has no change module.'));
+	return cached(CHANGE_FILES[sample], (json) => new ChangeCells(json, sample));
 }
 
 /** Map outlines (NFR-3: only when the map is shown). The map module decodes them. */

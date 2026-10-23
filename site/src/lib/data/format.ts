@@ -13,14 +13,17 @@ export function signed(x: number, digits = 1): string {
 	return x < 0 ? `${MINUS}${text}` : text;
 }
 
-/** A score on the −2.5 to +2.5 scale, signed so both sides of 0 read alike: "+1.2", "−0.4". */
-export function score(x: number): string {
-	const text = signed(x);
-	return x > 0 && Number(Math.abs(x).toFixed(1)) !== 0 ? `+${text}` : text;
+/**
+ * A score on the −2.5 to +2.5 scale, signed so both sides of 0 read alike: "+1.2", "−0.4". Averages
+ * of differences, whose intervals are narrow, take two decimals: "+0.05".
+ */
+export function score(x: number, digits = 1): string {
+	const text = signed(x, digits);
+	return x > 0 && Number(Math.abs(x).toFixed(digits)) !== 0 ? `+${text}` : text;
 }
 
-export function interval(lo: number, hi: number): string {
-	return `${score(lo)} to ${score(hi)}`;
+export function interval(lo: number, hi: number, digits = 1): string {
+	return `${score(lo, digits)} to ${score(hi, digits)}`;
 }
 
 /** Disagreement τ and other spreads, which are never negative: "0.45". */

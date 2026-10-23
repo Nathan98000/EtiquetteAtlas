@@ -24,6 +24,12 @@ describe('§6.5: numbers', () => {
 		expect(score(x)).toBe(text);
 	});
 
+	it('gives averages of differences two decimals (decision 73)', () => {
+		expect(score(0.05, 2)).toBe('+0.05');
+		expect(score(-0.004, 2)).toBe('0.00');
+		expect(interval(0.02, 0.08, 2)).toBe('+0.02 to +0.08');
+	});
+
 	it('formats intervals, spreads, shares, counts and offsets', () => {
 		expect(interval(-1.32, -1.08)).toBe('−1.3 to −1.1');
 		expect(spread(0.4)).toBe('0.40');

@@ -24,6 +24,11 @@ export const SORT_KEYS: readonly SortKey[] = ['paper', 'mean', 'disagreement', '
 export const FINGERPRINT_SORT_KEYS: readonly SortKey[] = [...SORT_KEYS, 'difference'];
 /** The audiences' small multiples (FR-41): paper order, the audience effect, or by name. */
 export const AUDIENCE_SORT_KEYS: readonly SortKey[] = ['paper', 'effect', 'name'];
+/**
+ * The change routes (decision 67): largest difference between the two surveys first, the
+ * default there, then paper order or by name.
+ */
+export const CHANGE_SORT_KEYS: readonly SortKey[] = ['difference', 'paper', 'name'];
 export const SORT_LABEL: Record<SortKey, string> = {
 	paper: 'Paper order',
 	mean: 'Most appropriate first',
@@ -47,6 +52,19 @@ export function orderBy(count: number, key: (i: number) => number | string, desc
 				: (ka as number) - (kb as number);
 		return (descending ? -order : order) || a - b;
 	});
+}
+
+/**
+ * Items by the size of a signed value, largest first; ties keep their order (paper order). Compare
+ * mode orders its gaps this way (decision 49) and the change routes their differences.
+ */
+export function largestFirst<T>(items: readonly T[], value: (item: T) => number): T[] {
+	return orderBy(items.length, (i) => cents(Math.abs(value(items[i]))), true).map((i) => items[i]);
+}
+
+/** "Arguing Funeral": a cell's behavior and situation labels, for sorting by name. */
+export function cellName(cell: number): string {
+	return `${BEHAVIOR_TEXT[CELLS[cell].behavior].label} ${SITUATION_TEXT[CELLS[cell].situation].label}`;
 }
 
 const mean = (values: number[]) => values.reduce((sum, v) => sum + v, 0) / values.length;
@@ -99,12 +117,7 @@ export function listOrder(global: GlobalCells, scale: Scale, sort: SortKey): num
 		case 'disagreement':
 			return orderBy(CELL_COUNT, (c) => cents(global.tau(c, scale)), true);
 		case 'name':
-			return orderBy(
-				CELL_COUNT,
-				(c) =>
-					`${BEHAVIOR_TEXT[CELLS[c].behavior].label} ${SITUATION_TEXT[CELLS[c].situation].label}`,
-				false
-			);
+			return orderBy(CELL_COUNT, cellName, false);
 		default:
 			return orderBy(CELL_COUNT, () => 0, false);
 	}

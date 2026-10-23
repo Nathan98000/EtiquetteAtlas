@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { BEHAVIORS, CELL_COUNT, CONTEXTS } from './grid';
+import { BEHAVIORS, CELL_COUNT, CHANGE_CELLS, CONTEXTS } from './grid';
 import {
+	CHANGE_SOCIETIES,
+	ChangeCells,
 	ContextCells,
 	DataError,
 	GlobalCells,
@@ -9,9 +11,17 @@ import {
 	Similarity,
 	Societies,
 	SocietyCells,
-	Status
+	Status,
+	inChangeSurvey
 } from './model';
-import { cellsDoc, contextsDoc, globalDoc, similarityDoc, societiesDoc } from './test-fixtures';
+import {
+	cellsDoc,
+	changeDoc,
+	contextsDoc,
+	globalDoc,
+	similarityDoc,
+	societiesDoc
+} from './test-fixtures';
 
 const derived = (name: string): unknown =>
 	JSON.parse(readFileSync(new URL(`../../../../data/derived/${name}`, import.meta.url), 'utf8'));
@@ -223,6 +233,82 @@ describe('DR-12: contexts by society, for all societies and by respondent gender
 	});
 });
 
+describe('DR-13, C-6: the two surveys, as society × pair aggregates', () => {
+	const change = new ChangeCells(changeDoc(), 'all');
+
+	it('maps the 120 pairs to the 150-cell grid by their IDs (decision 67)', () => {
+		expect(change.cells).toEqual(CHANGE_CELLS);
+		expect(change.cells[119]).toEqual({ index: 119, behavior: 'eat', situation: 'party' });
+		expect(change.codes).toEqual(['GBR', 'JPN']);
+		expect(change.indexOf('JPN')).toBe(1);
+		expect(change.indexOf('CHL')).toBeUndefined();
+		expect(change.source).toMatch(/aggregates only/);
+	});
+
+	it('gives each survey’s n, mean and SD and the difference with its interval', () => {
+		expect(change.pair(0, 12)).toEqual({
+			older: { n: 150, mean: -1.76, sd: 1 },
+			newer: { n: 50, mean: -1.26, sd: 1.1 },
+			diff: { value: 0.5, lo: 0.4, hi: 0.6 }
+		});
+		expect(change.pair(1, 5).newer?.n).toBe(12);
+		expect(change.row(0)).toHaveLength(120);
+	});
+
+	it('leaves a pair either survey lacks empty (Israel: laughing out loud at a party)', () => {
+		expect(change.pair(1, 19)).toEqual({ older: null, newer: null, diff: null });
+	});
+
+	it('FR-53: averages the societies in both surveys, per pair', () => {
+		expect(change.global(0)).toEqual({
+			societies: 2,
+			older: -2,
+			newer: -1.7,
+			diff: { value: 0.3, lo: 0.25, hi: 0.35 }
+		});
+		expect(change.global(19).societies).toBe(1);
+	});
+
+	it('gives each society’s mean difference and each behavior’s, as in Table 1', () => {
+		expect(change.societies()[1]).toEqual({
+			code: 'JPN',
+			respondents: 180,
+			diff: { value: 0.19, lo: 0.1, hi: 0.28 },
+			cells: 119
+		});
+		expect(change.behaviors).toHaveLength(12);
+		expect(change.behaviors[0]).toEqual({
+			behavior: 'argue',
+			societies: 2,
+			diff: { value: -0.5, lo: -0.53, hi: -0.47 },
+			sd: 0.3,
+			increased: 0
+		});
+	});
+
+	it('FR-86: refuses the 15-behavior grid, another order, a society not in both surveys', () => {
+		const grid = changeDoc();
+		grid.grid.behaviors = [...BEHAVIORS];
+		expect(() => new ChangeCells(grid, 'all')).toThrow(/behavior or situation order/);
+		const order = changeDoc();
+		order.behaviors.behavior.reverse();
+		expect(() => new ChangeCells(order, 'all')).toThrow(/another order/);
+		const stranger = changeDoc();
+		stranger.societies.code[0] = 'CHL';
+		expect(() => new ChangeCells(stranger, 'all')).toThrow(/not in both surveys/);
+		const short = changeDoc();
+		short.cells.diff.pop();
+		expect(() => new ChangeCells(short, 'all')).toThrow(/cells\.diff has/);
+		expect(() => new ChangeCells(changeDoc('paper'), 'all')).toThrow(DataError);
+	});
+
+	it('knows which societies have change pages', () => {
+		expect(inChangeSurvey('JPN')).toBe(true);
+		expect(inChangeSurvey('CHL')).toBe(false);
+		expect(inChangeSurvey(null)).toBe(false);
+	});
+});
+
 describe('FR-86: malformed files are refused with a DataError', () => {
 	it('rejects another grid order', () => {
 		const doc = globalDoc();
@@ -283,6 +369,24 @@ describe('§4.6: the committed data/derived files decode', () => {
 		if (sample === 'all') expect(statuses).toEqual([5724, 829, 182, 15]);
 		expect(contexts.global(0, 0).societies).toBeGreaterThan(0);
 		expect(contexts.byGender('man', 14, 4).n).toBeGreaterThanOrEqual(10);
+	});
+
+	it.each(SAMPLES)('change-%s.json: the societies in both surveys and their pairs', (sample) => {
+		const change = new ChangeCells(derived(`change-${sample}.json`), sample);
+		expect(change.codes.length).toBe({ all: 26, paper: 22, attention: 26 }[sample]);
+		if (sample !== 'paper') expect(change.codes).toEqual([...CHANGE_SOCIETIES]);
+		let shown = 0;
+		let below10 = 0;
+		for (let s = 0; s < change.codes.length; s++) {
+			for (const pair of change.row(s)) {
+				if (!pair.diff) continue;
+				shown += 1;
+				if (pair.older!.n < 10 || pair.newer!.n < 10) below10 += 1;
+			}
+		}
+		// Israel lacks one pair in the 2000–2003 data.
+		expect(shown).toBe(change.codes.length * 120 - 1);
+		expect(below10).toBe(0);
 	});
 
 	it('societies.json', () => {
