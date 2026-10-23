@@ -30,6 +30,8 @@
 		showAll: string;
 		/** The summary of the pairs set apart: "pairs not compared". */
 		unpairedLabel: string;
+		/** A note under the key, such as what the arrows' colours mean. */
+		note?: string;
 		href: (cell: number) => ResolvedPathname;
 		/** Hover or focus on a row (FR-13): the details panel follows it. */
 		onpreview?: (cell: number) => void;
@@ -45,6 +47,7 @@
 		showFirst,
 		showAll,
 		unpairedLabel,
+		note,
 		href,
 		onpreview
 	}: Props = $props();
@@ -71,9 +74,12 @@
 	style={arrow ? directionStyle() : undefined}
 >
 	<SeriesKey items={key} />
+	{#if note}<p class="note">{note}</p>{/if}
 	<div class="axis" aria-hidden="true">
 		<span class="axis-track" bind:clientWidth={width}>
-			<span>−2.5 extremely inappropriate</span><span>0</span><span>+2.5 extremely appropriate</span>
+			<span>−2.5<span class="words"> extremely inappropriate</span></span><span>0</span><span
+				>+2.5<span class="words"> extremely appropriate</span></span
+			>
 		</span>
 	</div>
 	<ol id="{id}-rows" class="rows" aria-label={label}>
@@ -155,6 +161,12 @@
 		--gap-width: 4rem;
 	}
 
+	.note {
+		max-width: var(--measure);
+		margin: -0.25rem 0 0.75rem;
+		color: var(--text-muted);
+	}
+
 	ul,
 	ol {
 		margin: 0;
@@ -182,6 +194,11 @@
 		min-width: 0;
 	}
 
+	/* Below 640 px the axis shows numbers only, so its labels never collide. */
+	.words {
+		display: none;
+	}
+
 	.rows li {
 		grid-template-areas: 'label label' 'track gap' 'values values';
 		padding: 0.375rem 0;
@@ -202,6 +219,10 @@
 
 		.axis {
 			grid-template-areas: '. track gap';
+		}
+
+		.words {
+			display: inline;
 		}
 
 		.rows li {

@@ -145,7 +145,7 @@ describe('FR-51, FR-52, FR-73: summaries', () => {
 describe('NFR-11: the strips and table', () => {
 	it('orders societies by their mean difference and counts them (FR-51)', () => {
 		const strip = societyStrip(file, (code) => names[code]);
-		expect(strip.map((r) => r.label)).toEqual(['Japan', 'the United Kingdom']);
+		expect(strip.map((r) => r.label)).toEqual(['Japan', 'United Kingdom']);
 		expect(strip[0]).toMatchObject({ direction: 1, note: '119 pairs' });
 		expect(strip[1]).toMatchObject({ direction: 0, note: '' });
 		expect(societiesSummary(strip)).toBe(

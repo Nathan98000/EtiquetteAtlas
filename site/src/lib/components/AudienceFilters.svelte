@@ -3,6 +3,7 @@
 	import { societyLabel } from '#lib/charts/audience-model.ts';
 	import { SAMPLE_LABEL, type Society } from '#lib/data/model.ts';
 	import { setView, view } from '#lib/state/view.svelte.ts';
+	import SampleNotice from './SampleNotice.svelte';
 	import Segmented from './Segmented.svelte';
 	import Toggle from './Toggle.svelte';
 
@@ -37,15 +38,11 @@
 				onchange={(scope) => setView({ scope })}
 			/>
 		{:else if outside}
-			<div class="notice" role="status">
-				<p>
-					{who} are not in this sample ({SAMPLE_LABEL[vs.sample]}), so the charts show all
-					societies.
-				</p>
-				<button type="button" class="button" onclick={() => setView({ sample: 'all' })}>
-					Show All data
-				</button>
-			</div>
+			<SampleNotice
+				text="{who} are not in this sample ({SAMPLE_LABEL[
+					vs.sample
+				]}), so the charts show all societies."
+			/>
 		{:else}
 			<p class="hint">Showing all societies. Pick a society above to see its respondents.</p>
 		{/if}
@@ -106,21 +103,6 @@
 		margin: 0;
 		max-width: 22rem;
 		color: var(--text-muted);
-	}
-
-	.notice {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.5rem 1rem;
-		padding: 0.75rem 1rem;
-		border: 1px dashed var(--border-strong);
-		border-radius: var(--radius);
-	}
-
-	.notice p {
-		margin: 0;
-		max-width: 28rem;
 	}
 
 	.note {

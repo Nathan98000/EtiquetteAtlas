@@ -21,6 +21,7 @@ import {
 import { cellName, largestFirst, orderBy, type SortKey } from '../data/derive';
 import { count, interval, place, score } from '../data/format';
 import type { ChangeCells, Estimate } from '../data/model';
+import type { PairRow } from './dumbbell-model';
 
 /** 1 judged more appropriate in 2023–2024 beyond the interval, −1 less appropriate, 0 within. */
 export type Direction = 1 | -1 | 0;
@@ -275,7 +276,7 @@ export function societyStrip(file: ChangeCells, name: (code: string) => string):
 	return bySize(
 		file.societies().map((s) => ({
 			key: s.code,
-			label: place(s.code, name(s.code)),
+			label: name(s.code),
 			diff: s.diff,
 			direction: direction(s.diff),
 			note: s.cells === file.cells.length ? '' : `${s.cells} pairs`
@@ -317,8 +318,8 @@ export function societyStripSummary(strip: readonly StripRow[]): string {
 	const low = strip[strip.length - 1];
 	return (
 		`Averaged over their pairs, differences run from ${score(low.diff.value, 2)} among ` +
-		`respondents in ${low.label} to ${score(high.diff.value, 2)} among respondents in ` +
-		`${high.label}.`
+		`respondents in ${place(low.key, low.label)} to ${score(high.diff.value, 2)} among ` +
+		`respondents in ${place(high.key, high.label)}.`
 	);
 }
 
@@ -332,4 +333,25 @@ export function behaviorStripSummary(strip: readonly StripRow[], societies: numb
 		`${score(low.diff.value, 2)} for ${gerund(low)} to ${score(high.diff.value, 2)} for ` +
 		`${gerund(high)}.`
 	);
+}
+
+/** "2000–2003 −1.2 · 2023–2024 −0.4 · small sample in 2023–2024": a row's values in brief. */
+export function valuesText(row: ChangeRow): string {
+	const small = smallText(row);
+	return `2000–2003 ${score(row.older)} · 2023–2024 ${score(row.newer)}${small ? ` · ${small}` : ''}`;
+}
+
+/** The arrow chart's rows (decision 69): ● the 2023–2024 survey, ○ the 2000–2003 survey. */
+export function arrowRows(rows: readonly ChangeRow[]): PairRow[] {
+	return rows.map((row) => ({
+		index: row.index,
+		headline: row.headline,
+		a: row.newer,
+		b: row.older,
+		gap: row.diff.value,
+		direction: row.direction,
+		small: { a: row.small.newer, b: row.small.older },
+		text: rowText(row),
+		values: valuesText(row)
+	}));
 }

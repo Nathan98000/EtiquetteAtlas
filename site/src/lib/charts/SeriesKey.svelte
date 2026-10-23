@@ -1,7 +1,7 @@
 <script lang="ts" module>
-	/** ● filled, ○ hollow, ■ square, a horizontal tick (a reference value on a vertical axis) or a
-	 *  vertical one (on a horizontal axis). */
-	export type KeyMark = 'dot' | 'ring' | 'square' | 'tick' | 'vtick';
+	/** ● filled, ○ hollow, ■ square, a horizontal tick (a reference value on a vertical axis), a
+	 *  vertical one (on a horizontal axis), or an arrow from ○ to ● (decision 69). */
+	export type KeyMark = 'dot' | 'ring' | 'square' | 'tick' | 'vtick' | 'arrow';
 	export type KeyLine = 'solid' | 'dashed' | 'long-dash';
 
 	export interface KeyItem {
@@ -34,6 +34,11 @@
 					<circle class="mark ring" cx="16" cy="8" r="5" />
 				{:else if item.mark === 'square'}
 					<rect class="mark" x="11.5" y="3.5" width="9" height="9" />
+				{:else if item.mark === 'arrow'}
+					<circle class="mark ring" cx="5" cy="8" r="3.5" />
+					<line class="line" x1="10" x2="21" y1="8" y2="8" />
+					<path class="head" d="M25,8 L20,4.5 L20,11.5 Z" />
+					<circle class="mark" cx="28.5" cy="8" r="2.5" />
 				{:else if item.mark === 'tick'}
 					<line class="tick" x1="10" x2="22" y1="8" y2="8" />
 				{:else}
@@ -90,6 +95,10 @@
 
 	.mark.ring {
 		fill: var(--surface);
+	}
+
+	.head {
+		fill: var(--text);
 	}
 
 	.tick {

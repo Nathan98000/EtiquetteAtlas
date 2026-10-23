@@ -3,14 +3,21 @@ import { resolve } from '$app/paths';
 import { page } from '$app/state';
 import type { ResolvedPathname } from '$app/types';
 import { slug, type Behavior } from '../data/grid';
+import { inChangeSurvey } from '../data/model';
 import {
 	AUDIENCE_KEYS,
 	AUDIENCES_KEYS,
+	CHANGE_DEFAULTS,
+	CHANGE_KEYS,
+	CHANGE_ROUTE,
+	CHANGE_SOCIETY_KEYS,
+	CHANGE_SOCIETY_ROUTE,
 	DEFAULT_VIEW,
 	FINGERPRINT_KEYS,
 	FINGERPRINT_ROUTE,
 	SOCIETIES_KEYS,
 	SOCIETIES_ROUTE,
+	defaultsFor,
 	keysFor,
 	parseView,
 	societyCode,
@@ -21,13 +28,15 @@ import {
 
 class View {
 	// Prerendered pages cannot read their query string, so the server render and hydration use
-	// the defaults; the URL's values take over once the app has mounted (decision 31). A
-	// fingerprint's society is in its path, so it is known from the start (decision 44).
+	// the route's defaults; the URL's values take over once the app has mounted (decision 31). A
+	// fingerprint's or change page's society is in its path, so it is known from the start
+	// (decisions 44 and 67).
 	#ready = $state(false);
 
 	readonly state: ViewState = $derived.by(() => {
-		const query = this.#ready ? parseView(page.url.searchParams, page.route.id) : DEFAULT_VIEW;
-		return page.route.id === FINGERPRINT_ROUTE
+		const route = page.route.id;
+		const query = this.#ready ? parseView(page.url.searchParams, route) : defaultsFor(route);
+		return route === FINGERPRINT_ROUTE || route === CHANGE_SOCIETY_ROUTE
 			? { ...query, society: societyCode(page.params.society) }
 			: query;
 	});
@@ -63,6 +72,22 @@ export function audiencesHref(behavior: Behavior | null, state: ViewState): Reso
 		: withView(resolve('audiences/'), state, AUDIENCES_KEYS);
 }
 
+/**
+ * A society's change page, or the overview for a society without 2000–2003 data or for none
+ * (FR-53, decision 67). Links within the module keep its sort; links from elsewhere pass
+ * `withSort` false and open on its default order.
+ */
+export function changeHref(
+	code: string | null,
+	state: ViewState,
+	withSort = true
+): ResolvedPathname {
+	const next = withSort ? state : { ...state, sort: CHANGE_DEFAULTS.sort };
+	return code && inChangeSurvey(code)
+		? withView(resolve(`change/${code.toLowerCase()}/`), next, CHANGE_SOCIETY_KEYS, CHANGE_DEFAULTS)
+		: withView(resolve('change/'), { ...next, society: code }, CHANGE_KEYS, CHANGE_DEFAULTS);
+}
+
 /** A fingerprint's own URL for a view, with its sort and comparison (FR-33). */
 export function fingerprintHref(state: ViewState): ResolvedPathname {
 	return withView(societyPath(state.society), state, FINGERPRINT_KEYS);
@@ -72,7 +97,8 @@ export function fingerprintHref(state: ViewState): ResolvedPathname {
  * Changes the view by navigating, so each state has its own history entry and back and forward
  * move between states (FR-80, FR-84, AT-11). Every linked view reads the same URL, so they
  * update together. On society routes the society is the path: choosing one opens its
- * fingerprint, and clearing it goes to the index (decision 44).
+ * fingerprint, and clearing it goes to the index (decision 44). On the change routes a society
+ * in both surveys opens its change page, and any other stays on the overview (decision 67).
  */
 export function setView(patch: Partial<ViewState>): Promise<void> {
 	const next = { ...view.state, ...patch };
@@ -81,6 +107,9 @@ export function setView(patch: Partial<ViewState>): Promise<void> {
 	if (route === SOCIETIES_ROUTE || route === FINGERPRINT_ROUTE) {
 		const keys = next.society ? FINGERPRINT_KEYS : SOCIETIES_KEYS;
 		return goto(withView(societyPath(next.society), next, keys), { reset: false });
+	}
+	if (route === CHANGE_ROUTE || route === CHANGE_SOCIETY_ROUTE) {
+		return goto(changeHref(next.society, next), { reset: false });
 	}
 	return goto(withView(page.url.pathname as ResolvedPathname, next, keysFor(route)), {
 		reset: false
@@ -94,7 +123,8 @@ export function setView(patch: Partial<ViewState>): Promise<void> {
 export function withView(
 	path: ResolvedPathname,
 	state: ViewState,
-	keys: readonly ViewKey[]
+	keys: readonly ViewKey[],
+	defaults: Readonly<ViewState> = DEFAULT_VIEW
 ): ResolvedPathname {
-	return `${path}${viewSearch(state, keys)}` as ResolvedPathname;
+	return `${path}${viewSearch(state, keys, defaults)}` as ResolvedPathname;
 }

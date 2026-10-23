@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
-	import { societyHref, view, withView } from '#lib/state/view.svelte.ts';
+	import { changeHref, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import ThemeSwitch from './ThemeSwitch.svelte';
 
 	// FR-2: every module, including those built later, which have placeholder pages (decision 29).
@@ -19,11 +19,14 @@
 	let open = $state(false);
 	const section = $derived(page.route.id ?? '');
 
-	// Societies opens the selected society's fingerprint, or the index without one (decision 44).
+	// Societies opens the selected society's fingerprint, or the index without one (decision 44);
+	// Change opens the selected society's change page when it has one (decision 67).
 	const href = (module: (typeof MODULES)[number]) =>
 		module.section === '/societies'
 			? societyHref(view.state.society, view.state)
-			: withView(module.path, view.state, GLOBAL_KEYS);
+			: module.section === '/change'
+				? changeHref(view.state.society, view.state, false)
+				: withView(module.path, view.state, GLOBAL_KEYS);
 
 	// A followed link closes the menu.
 	$effect(() => {

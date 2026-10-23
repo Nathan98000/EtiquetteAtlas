@@ -25,6 +25,7 @@
 	} from '#lib/charts/fingerprint-model.ts';
 	import FactsPanel from '#lib/components/FactsPanel.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
+	import SampleNotice from '#lib/components/SampleNotice.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import SimilarList from '#lib/components/SimilarList.svelte';
@@ -217,12 +218,7 @@
 			{/snippet}
 			{#snippet chart()}
 				{#if outside}
-					<div class="notice">
-						<p>{outsideText}</p>
-						<button type="button" class="button" onclick={() => setView({ sample: 'all' })}>
-							Show All data
-						</button>
-					</div>
+					<SampleNotice text={outsideText} />
 				{:else if empty}
 					<!-- Decision 53: nothing to draw. -->
 					<p class="notice">
@@ -429,10 +425,6 @@
 		padding: 1rem;
 		border: 1px dashed var(--border-strong);
 		border-radius: var(--radius);
-	}
-
-	.notice p {
-		margin-top: 0;
 	}
 
 	.more-link {
