@@ -142,6 +142,13 @@ function walk(dir) {
 	});
 }
 
+/**
+ * Line breaks inside a text are only layout, as in HTML: a phrase wrapped across two lines ("is
+ * why") must still match, so whitespace collapses to one space. A newline then separates only
+ * the texts joined below, which `sentence` treats as ends.
+ */
+const flat = (/** @type {string} */ text) => text.replace(/\\[nt]/g, ' ').replace(/\s+/g, ' ');
+
 /** The words a page shows, and its meta descriptions and alt texts, without markup. */
 function pageText(/** @type {string} */ html) {
 	const attributes = [...html.matchAll(/\b(?:content|alt|aria-label|title)="([^"]*)"/g)].map(
@@ -151,13 +158,14 @@ function pageText(/** @type {string} */ html) {
 		.replace(/<script\b[\s\S]*?<\/script>/g, ' ')
 		.replace(/<style\b[\s\S]*?<\/style>/g, ' ')
 		.replace(/<[^>]+>/g, ' ');
-	return [body, ...attributes].join(' \n ');
+	return [body, ...attributes].map(flat).join(' \n ');
 }
 
 /** Template and string literals in a script, where its visible text lives. */
 function scriptText(/** @type {string} */ js) {
 	return [...js.matchAll(/`((?:[^`\\]|\\.)*)`|"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'/g)]
 		.map((m) => m[1] ?? m[2] ?? m[3] ?? '')
+		.map(flat)
 		.filter((s) => /[a-z] [a-z]/i.test(s))
 		.join(' \n ');
 }
