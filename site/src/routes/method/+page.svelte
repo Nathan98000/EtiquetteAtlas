@@ -36,6 +36,7 @@
 			<li><a href="#facts">Society facts</a></li>
 			<li><a href="#audiences">Who's watching?</a></li>
 			{#if CHANGE_MODULE}<li><a href="#change">Change since the early 2000s</a></li>{/if}
+			<li><a href="#quiz">The quiz</a></li>
 			<li><a href="#rank">Ranks</a></li>
 			<li><a href="#map">The map</a></li>
 			<li><a href="#privacy">Privacy</a></li>
@@ -306,6 +307,27 @@
 		</section>
 	{/if}
 
+	<!-- FR-60, FR-61, FR-63; decisions 78 to 80. -->
+	<section id="quiz">
+		<h2>The quiz</h2>
+		<p>
+			On the home page you can rate three behaviors in situations on the six answers the survey
+			offered, from extremely inappropriate to extremely appropriate. The question wording is the
+			atlas's own; the six answers are the survey's. Your answer is placed among each society's
+			average answer (the shrunken estimate, on the raw scale) in the sample you chose. An average
+			is the middle of many people's answers, while yours is a single answer on one of the six
+			points, so "above the average answer of respondents in 4 societies" says where your answer
+			falls, not how you compare with anyone. If you choose a society, you also see how many of its
+			respondents gave each answer. Societies with fewer than 10 respondents for a question are left
+			out and counted apart.
+		</p>
+		<p>
+			Your answers stay in this browser tab: they are kept in its session storage, so a reload keeps
+			them, and they disappear when you close the tab or choose "Start again". They are never sent,
+			logged or put in the page's address.
+		</p>
+	</section>
+
 	<section id="rank">
 		<h2>Ranks</h2>
 		<p>
@@ -330,8 +352,9 @@
 		<h2>Privacy</h2>
 		<p>
 			The atlas sets no cookies and collects no personal data. If you pick a theme, your choice is
-			kept in your browser's local storage and never leaves it. GitHub, which hosts the site, logs
-			visitors' IP addresses.
+			kept in your browser's local storage and never leaves it. If you take the quiz, your answers
+			are kept in the tab's session storage until you close it, and never leave it either. GitHub,
+			which hosts the site, logs visitors' IP addresses.
 		</p>
 	</section>
 </article>

@@ -115,14 +115,17 @@ export function placementText(p: Placement, response: Response, sample: SampleId
 	} else if (p.below === p.of) {
 		middle = ` below the average answer of respondents in all ${p.of} societies${where}`;
 	} else {
+		// The first part names the comparison in full; the others refer back to it.
 		const parts = [
-			p.above ? `above it in ${p.above}` : null,
-			p.below ? `below it in ${p.below}` : null,
-			p.same ? `the same in ${p.same}` : null
-		].filter((part): part is string => part !== null);
-		const list =
-			parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0];
-		middle = ` compared with the average answer of respondents in ${p.of} societies${where}: ${list}`;
+			p.above ? (['above', p.above] as const) : null,
+			p.below ? (['below', p.below] as const) : null,
+			p.same ? (['the same as', p.same] as const) : null
+		].filter((part) => part !== null);
+		const [[word, n], ...rest] = parts;
+		const others = rest.map(
+			([w, k]) => ` and ${w === 'the same as' ? 'the same' : `${w} it`} in ${k}`
+		);
+		middle = ` ${word} the average answer of respondents in ${n} of ${p.of} societies${where}${others.join('')}`;
 	}
 	const missing = p.tooFew + p.notAsked;
 	const tail = missing
@@ -173,10 +176,10 @@ export function societyText(
 		case 'counts': {
 			const share = shares(answer.counts)[response - 1];
 			const small = answer.small ? ` (a small sample of ${count(answer.counts.n)})` : '';
-			return (
-				`${percent(share)} of ${who}${small} chose ${responseText(response)}, as you did; ` +
-				`their average answer is ${score(answer.average)}, ${responseLabel(answer.average)}.`
-			);
+			const average = `their average answer is ${score(answer.average)}, ${responseLabel(answer.average)}`;
+			return answer.counts.counts[response - 1] === 0
+				? `None of the ${who}${small} chose ${responseText(response)}, your answer; ${average}.`
+				: `${percent(share)} of ${who}${small} chose ${responseText(response)}, as you did; ${average}.`;
 		}
 	}
 }

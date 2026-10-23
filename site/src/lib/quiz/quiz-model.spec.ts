@@ -70,8 +70,18 @@ describe('FR-61: where an answer falls among the societies’ estimates', () => 
 
 	it('compares the answer with average answers, never with a society itself (decision 79)', () => {
 		expect(placementText(placement(cell5, 2), 2, 'all')).toBe(
-			'Your answer, very inappropriate (−1.5), is compared with the average answer of ' +
-				'respondents in 3 societies: above it in 2 and the same in 1.'
+			'Your answer, very inappropriate (−1.5), is above the average answer of respondents in 2 ' +
+				'of 3 societies and the same in 1.'
+		);
+		const mixed = { above: 4, below: 83, same: 0, of: 87, tooFew: 0, notAsked: 0 };
+		expect(placementText(mixed, 5, 'all')).toBe(
+			'Your answer, very appropriate (+1.5), is above the average answer of respondents in 4 of ' +
+				'87 societies and below it in 83.'
+		);
+		const below = { above: 0, below: 2, same: 1, of: 3, tooFew: 0, notAsked: 0 };
+		expect(placementText(below, 3, 'all')).toBe(
+			'Your answer, somewhat inappropriate (−0.5), is below the average answer of respondents ' +
+				'in 2 of 3 societies and the same in 1.'
 		);
 		expect(placementText(placement(cell5, 6), 6, 'paper')).toBe(
 			'Your answer, extremely appropriate (+2.5), is above the average answer of respondents ' +
@@ -115,6 +125,18 @@ describe('FR-61, FR-62: within a chosen society’s answers', () => {
 			'Respondents in Gamma were not asked about arguing in the library.'
 		);
 		expect(societyAnswer(cell5, 'ZZZ', null)).toEqual({ kind: 'not-in-sample' });
+	});
+
+	it('says so when no respondent gave the reader’s answer', () => {
+		const answer = societyAnswer(cell5, 'CCC', counts.counts(2, 5));
+		const none = {
+			...answer,
+			counts: { n: 50, sd: 1, counts: [0, 0, 5, 10, 15, 20] as const }
+		} as typeof answer;
+		expect(societyText(none, 'CCC', 'Gamma', cell5Cell(), 1, 'all')).toBe(
+			'None of the respondents in Gamma chose extremely inappropriate, your answer; their ' +
+				'average answer is −1.5, very inappropriate.'
+		);
 	});
 
 	it('NFR-11: sums up a society’s answers in one sentence', () => {

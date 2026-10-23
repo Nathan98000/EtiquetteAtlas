@@ -20,12 +20,24 @@
 		onselect: (code: string) => void;
 		label: string;
 		describedBy: string;
+		/** FR-61: the quiz reader's answer, drawn as a dashed line with its label (decision 79). */
+		marker?: { value: number; label: string };
 	}
 
-	let { drill, uncertainty, selected, hovered, onhover, onselect, label, describedBy }: Props =
-		$props();
+	let {
+		drill,
+		uncertainty,
+		selected,
+		hovered,
+		onhover,
+		onselect,
+		label,
+		describedBy,
+		marker
+	}: Props = $props();
 
-	const M = { left: 16, right: 16, top: 30, bottom: 56 };
+	// A marker's label takes a row above the global mean's.
+	const M = $derived({ left: 16, right: 16, top: marker ? 50 : 30, bottom: 56 });
 	let width = $state(0);
 	let container: HTMLDivElement | undefined = $state();
 	/** The society that holds the chart's one tab stop (roving tabindex). */
@@ -187,6 +199,18 @@
 			>
 				Global mean {score(drill.mean)}
 			</text>
+			{#if marker}
+				{@const mx = x(marker.value)}
+				<line class="marker" x1={mx} x2={mx} y1={M.top - 30} y2={layout.axis} />
+				<text
+					class="marker-label"
+					x={mx}
+					y={M.top - 34}
+					text-anchor={marker.value < -1.2 ? 'start' : marker.value > 1.2 ? 'end' : 'middle'}
+				>
+					{marker.label}
+				</text>
+			{/if}
 
 			<g class="axis" aria-hidden="true">
 				<line x1={x(-2.5)} x2={x(2.5)} y1={layout.axis} y2={layout.axis} />
@@ -302,6 +326,18 @@
 
 	.mean-label {
 		font-weight: 600;
+	}
+
+	/* The reader's answer: dashed and thicker than the global mean, in the text colour, so the two
+	   are told apart by line style and label rather than hue (NFR-12). */
+	.marker {
+		stroke: var(--text);
+		stroke-width: 3;
+		stroke-dasharray: 6 3;
+	}
+
+	.marker-label {
+		font-weight: 700;
 	}
 
 	.axis line {
