@@ -129,7 +129,7 @@ test.describe('FR-50: a society’s page', () => {
 		await expect(page.getByRole('complementary', { name: PROVENANCE })).toBeVisible();
 		await expect(page.locator('.facts')).toContainText('2000–2003 survey');
 		await expect(page.locator('.facts')).toContainText(
-			/2023–2024 survey \(All data\)\s*[\d,]+ respondents/
+			/2023–2024 survey\s*[\d,]+ respondents\s*All data/
 		);
 		await arrowsReady(page);
 		const firstRow = rows(page).first();

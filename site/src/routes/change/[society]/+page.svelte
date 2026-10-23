@@ -94,14 +94,18 @@
 	{#if outside}
 		<SampleNotice text="{outsideText} The chart shows {together} instead." />
 	{:else}
+		<!-- Fixed columns and lines, so values arriving after the page do not move it (NFR-2). -->
 		<dl class="facts" aria-label="Respondents">
 			<div>
 				<dt>2000–2003 survey</dt>
 				<dd class="num">{facts?.older ? `${count(facts.older)} respondents` : '…'}</dd>
 			</div>
 			<div>
-				<dt>2023–2024 survey ({SAMPLE_LABEL[vs.sample]})</dt>
-				<dd class="num">{facts?.newer ? `${count(facts.newer)} respondents` : '…'}</dd>
+				<dt>2023–2024 survey</dt>
+				<dd class="num">
+					{facts?.newer ? `${count(facts.newer)} respondents` : '…'}
+					<span class="muted">{SAMPLE_LABEL[vs.sample]}</span>
+				</dd>
 			</div>
 			<div>
 				<dt>Pairs in both</dt>
@@ -155,10 +159,17 @@
 	}
 
 	.facts {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem 2rem;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+		gap: 0.5rem 1rem;
+		max-width: var(--measure);
 		margin: 1rem 0 0;
+	}
+
+	.muted {
+		display: block;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
 	}
 
 	dt {
