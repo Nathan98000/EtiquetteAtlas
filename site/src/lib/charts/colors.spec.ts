@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { REGIONS } from '../data/model';
 import {
 	DEVIATION_MAX,
+	DIRECTION_COLOR,
 	DIVERGING,
 	INK,
 	REGION_COLOR,
@@ -10,6 +11,7 @@ import {
 	contrast,
 	deviationScore,
 	deviationStyle,
+	directionStyle,
 	fill,
 	ink,
 	scoreStyle,
@@ -39,6 +41,19 @@ describe('NFR-12: contrast of chart colours', () => {
 			}
 		}
 	});
+
+	it.each(THEMES)(
+		'%s: the change arrows reach 3:1 against both page surfaces (decision 69)',
+		(theme) => {
+			for (const colour of Object.values(DIRECTION_COLOR[theme])) {
+				for (const surface of SURFACES[theme]) {
+					expect(contrast(colour, surface)).toBeGreaterThanOrEqual(3);
+				}
+			}
+			expect(directionStyle()).toContain(`--more-${theme}:${DIVERGING[theme][6]}`);
+			expect(directionStyle()).toContain(`--less-${theme}:${DIVERGING[theme][0]}`);
+		}
+	);
 
 	it.each(THEMES)('%s: inks read on the page as text (4.5:1)', (theme) => {
 		const text = theme === 'light' ? INK.light.dark : INK.dark.light;

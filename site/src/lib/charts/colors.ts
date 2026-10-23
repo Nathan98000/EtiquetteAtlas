@@ -117,6 +117,16 @@ export function deviationScore(difference: number): number {
 	return (Math.max(-DEVIATION_MAX, Math.min(DEVIATION_MAX, difference)) / DEVIATION_MAX) * 2.5;
 }
 
+/**
+ * A difference between the two surveys (FR-50, decision 69): the diverging scale's ends, blue for
+ * judged more appropriate in 2023–2024 and orange for less, when beyond the interval. Within it the
+ * arrow takes the 3:1 outline colour (--border-strong in app.css), copied here for the check.
+ */
+export const DIRECTION_COLOR: Record<Theme, { more: string; less: string; within: string }> = {
+	light: { more: DIVERGING.light[6], less: DIVERGING.light[0], within: '#7d8792' },
+	dark: { more: DIVERGING.dark[6], less: DIVERGING.dark[0], within: '#6b7680' }
+};
+
 /** WCAG relative luminance. */
 export function luminance(hex: string): number {
 	const [r, g, b] = hexToRgb(hex).map(toLinear);
@@ -156,4 +166,13 @@ export function deviationStyle(difference: number): string {
 /** The same for a region's colour (FR-21). */
 export function regionStyle(region: Region): string {
 	return `--region-light:${REGION_COLOR.light[region]};--region-dark:${REGION_COLOR.dark[region]}`;
+}
+
+/** The arrows' colours for both themes; `--more` and `--less` resolve in app.css. */
+export function directionStyle(): string {
+	const { light, dark } = DIRECTION_COLOR;
+	return (
+		`--more-light:${light.more};--more-dark:${dark.more};` +
+		`--less-light:${light.less};--less-dark:${dark.less}`
+	);
 }

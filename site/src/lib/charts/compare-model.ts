@@ -6,6 +6,7 @@
 import { CELLS, headline, phrase, type Cell } from '../data/grid';
 import { cents, largestFirst } from '../data/derive';
 import { score } from '../data/format';
+import type { PairRow } from './dumbbell-model';
 import {
 	missingText,
 	type Estimate,
@@ -90,4 +91,17 @@ export function comparisonSummary(who: string, result: Comparison, scale: Scale)
 /** "respondents in Chile and in the Philippines". */
 export function pairWho(a: string, b: string): string {
 	return `respondents in ${a} and in ${b}`;
+}
+
+/** The dumbbell's rows (decision 49): ● the page's society, ○ the other, the global mean a tick. */
+export function compareRows(result: Comparison, names: [string, string]): PairRow[] {
+	return result.pairs.map((p) => ({
+		index: p.index,
+		headline: p.headline,
+		a: p.a.value,
+		b: p.b.value,
+		gap: p.gap,
+		reference: p.global,
+		text: `${names[0]} ${score(p.a.value)}; ${names[1]} ${score(p.b.value)}; gap ${score(p.gap)}`
+	}));
 }

@@ -80,12 +80,20 @@
 .region {
 	--region: var(--region-light);
 }
+.direction {
+	--more: var(--more-light);
+	--less: var(--less-light);
+}
 :root[data-theme='dark'] .score {
 	--fill: var(--fill-dark);
 	--ink: var(--ink-dark);
 }
 :root[data-theme='dark'] .region {
 	--region: var(--region-dark);
+}
+:root[data-theme='dark'] .direction {
+	--more: var(--more-dark);
+	--less: var(--less-dark);
 }
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) .score {
@@ -94,6 +102,10 @@
 	}
 	:root:not([data-theme='light']) .region {
 		--region: var(--region-dark);
+	}
+	:root:not([data-theme='light']) .direction {
+		--more: var(--more-dark);
+		--less: var(--less-dark);
 	}
 }
 

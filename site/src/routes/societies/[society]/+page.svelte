@@ -4,7 +4,12 @@
 	import type { ResolvedPathname } from '$app/types';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
 	import CompareTable from '#lib/charts/CompareTable.svelte';
-	import { comparison, comparisonSummary, pairWho } from '#lib/charts/compare-model.ts';
+	import {
+		compareRows,
+		comparison,
+		comparisonSummary,
+		pairWho
+	} from '#lib/charts/compare-model.ts';
 	import Fingerprint from '#lib/charts/Fingerprint.svelte';
 	import FingerprintDetails from '#lib/charts/FingerprintDetails.svelte';
 	import FingerprintLegend from '#lib/charts/FingerprintLegend.svelte';
@@ -309,7 +314,21 @@
 							{#await dumbbell}
 								<p class="muted">Loading…</p>
 							{:then { default: Dumbbell }}
-								<Dumbbell comparison={result} {names} {href} />
+								<Dumbbell
+									id="dumbbell"
+									rows={compareRows(result, names)}
+									unpaired={result.unmatched}
+									key={[
+										{ label: `Respondents in ${names[0]}`, mark: 'dot' },
+										{ label: `Respondents in ${names[1]}`, mark: 'ring' },
+										{ label: 'Global mean', mark: 'vtick' }
+									]}
+									label="Pairs both can show, largest gap first"
+									showFirst="Show the 25 largest gaps"
+									showAll="Show all {result.pairs.length} pairs both can show"
+									unpairedLabel="pairs not compared"
+									{href}
+								/>
 							{:catch error}
 								<LoadError
 									{error}
