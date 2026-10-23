@@ -177,6 +177,7 @@
 <Seo
 	{title}
 	description="Where {who} judged 15 everyday behaviors in 10 situations more or less appropriate than the global average, whose answers were most alike, and who took part."
+	imageAlt="A grid of the 150 behavior–situation pairs coloured by how far the answers of {who} lie from the global average, orange stricter and blue looser, with ▲ and ▼ where they are notably looser or stricter. {data.summary}"
 />
 
 <div class="society-page">

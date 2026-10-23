@@ -115,7 +115,11 @@
 	}
 </script>
 
-<Seo title={data.title} description={data.summary} />
+<Seo
+	title={data.title}
+	description={data.summary}
+	imageAlt="{data.title}: a dot for each society's estimate on the scale from inappropriate to appropriate, with the global mean. {data.swarmSummary}"
+/>
 
 <div class="drill">
 	<nav class="crumbs" aria-label="Breadcrumb">

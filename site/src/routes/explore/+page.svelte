@@ -10,6 +10,7 @@
 	import { matrixCells, type SelectedSociety } from '#lib/charts/matrix-model.ts';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import { SHARE_ALT } from '#lib/share.ts';
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import { SORT_KEYS, listOrder, matrixOrder, matrixSummary } from '#lib/data/derive.ts';
 	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
@@ -86,6 +87,7 @@
 <Seo
 	title="Explore 150 behaviors and situations"
 	description="How appropriate are 15 everyday behaviors in 10 situations? The average judgment of respondents in 90 societies, and how much societies disagree, in one matrix."
+	imageAlt="{SHARE_ALT.explore} {data.summary}"
 />
 
 <div class="explore">

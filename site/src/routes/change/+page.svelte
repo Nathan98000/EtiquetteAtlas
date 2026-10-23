@@ -21,6 +21,7 @@
 	import ChangeScaleNote from '#lib/components/ChangeScaleNote.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import { SHARE_ALT } from '#lib/share.ts';
 	import { attribution } from '#lib/attribution.ts';
 	import { interval, place, score } from '#lib/data/format.ts';
 	import { CELLS, cellParams } from '#lib/data/grid.ts';
@@ -88,6 +89,7 @@
 <Seo
 	title="Change since the early 2000s"
 	description="How respondents in 26 societies judged 12 everyday behaviors in 10 situations in 2023–2024, against a survey from 2000–2003 that asked about the same behaviors and situations: differences between two surveys, not change in individuals."
+	imageAlt="{SHARE_ALT.change} {data.summary}"
 />
 
 <div class="change-page">

@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import { SHARE_ALT } from '#lib/share.ts';
 	import { count } from '#lib/data/format.ts';
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
 	import { REGIONS } from '#lib/data/model.ts';
@@ -41,6 +42,7 @@
 <Seo
 	title="Societies"
 	description="Respondents in 90 societies: for each, where their answers depart from the global average, whose answers are most alike, and who took part."
+	imageAlt="{SHARE_ALT.societies} {data.summary}"
 />
 
 <div class="page">

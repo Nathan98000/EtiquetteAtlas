@@ -14,6 +14,7 @@
 	import AudienceCredit from '#lib/components/AudienceCredit.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import { SHARE_ALT } from '#lib/share.ts';
 	import StoryChange from '#lib/components/StoryChange.svelte';
 	import StoryStep from '#lib/components/StoryStep.svelte';
 	import { percent, responseLabel, score, spread } from '#lib/data/format.ts';
@@ -108,6 +109,9 @@
 <Seo
 	title="A guided tour"
 	description="Five or six steps through what the Global Study of Everyday Norms shows: norms vary more across situations than across societies, where societies agree and disagree, who's watching, and two surveys 20 years apart."
+	imageAlt="{SHARE_ALT.story} Between situated behaviors {spread(
+		PAPER_SD.situations
+	)}; between societies {spread(PAPER_SD.societies)}."
 />
 
 <div class="story">

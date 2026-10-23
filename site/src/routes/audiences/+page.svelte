@@ -20,6 +20,7 @@
 	import AudienceFilters from '#lib/components/AudienceFilters.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import { SHARE_ALT } from '#lib/share.ts';
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import { AUDIENCE_SORT_KEYS } from '#lib/data/derive.ts';
 	import { BEHAVIOR_TEXT, BEHAVIORS, CONTEXT_TEXT, CONTEXTS } from '#lib/data/grid.ts';
@@ -82,6 +83,7 @@
 <Seo
 	title="Who's watching?"
 	description="How respondents in 90 societies judged 15 everyday behaviors when alone, in front of colleagues or classmates and in front of management or professors, and done by a woman or by a man."
+	imageAlt="{SHARE_ALT.audiences} {data.summary}"
 />
 
 <div class="audiences-page">

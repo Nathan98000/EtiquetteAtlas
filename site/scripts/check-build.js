@@ -4,12 +4,22 @@
 // analytics beacon, FR-90 the beacon on every page,
 // NFR-40/AT-5 attribution footer on every page, FR-83 title, description and canonical URL,
 // NFR-1 first-load budgets per kind of route, which it also reports, AT-4/C-6 aggregates only for
-// the 2000–2003 comparison, and R-6: with CHANGE_MODULE=off, nothing of the change module.
+// the 2000–2003 comparison, AT-7/FR-82/FR-83 a share image behind every route's meta tags, and
+// R-6: with CHANGE_MODULE=off, nothing of the change module.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { analytics, basePath, changeModule } from '../site.config.js';
+import { analytics, basePath, changeModule, origin } from '../site.config.js';
+import {
+	CHANGE_CARD,
+	SHARE_DIR,
+	SHARE_HEIGHT,
+	SHARE_SOURCE,
+	SHARE_WIDTH
+} from '../src/lib/share.ts';
+import { shareInputsHash } from './share-inputs.js';
 
 const root = resolve(import.meta.dirname, '..', 'build');
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -278,6 +288,68 @@ for (const file of files) {
 }
 if (total > MAX_SITE_BYTES) problems.push(`NFR-5: the site is over 60 MB`);
 
+// AT-7, FR-82, FR-83: every prerendered route but the 404 page and placeholders points to its
+// share image, absolute, with its size and alt text, and the image exists at 1200 × 630. The home
+// page, the six modules, the 150 cells and the 90 societies each have one (246 without the change
+// module, R-6), every one is used, and each is the image `npm run cards` checked (AT-5): its hash
+// is in the manifest, which records the attribution check.
+const SHARE_PREFIX = `${origin}${basePath}/${SHARE_DIR}/`;
+const SHARE_COUNT = changeModule ? 247 : 246;
+const MAX_SHARE_BYTES = 100 * 1024;
+const shared = new Set();
+let shareBytes = 0;
+const meta = (/** @type {string} */ html, /** @type {string} */ key) =>
+	html.match(new RegExp(`<meta (?:property|name)="${key}" content="([^"]*)"`))?.[1];
+for (const file of files.filter((f) => f.endsWith('.html') && f !== '404.html')) {
+	const html = readFileSync(join(root, file), 'utf8');
+	if (html.includes('<meta name="robots" content="noindex"')) continue;
+	const image = meta(html, 'og:image');
+	if (!image?.startsWith(SHARE_PREFIX) || !image.endsWith('.png')) {
+		problems.push(`AT-7: ${file} has no share image under ${SHARE_PREFIX}`);
+		continue;
+	}
+	const path = `${SHARE_DIR}/${image.slice(SHARE_PREFIX.length)}`;
+	shared.add(path);
+	if (!files.includes(path)) problems.push(`AT-7: ${file} points to ${path}, which is missing`);
+	const expected = {
+		'og:image:type': 'image/png',
+		'og:image:width': String(SHARE_WIDTH),
+		'og:image:height': String(SHARE_HEIGHT),
+		'twitter:card': 'summary_large_image'
+	};
+	for (const [key, value] of Object.entries(expected)) {
+		if (meta(html, key) !== value) problems.push(`FR-83: ${file} lacks ${key} ${value}`);
+	}
+	for (const key of ['og:image:alt', 'twitter:image:alt']) {
+		if ((meta(html, key) ?? '').length < 40) problems.push(`FR-83: ${file} has no ${key}`);
+	}
+}
+const images = files.filter((f) => f.startsWith(`${SHARE_DIR}/`));
+const manifestPath = resolve(root, '..', SHARE_SOURCE, 'manifest.json');
+/** @type {{ inputs: string, images: { path: string, sha256: string }[] } | null} */
+const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : null;
+const hashes = new Map(manifest?.images.map((i) => [`${SHARE_DIR}/${i.path}`, i.sha256]) ?? []);
+if (!manifest) problems.push(`AT-7: no ${SHARE_SOURCE}/manifest.json: run \`npm run cards\``);
+if (images.length !== SHARE_COUNT) {
+	problems.push(`AT-7: expected ${SHARE_COUNT} share images, found ${images.length}`);
+}
+for (const path of images) {
+	const png = readFileSync(join(root, path));
+	shareBytes += png.length;
+	if (!shared.has(path)) problems.push(`AT-7: ${path} is not used by any page`);
+	if (png.readUInt32BE(16) !== SHARE_WIDTH || png.readUInt32BE(20) !== SHARE_HEIGHT) {
+		problems.push(`AT-7: ${path} is not ${SHARE_WIDTH} × ${SHARE_HEIGHT}`);
+	}
+	if (png.length > MAX_SHARE_BYTES) problems.push(`NFR-5: ${path} is over 100 KB`);
+	if (manifest && hashes.get(path) !== createHash('sha256').update(png).digest('hex')) {
+		problems.push(`AT-5: ${path} is not an image npm run cards checked`);
+	}
+}
+if (!changeModule && files.includes(`${SHARE_DIR}/${CHANGE_CARD}.png`)) {
+	problems.push(`R-6: ${SHARE_DIR}/${CHANGE_CARD}.png is in a build without the change module`);
+}
+const staleImages = manifest !== null && manifest.inputs !== shareInputsHash();
+
 // AT-4, C-6, DR-16: no built data file carries a respondent-level field or response ID, and only
 // the three change files carry 2000–2003 values (decision 76).
 const olderSurveyFiles = [];
@@ -386,6 +458,14 @@ console.log(
 			? `; the 2000–2003 survey only in ${changeFiles.length} change files (AT-4)`
 			: '; no change module (R-6)')
 );
+console.log(
+	`AT-7: ${images.length} share images behind every route's meta tags, ` +
+		`${(shareBytes / 1024 / 1024).toFixed(2)} MB (NFR-5: the site is ${megabytes} MB of 60 MB)`
+);
+// CI builds the images from the same commit; a local build may be ahead of them.
+if (staleImages) {
+	console.warn(`WARN share images are older than their inputs: rerun \`npm run cards\``);
+}
 console.log('NFR-1 first load, gzip (largest page of each kind):');
 for (const [kind, { page, code, data }] of Object.entries(worst)) {
 	console.log(
