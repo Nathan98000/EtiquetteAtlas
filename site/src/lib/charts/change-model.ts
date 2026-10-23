@@ -355,3 +355,32 @@ export function arrowRows(rows: readonly ChangeRow[]): PairRow[] {
 		values: valuesText(row)
 	}));
 }
+
+/**
+ * One pair across the societies in both surveys, a row per society, largest difference first: the
+ * story's change step (FR-64). Each row's index is the society's row in the file; `name` looks up
+ * its display name.
+ */
+export function societyArrows(
+	file: ChangeCells,
+	k: number,
+	name: (code: string) => string
+): PairRow[] {
+	const rows = file.codes.flatMap((code, s) => {
+		const pair = file.pair(s, k);
+		if (!pair.older || !pair.newer || !pair.diff) return [];
+		const row: ChangeRow = {
+			...file.cells[k],
+			headline: name(code),
+			older: pair.older.mean,
+			newer: pair.newer.mean,
+			diff: pair.diff,
+			direction: direction(pair.diff),
+			n: { older: pair.older.n, newer: pair.newer.n },
+			societies: null,
+			small: { older: pair.older.n < SMALL, newer: pair.newer.n < SMALL }
+		};
+		return [{ ...arrowRows([row])[0], index: s }];
+	});
+	return largestFirst(rows, (r) => r.gap);
+}

@@ -16,13 +16,25 @@ const inlineScripts = [...appHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map
 );
 
 /**
- * R-6: a build without the change module (CHANGE_MODULE=off) compiles the change routes to stubs
- * that are not prerendered and swaps the module holding the change files' URLs for one with none,
- * so no change page, chart code or 2000–2003 aggregate reaches build/ (decision 75).
+ * R-6: a build without the change module (CHANGE_MODULE=off) compiles the change routes and the
+ * components only they and the story's change step use to stubs, the routes not prerendered, and
+ * swaps the module holding the change files' URLs for one with none, so no change page, chart code
+ * or 2000–2003 aggregate reaches build/ (decision 75).
  */
 function withoutChangeModule(): Plugin {
-	const routes = fileURLToPath(new URL('./src/routes/change/', import.meta.url));
-	const files = fileURLToPath(new URL('./src/lib/data/change-files.ts', import.meta.url));
+	const at = (path: string) => fileURLToPath(new URL(path, import.meta.url));
+	const routes = at('./src/routes/change/');
+	const files = at('./src/lib/data/change-files.ts');
+	const components = new Set(
+		[
+			'charts/ChangeArrows.svelte',
+			'charts/ChangeDetails.svelte',
+			'charts/ChangeStrip.svelte',
+			'components/ChangeProvenance.svelte',
+			'components/ChangeScaleNote.svelte',
+			'components/StoryChange.svelte'
+		].map((path) => at(`./src/lib/${path}`))
+	);
 	return {
 		name: 'without-change-module',
 		enforce: 'pre',
@@ -31,6 +43,7 @@ function withoutChangeModule(): Plugin {
 			return resolved?.id === files ? files.replace(/\.ts$/, '.off.ts') : null;
 		},
 		load(id) {
+			if (components.has(id)) return '';
 			if (!id.startsWith(routes)) return null;
 			if (id.endsWith('.svelte')) return '';
 			if (id.endsWith('.ts')) return 'export const prerender = false;';

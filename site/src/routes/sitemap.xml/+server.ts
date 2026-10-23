@@ -1,4 +1,4 @@
-// NFR-60: the pages worth indexing, on the free subdomain (decisions 40, 56, 65 and 77). Placeholder pages
+// NFR-60: the pages worth indexing, on the free subdomain (decisions 40, 56, 65, 77 and 84). Placeholder pages
 // and the 404 page stay out. GitHub Pages serves a project site below the account's root, so a
 // robots.txt here would never be read; crawlers find this file through the canonical URLs.
 
@@ -30,6 +30,7 @@ export const GET: RequestHandler = ({ url }) => {
 					...CHANGE_SOCIETIES.map((code) => resolve(`change/${code.toLowerCase()}/`))
 				]
 			: []),
+		resolve('story/'),
 		resolve('method/')
 	];
 	const body = [

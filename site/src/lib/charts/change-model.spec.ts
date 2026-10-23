@@ -16,6 +16,7 @@ import {
 	societiesSummary,
 	societyChange,
 	societyStrip,
+	societyArrows,
 	societyStripSummary,
 	type ChangeScope
 } from './change-model';
@@ -183,6 +184,20 @@ describe('NFR-11: the strips and table', () => {
 			n: '150 ratings; 12 respondents (small sample in 2023–2024)'
 		});
 		expect(changeTable(globalChange(file).rows)[19].n).toBe('1 societies');
+	});
+});
+
+describe('FR-64: one pair across the societies, for the story', () => {
+	it('gives a row per society with the pair, largest difference first', () => {
+		const rows = societyArrows(file, 0, (code) => names[code]);
+		// Pair 0: GBR +0.5, JPN −1.5.
+		expect(rows.map((r) => [r.index, r.headline, r.gap])).toEqual([
+			[1, 'Japan', -1.5],
+			[0, 'United Kingdom', 0.5]
+		]);
+		expect(societyArrows(file, 19, (code) => names[code]).map((r) => r.headline)).toEqual([
+			'United Kingdom'
+		]);
 	});
 });
 

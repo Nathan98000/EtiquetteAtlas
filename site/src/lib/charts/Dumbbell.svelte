@@ -77,8 +77,8 @@
 	{#if note}<p class="note">{note}</p>{/if}
 	<div class="axis" aria-hidden="true">
 		<span class="axis-track" bind:clientWidth={width}>
-			<span>−2.5<span class="words"> extremely inappropriate</span></span><span>0</span><span
-				>+2.5<span class="words"> extremely appropriate</span></span
+			<span>−2.5<span class="words">extremely inappropriate</span></span><span>0</span><span
+				>+2.5<span class="words">extremely appropriate</span></span
 			>
 		</span>
 	</div>
@@ -223,6 +223,7 @@
 
 		.words {
 			display: inline;
+			margin-left: 0.3em;
 		}
 
 		.rows li {

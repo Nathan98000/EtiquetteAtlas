@@ -10,7 +10,7 @@ import { audienceRows } from '../charts/audience-model';
 import { globalChange } from '../charts/change-model';
 import { extremes, largestFirst } from '../data/derive';
 import { ALONE, MANAGEMENT } from '../data/grid';
-import type { ChangeCells, ContextCells, GlobalCells } from '../data/model';
+import type { ChangeCells, ContextCells, GlobalCells, SocietyCells } from '../data/model';
 
 /**
  * The paper's model (Eriksson et al. 2025), as SRS §4.8 states it: the standard deviation between
@@ -27,6 +27,8 @@ export interface CellStep {
 	/** Mean of society shares choosing an appropriate answer (DR-11). */
 	share: number;
 	societies: number;
+	/** The lowest and highest society estimates (shrunken, raw scale; decision 32). */
+	range: [number, number];
 }
 
 export interface StoryNumbers {
@@ -38,19 +40,24 @@ export interface StoryNumbers {
 	change: { cell: number; older: number; newer: number; diff: number; societies: number } | null;
 }
 
-function cellStep(global: GlobalCells, cell: number): CellStep {
+function cellStep(global: GlobalCells, cells: SocietyCells, cell: number): CellStep {
+	const values = cells
+		.column(cell, 'shrunk', 'raw')
+		.flatMap((c) => (c.estimate ? [c.estimate.value] : []));
 	return {
 		cell,
 		tau: global.tau(cell, 'raw'),
 		mean: global.mean(cell, 'raw'),
 		share: global.share(cell),
-		societies: global.societies(cell)
+		societies: global.societies(cell),
+		range: [Math.min(...values), Math.max(...values)]
 	};
 }
 
 /** The story's numbers from All data (FR-64), computed at build time (decision 83). */
 export function storyNumbers(
 	global: GlobalCells,
+	cells: SocietyCells,
 	contexts: ContextCells,
 	change: ChangeCells | null
 ): StoryNumbers {
@@ -73,8 +80,8 @@ export function storyNumbers(
 		};
 	}
 	return {
-		universal: cellStep(global, universal),
-		dependent: cellStep(global, dependent),
+		universal: cellStep(global, cells, universal),
+		dependent: cellStep(global, cells, dependent),
 		audience: {
 			behavior: top.behavior,
 			alone: value(ALONE),
