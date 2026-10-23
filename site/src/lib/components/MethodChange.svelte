@@ -15,8 +15,8 @@
 		questionnaires, about 20 years apart. A difference is therefore a difference between two
 		surveys, not a change in anyone's views, and it does not say why the answers differ. Only
 		summaries of the older survey are shown, each society's average for each pair, never an
-		individual answer: the GSN authors' companion files describe its individual answers as not
-		public, provided to them privately.
+		individual answer: the GSN authors' companion files note that its individual answers are not
+		public and were provided to them privately.
 	</p>
 	<p>
 		Both surveys are shown as raw averages on the −2.5 to +2.5 scale, whatever the scale toggle

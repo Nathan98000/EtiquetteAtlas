@@ -72,7 +72,20 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 			}
 		}
 	},
-	{ path: 'method/', ready: async () => {} }
+	{ path: 'method/', ready: async () => {} },
+	// Decision 101: the 404 page and the states with nothing to draw or not asked.
+	{ path: 'no/such/page/', ready: async () => {} },
+	{
+		path: 'societies/mng/',
+		ready: async (page) =>
+			expect(page.getByText(/No pair was rated by 10 or more/).first()).toBeVisible()
+	},
+	{ path: 'explore/kiss/job-interview/?society=kwt', ready: swarmReady },
+	{
+		path: 'audiences/kiss/?society=kwt',
+		ready: async (page) => expect(page.getByText('Not asked').first()).toBeVisible()
+	},
+	{ path: 'change/jpn/', ready: arrowsReady }
 ];
 
 for (const scheme of ['light', 'dark'] as const) {
