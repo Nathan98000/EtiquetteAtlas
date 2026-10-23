@@ -264,7 +264,7 @@ function changeCard(change: ChangeCells): CardData {
 				text: score(s.diff.value)
 			})),
 			caption:
-				'Each behavior: 2023–2024 minus 2000–2003, averaged over its situations and the societies, with its 95% interval'
+				'Each behavior in 2023–2024 minus 2000–2003, averaged over its situations and the societies in both surveys; ▲ ▼ beyond its 95% interval'
 		}
 	};
 }
