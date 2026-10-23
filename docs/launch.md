@@ -10,7 +10,7 @@ is sent or published from a coding session.
 | Item | Status | Automated | Left to the maintainer |
 | --- | --- | --- | --- |
 | All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 and NFR-20 pass only as `docs/srs-changes.md` rewords them: FR-34 lists collection sites, which the site leaves out as quasi-identifying (decision 9; `site` is a forbidden column, C-5), and NFR-20 names the two latest versions of each browser, of which Playwright runs only the current one (decision 98) | CI on every pull request and deploy | Screen readers (NFR-13); real devices (NFR-20); accept or reject the FR-34 and §2.4/NFR-20 edits |
-| Lighthouse, size and accessibility budgets met on the deployed URL | Met on the deployed site, 23 October 2026: LCP 0.87–1.16 s, CLS ≤ 0.012, TBT ≤ 1 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
+| Lighthouse, size and accessibility budgets met on the deployed URL | Met on both deploys of 23 October 2026 (below); on the second (6632baa): median LCP 0.88–1.35 s, CLS ≤ 0.012, TBT ≤ 79 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105) | — | The reader's checklist below |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026) | Both, in CI | Look at a sample of images (AT-5, below) |
 | Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105) | `npm run test:deployed` | Check the Cloudflare dashboard (`docs/SETUP.md`), including whether view changes count as page views (launch decision 4) |
@@ -73,6 +73,21 @@ Launch checks on the same deploy (23 October 2026):
   a browser.
 - The beacon (version 2026.10.1) removes the query string and fragment from the page address and
   the referrer before sending them (decision 105).
+
+Results of the second deploy (commit 6632baa, 23 October 2026: L-1's fix, the accessibility contact
+and the launch docs), with every CI job green:
+
+- `npm run test:deployed`: 2 passed. The beacon's reports named the page by its path
+  (`/EtiquetteAtlas/explore/`) and carried no query string, after a view change too; the check now
+  requires such a report (322454c).
+- `npm run check:deployed`: 940 files, 35.98 MB of 60 MB, largest 0.50 MB, no cookies. Only the 289
+  HTML files differed from a local build, by SvelteKit's version marker and the CSP hash of the
+  inline script that carries it; the other 651 files, the share images included, matched.
+- `LHCI_DEPLOYED=1 npm run lhci`: every assertion met. Medians over three runs: LCP 0.88–1.35 s,
+  CLS ≤ 0.012, TBT ≤ 79 ms (budget 200 ms), accessibility 1.00. TBT was higher than on the first
+  deploy (≤ 1 ms) though the only change was the method page's text: the laptop was busy (load
+  average 6 to 13), and single runs of an unchanged route ranged from 0 to 110 ms.
+- axe on the deployed URL: 40 passed.
 
 Still to do:
 
