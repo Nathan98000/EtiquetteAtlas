@@ -175,7 +175,7 @@ The privacy gate is the one point every number passes through: nothing reaches t
 ### 3.2 Repository layout
 
 ```text
-etiquette-atlas/
+EtiquetteAtlas/
   pipeline/            Python package: download, validate, estimate, export
   data/raw/            OSF downloads (git-ignored, never committed)
   data/derived/        committed aggregate JSON (the DR outputs in §4)
@@ -705,7 +705,7 @@ If the schedule slips, Should items move to v1.1 first; Must items and the launc
 
 - [x] Which three cells should the quiz use? Proposal: decide after the first pipeline run, choosing one near-universal cell, one highly divisive cell and one with a surprising audience or change effect. Closed: eating in a restaurant, singing at a funeral, and music on headphones in the library (decision 78).
 - [x] Confirm the project slug `etiquette-atlas`, which sets the free URL. Closed: the slug is `EtiquetteAtlas`, from the repository's name.
-- [ ] Send the GSN authors a courtesy note before launch, offering a preview and asking whether the OSF CC BY license covers the 2000–2003 extract? (Recommended; the license itself does not require it.)
+- [x] Send the GSN authors a courtesy note before launch, offering a preview and asking whether the OSF CC BY license covers the 2000–2003 extract? (Recommended; the license itself does not require it.) Closed: no note was sent (the maintainer's decision, 23 October 2026); whether the OSF licence covers the 2000–2003 extract stays unasked, and `CHANGE_MODULE=off` removes the module if that is ever questioned (R-6).
 - [x] Share-image visual style: a quiet editorial look or a bolder, social-first look? Closed: quiet and editorial, matching the site (decision 91).
 
 ## Sources
