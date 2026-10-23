@@ -61,6 +61,11 @@ M7; the launch adds only fixes (SRS §10).
 - The privacy notice now says the analytics record which page is open, a society's or pair's page
   included, but not the query string or the quiz answers (decision 105).
 - The method page says how to report an accessibility problem (decision 106).
+- The method page, the story and each society's facts panel are corrected where the GSN paper or
+  the data say otherwise: the paper's model, recruitment, student status, measurement invariance,
+  the shrunken estimate's interval, and the 2026 audience analysis's author list (findings L-2 to
+  L-17 in `docs/launch.md`).
+- The content review catches a causal phrase wrapped across two lines (L-19).
 
 ### Not checked before release
 
