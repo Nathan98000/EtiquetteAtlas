@@ -15,6 +15,7 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"check:build": "node scripts/check-build.js",
+		"check:content": "node scripts/check-content.js",
 		"cards": "CARDS=on vite build && svelte-kit sync && node scripts/share-images.js",
 		"cards:docker": "CARDS=on vite build && svelte-kit sync && sh scripts/in-docker.sh node scripts/share-images.js",
 		"lint": "prettier --check . && eslint .",
@@ -22,6 +23,8 @@
 		"test:unit": "vitest",
 		"test:e2e": "playwright test",
 		"test:deployed": "BEACON=live DEPLOYED_ORIGIN=https://nathan98000.github.io playwright test --project=chromium e2e/analytics.e2e.ts",
+		"test:visual": "sh scripts/in-docker.sh sh -c \"VISUAL=1 npx playwright test\"",
+		"test:visual:update": "sh scripts/in-docker.sh sh -c \"VISUAL=1 npx playwright test --update-snapshots\"",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"lhci": "lhci autorun --config=lighthouserc.cjs"
 	},
