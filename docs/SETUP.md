@@ -31,10 +31,17 @@ automated. Tick each item once it is done.
   (for example `etiquette-atlas.goatcounter.com`) and its code.
 
 Outcome (23 October 2026): Cloudflare Web Analytics accepted `nathan98000.github.io`. Its site
-token is `58ded44fdb764340973b62e1e32f48a6`; it ships in every page, so it is public. M7 adds the
-beacon to every page and its script host (`static.cloudflareinsights.com`) and reporting host
-(`cloudflareinsights.com`) to the CSP in `site/vite.config.ts`, so the site still contacts no
-other third party (NFR-31, NFR-32; `docs/m7-kickoff.md`).
+token is `58ded44fdb764340973b62e1e32f48a6`; it ships in every page, so it is public. Since M7
+the beacon is on every page, and its script host (`static.cloudflareinsights.com`) and reporting
+host (`cloudflareinsights.com`) are the only third parties in the CSP (`site/vite.config.ts`,
+`site/site.config.js`; NFR-31, NFR-32).
+
+- [ ] **After the first deploy with the beacon, confirm it counts.** Open a few pages of
+  https://nathan98000.github.io/EtiquetteAtlas/ in a browser without an ad blocker, then check
+  *Web Analytics* in the Cloudflare dashboard for page views on `nathan98000.github.io` (they can
+  take a few minutes). Note whether moving between views (society, sample) counts as extra page
+  views. Test runs send nothing: Playwright stubs the beacon and Lighthouse CI blocks it. A page
+  opened from `npm run preview` in an ordinary browser does send a page view, for `localhost`.
 
 ## Repository secrets
 
@@ -42,6 +49,15 @@ other third party (NFR-31, NFR-32; `docs/m7-kickoff.md`).
   analytics token is public. Only the optional Cloudflare Workers fallback (HR-9, a Could) would
   need secrets later: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, under *Settings →
   Secrets and variables → Actions*.
+
+## Dependency updates (NFR-33)
+
+- [ ] **Turn on Dependabot alerts.** *Settings → Code security → Dependabot alerts: Enable*.
+  Version updates need no setting: `.github/dependabot.yml` asks for weekly grouped pull requests
+  for npm, uv and GitHub Actions. Optionally enable *Dependabot security updates* too. CI already
+  runs `npm audit --omit=dev` and `uv audit` on every pull request. A `@playwright/test` update
+  fails CI until the Playwright image tag in `.github/workflows/ci.yml` and the visual baselines
+  follow it (`npm run test:visual:update` from `site/`).
 
 ## Later
 

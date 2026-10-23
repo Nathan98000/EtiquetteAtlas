@@ -1,9 +1,11 @@
 # Method notes (draft for the method page, FR-70)
 
 Plain-language drafts for each estimator, edited into the method page (`/method`) from M2 on.
-Each section has the text for readers, then a short technical note for reviewers. Where a
-section says it is on the method page, the page's wording is the current one and the draft here
-follows it. Wording follows SRS §6.5:
+Each section has the text for readers, then a short technical note for reviewers. Since M7 the
+method page is complete (decision 93) and its wording is the current one for every section; the
+sections written for M7 (what each sample changes, the guided story, what the atlas cannot tell
+you, privacy, versions and checksums, about, and the table of every society) exist only on the
+page. The technical notes here remain the reviewers' reference. Wording follows SRS §6.5:
 "respondents in Chile", not "Chileans", and no causes (FR-73).
 
 ## Where the numbers come from

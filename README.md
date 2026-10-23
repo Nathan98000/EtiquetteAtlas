@@ -6,13 +6,15 @@ in 90 societies judge 15 everyday behaviors (eating, kissing, using a phone…) 
 [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB) and published at
 **https://nathan98000.github.io/EtiquetteAtlas/**.
 
-Status: milestone M6 (quiz and guided story, live but not announced). The home page opens with
-a three-question quiz, and a guided story walks through the main findings. The etiquette
-matrix, the drill-down for each of the 150 behavior–situation pairs, a fingerprint for each of
-the 90 societies, the audiences module (each behavior alone, in front of colleagues or
-classmates and in front of management or professors) and the change module (26 societies
-against a survey from 2000–2003) work, with the society picker, sample and scale toggles,
-compare mode and permalinks; M7 polishes the site before launch. The requirements are in
+Status: milestone M7 (polish, live but not announced; the public launch follows
+[`docs/launch.md`](docs/launch.md)). The home page opens with a three-question quiz, and a guided
+story walks through the main findings. The etiquette matrix, the drill-down for each of the 150
+behavior–situation pairs, a fingerprint for each of the 90 societies, the audiences module (each
+behavior alone, in front of colleagues or classmates and in front of management or professors)
+and the change module (26 societies against a survey from 2000–2003) work, with the society
+picker, sample and scale toggles, compare mode and permalinks. Every page has a share image,
+the method page is complete, and pages count visits with cookie-free Cloudflare Web Analytics.
+The requirements are in
 [`The Etiquette Atlas Software Requirements Specification.md`](<The Etiquette Atlas Software Requirements Specification.md>).
 
 ## How it works
@@ -46,8 +48,11 @@ You need:
 uv sync                        # Python environment and dev tools
 cd site
 npm ci                         # site dependencies
-npx playwright install chromium  # browser for the end-to-end tests (once)
+npx playwright install chromium firefox webkit  # browsers for the end-to-end tests (once)
 ```
+
+Docker (Docker Desktop on a Mac) is needed for the share images and the visual regression
+baselines, which are made in the Playwright Linux image CI uses (below).
 
 ## Running the pipeline
 
@@ -101,15 +106,39 @@ From `site/`:
 ```sh
 npm run dev                    # development server at http://localhost:5173/EtiquetteAtlas/
 npm run build                  # static site in site/build/
-npm run check:build            # checks the build and reports first-load sizes against NFR-1
+npm run check:build            # checks the build, the share images and first-load sizes (NFR-1, NFR-5)
+npm run check:content          # AT-12: no causal wording or nationality nouns in the built text
 npm run preview                # serves build/ like GitHub Pages at http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
-npm run test:e2e               # builds, serves and runs the Playwright tests, axe included
+npm run test:e2e               # builds, serves and runs the Playwright tests in five browsers
+npm run test:e2e -- --project=chromium  # the full suite in Chromium only, as CI's site job
+npm run test:visual            # visual regression, in Docker (test:visual:update for new baselines)
 npm run lhci                   # Lighthouse CI on twelve routes under the mobile profile
 ```
 
 `npm run preview`, `npm run test:e2e` and `npm run lhci` use port 4173; set `PORT` to use
-another (`PORT=4392 npm run test:e2e`).
+another (`PORT=4392 npm run test:e2e`). The built pages load the Cloudflare analytics beacon;
+the tests stub it and Lighthouse CI blocks it, but a page opened from `npm run preview` in an
+ordinary browser sends Cloudflare a page view for `localhost`.
+
+### Share images
+
+Every page's meta tags point to a 1200 × 630 share image (FR-82, FR-83): the home page, the
+six modules, the 150 cells and the 90 societies have their own; behavior and change society
+pages use their module's. The images are not committed. Build them once, and again after
+changing the data, `src/cards/` or code they import:
+
+```sh
+npm run cards:docker           # in the Playwright Linux image, exactly as CI makes them
+npm run cards                  # with your own Chromium, for a quick look (Arial for Liberation Sans)
+```
+
+Both build the card pages in `src/cards/` (`CARDS=on vite build`, into `.cards/`), then
+`scripts/share-images.js` checks and photographs each one into `share-images/` with a manifest;
+`npm run build` publishes them under `build/share/`. Without them `check:build` fails, and it
+warns when they are older than their inputs. To change a card, edit `src/cards/cards.ts` (the
+words and numbers) or the components in `src/cards/` (the layout), run `npm run cards:docker`
+and look at the PNGs in `share-images/`. CI rebuilds them only when those inputs change.
 
 The site lives under the base path `/EtiquetteAtlas`, set in `site/site.config.js`. To serve it
 elsewhere, change that line or set `BASE_PATH` (and `SITE_ORIGIN`) when building.
@@ -129,10 +158,10 @@ set the repository variable `CHANGE_MODULE` to `off` (see [`docs/SETUP.md`](docs
   societies, its facts and a comparison with any other society), `/audiences` small multiples
   of the 15 behaviors by audience and `/audiences/[behavior]` each behavior's slopegraph,
   `/change` the 26 societies in both the 2000–2003 survey and the GSN and `/change/[society]`
-  each of them, pair by pair, and `/method` a draft method page. Every route is prerendered to
-  its own `index.html` with
-  its title, description, canonical URL and a one-sentence summary built from All data at build
-  time, so it reads without JavaScript.
+  each of them, pair by pair, and `/method` the method, its limits, privacy, versions and every
+  society's facts. Every route is prerendered to its own `index.html` with its title,
+  description, canonical URL, share image and a one-sentence summary built from All data at
+  build time, so it reads without JavaScript.
 - **Data** (`site/src/lib/data/`): each file in `data/derived/` is imported with `?url` in
   `files.ts`, so Vite ships it content-hashed, and fetched by `load.ts` only when a view needs it:
   the matrix loads `societies.json` and `global-<sample>.json`, plus `cells-<sample>.json` once a
@@ -157,12 +186,14 @@ set the repository variable `CHANGE_MODULE` to `off` (see [`docs/SETUP.md`](docs
 ### Adding a route
 
 1. Create `site/src/routes/<name>/+page.svelte` and render `<Seo title=… description=… />` for
-   its meta tags. Prerendering is on for every route (`+layout.ts`).
+   its meta tags. Prerendering is on for every route (`+layout.ts`). Give it a share image in
+   `shareCard()` (`src/lib/share.ts`): its module's, or a card of its own in `src/cards/cards.ts`.
 2. For text built from the data at build time, add a `+page.server.ts` that reads
    `#lib/server/derived.ts` and returns short strings only. For a route with parameters, export
    `entries` listing every value.
-3. In the browser, load data with `new Resource(() => loadX(view.state.sample))` and show
-   `LoadError` on failure. Add new data files to `files.ts`; never import JSON in browser code.
+3. In the browser, load data with
+   `new Resource(() => (view.ready ? loadX(view.state.sample) : undefined))`, which waits for the
+   URL's sample, and show `LoadError` on failure. Add new data files to `files.ts`; never import JSON in browser code.
 4. Link to it with `withView(resolve('<name>/'), view.state, GLOBAL_KEYS)`; add it to the header
    in `Header.svelte` and to `sitemap.xml` if it should be indexed.
 5. If it loads data on first view, add it to `ROUTE_DATA` in `scripts/check-build.js` and to the
@@ -178,10 +209,21 @@ files, runs `pipeline build` and the raw-data tests, and, if `data/derived/` cha
 pull request that changes only that folder. GitHub does not run CI on pull requests opened by
 the workflow's token, so close and reopen that pull request to run CI before merging.
 
-CI (`ci.yml`) runs Ruff, mypy, pytest with coverage and the privacy scan for the pipeline; lint,
-type-check, Vitest, the build check (once without the change module, once with it),
-Playwright (end-to-end, axe, budgets, redraw times) and Lighthouse CI for the site; and
-actionlint for the workflows.
+CI (`ci.yml`) runs Ruff, mypy, pytest with coverage, the privacy scan and `uv audit` for the
+pipeline; builds the share images in the Playwright Linux image when their inputs changed; runs
+`npm audit` for production dependencies, lint, type-check, Vitest, the build check (once without
+the change module, once with it), the content review, Playwright in Chromium (end-to-end, axe,
+budgets, redraw times, share images, analytics) and Lighthouse CI for the site; the smoke tests
+in Firefox, WebKit, an iPhone and a Pixel; visual regression; and actionlint for the workflows.
+Dependabot opens weekly update pull requests.
+
+After a push, check the deployed site (AT-9, AT-10 and the launch checklist):
+
+```sh
+npm run test:deployed          # analytics beacon live: only its two hosts, no cookies or storage
+npm run check:deployed         # every file fetched from GitHub Pages: total size, largest file
+LHCI_DEPLOYED=1 npm run lhci   # Lighthouse on the deployed URL, beacon included
+```
 
 ## Changing the quiz items
 

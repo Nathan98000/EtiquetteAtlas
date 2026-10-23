@@ -10,7 +10,9 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   because it quotes respondent-level values: never commit it or copy values out of it.
 - Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
   (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4), `docs/m5-kickoff.md` (M5),
-  `docs/m6-kickoff.md` (M6). Manual GitHub and analytics steps: `docs/SETUP.md`.
+  `docs/m6-kickoff.md` (M6), `docs/m7-kickoff.md` (M7). Manual GitHub and analytics steps:
+  `docs/SETUP.md`. What is left before the public launch: `docs/launch.md`. Proposed SRS edits
+  (not applied): `docs/srs-changes.md`.
 - Decisions where the SRS was open: `docs/decisions.md` (cited in code as "decision N").
   Method-page drafts: `docs/method-notes.md`. Output formats: `data/derived/README.md`.
 
@@ -28,7 +30,8 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   `data/derived/` must pass `uv run pipeline privacy-scan`.
 - Static site only: no server, database, serverless function, cookies or paid service (C-2,
   C-11). Quiz answers never leave the browser (C-12). The browser fetches nothing from a third
-  party (NFR-31); the CSP stays closed until the analytics beacon lands.
+  party but the Cloudflare Web Analytics beacon (NFR-31): its script host and reporting host are
+  the only ones in the CSP, and no custom event is ever sent to it (FR-91).
 - The site shows nothing below 10 respondents: status 2 reads "too few responses", status 3
   "not asked"; neither is plotted or ranked (DR-9, FR-27). Write "respondents in Chile", never
   "Chileans", and no causes (FR-73, §6.5).
@@ -52,17 +55,32 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - `tests/`: pytest. `synthetic.py` builds fake raw files, a small full-grid population and
   `RatingSet`s; `needs_raw` tests use the real files.
 - `data/raw/` (ignored) holds the OSF downloads; `data/derived/` holds committed aggregates.
-- `site/`: SvelteKit 3 app. `site.config.js` sets the base path and origin; `vite.config.ts`
-  holds the SvelteKit config, including the CSP. `scripts/serve-pages.js` serves `build/` like
-  GitHub Pages (gzip included); `scripts/check-build.js` checks the artifact and the NFR-1
-  budgets; `e2e/` holds Playwright tests, which import `test` and `expect` from `e2e/helpers.ts`
-  so every page load waits for the app to mount; `lighthouserc.cjs` configures Lighthouse CI. Vitest
-  specs sit next to the code as `*.spec.ts`.
+- `site/`: SvelteKit 3 app. `site.config.js` sets the base path, origin, change switch and the
+  analytics beacon's URL, token and hosts; `vite.config.ts` holds the SvelteKit config, including
+  the CSP, the card build (`CARDS=on`) and the plugin that publishes the share images.
+  `scripts/serve-pages.js` serves `build/` like GitHub Pages (gzip included);
+  `scripts/check-build.js` checks the artifact, the share images and the NFR-1 budgets;
+  `scripts/check-content.js` is the AT-12 content review; `scripts/check-deployed.js` measures
+  the deployed site; `scripts/share-images.js` (with `png.js`, `share-inputs.js`) photographs the
+  cards; `scripts/in-docker.sh` runs a command in the Playwright Linux image. `e2e/` holds
+  Playwright tests, which import `test` and `expect` from `e2e/helpers.ts` so every page load
+  waits for the app to mount and the analytics beacon is stubbed; `@compat` tests also run in
+  Firefox, WebKit, an iPhone and a Pixel; `visual.e2e.ts` (only with `VISUAL=1`) compares against
+  `e2e/visual-baselines/`. `lighthouserc.cjs` configures Lighthouse CI. Vitest specs sit next to the
+  code as `*.spec.ts` (and `scripts/*.spec.js`).
+  - `src/cards/`: the share-image cards, a separate route tree built only by `npm run cards`:
+    `cards.ts` (what each card says and draws, from the server-side data), `model.ts` (their
+    types), `Card.svelte` (the frame and the NFR-40 credit) and `charts/`.
+  - `src/lib/share.ts`: which card each route shares, the image size and the modules' alt
+    texts; it has no imports, so the Node scripts read it too.
+  - `src/lib/change-text.ts`: every word of the change module used outside its routes; a build
+    without the module swaps it for `change-text.off.ts`.
   - `src/lib/data/`: `grid.ts` (IDs, slugs, wording), `files.ts` (`?url` imports; the change
     files sit apart in `change-files.ts`, which the R-6 switch swaps out), `model.ts` (decoders,
     typed tables and `CHANGE_SOCIETIES`), `load.ts` (cache and retry), `resource.svelte.ts` (a load in a
     component), `derive.ts` (sorts, ranks, summaries), `format.ts` (numbers and phrases),
-    `society.ts` (facts and similar societies in words).
+    `society.ts` (facts and similar societies in words), `method.ts` (the method page's sample
+    effects, student share and versions).
   - `src/lib/state/`: `url.ts` (query-string state), `view.svelte.ts` (reading it, `setView`,
     `withView`, `societyHref` for fingerprints, `audiencesHref` for the audiences and `changeHref`
     for the change pages), `theme.svelte.ts`.
@@ -83,12 +101,13 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
     the society estimates and a society's responses) and `quiz-store.ts` (the one sessionStorage
     key). `src/lib/story/story-model.ts` picks the story's steps from All data.
   - `src/lib/server/derived.ts`: All-data aggregates for build-time summaries only;
-    `server/change.ts` holds the change file's, read only by the change routes.
+    `server/change.ts` holds the change file's, read only by the change routes; `server/method.ts`
+    the manifest and the other samples' global cells, for the method page.
   - `src/lib/change-module.ts`: `CHANGE_MODULE`, whether this build has the change module (R-6).
   - Routes: `/` (the quiz), `/story` (the guided story), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
     `/societies` (index) and `/societies/[society]` (90 fingerprints, with `?compare=`),
     `/audiences` (15 small multiples) and `/audiences/[behavior]` (15 slopegraphs), `/change`
-    (the 26 societies in both surveys) and `/change/[society]` (26 pages), and `/method` (draft).
+    (the 26 societies in both surveys) and `/change/[society]` (26 pages), and `/method`.
 - `.github/workflows/`: `ci.yml` (pull requests; reused by deploy), `deploy.yml` (push to `main`
   → GitHub Pages), `pipeline.yml` (manual).
 
@@ -113,14 +132,20 @@ Site, from `site/` (npm; Node 26 in CI, 24+ locally):
 ```sh
 npm ci
 npm run dev                     # dev server under /EtiquetteAtlas/
-npm run build && npm run check:build
+npm run cards:docker            # the 247 share images, in the Playwright Linux image (Docker running)
+npm run build && npm run check:build && npm run check:content
 CHANGE_MODULE=off npm run build && CHANGE_MODULE=off npm run check:build  # R-6: without the change module
 npm run preview                 # serves build/ like Pages: http://localhost:4173/EtiquetteAtlas/
 npm run lint && npm run check && npm run test:unit -- --run
-npm run test:e2e                # builds, serves, runs Playwright (once: npx playwright install chromium)
-PORT=4392 npm run test:e2e      # the same on another port if 4173 is taken
+npm run test:e2e -- --project=chromium  # builds, serves, runs Playwright (once: npx playwright install)
+PORT=4392 npm run test:e2e      # all five browsers, on another port if 4173 is taken
+npm run test:visual             # visual regression in Docker; test:visual:update after a deliberate change
 npm run lhci                    # Lighthouse CI on build/ (12 routes, mobile profile; also honours PORT)
+npm run test:deployed && npm run check:deployed  # after a push: AT-9, AT-10 on the live site
 ```
+
+Firefox will not start inside the agent's macOS sandbox; run the firefox project in Docker
+(`sh scripts/in-docker.sh npx playwright test --project=firefox`).
 
 Pipeline coverage as CI runs it: `uv run pytest -m "not needs_raw" --cov` (80% floor, NFR-53).
 
@@ -149,6 +174,10 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   resampled quantity gets its own key so existing outputs do not move.
 - Base path `/EtiquetteAtlas` (case-sensitive) comes from `site/site.config.js` or `BASE_PATH`.
   Internal links use `resolve()` from `$app/paths`; off-site links carry `rel="external"`.
+- Share images (decisions 88 to 92): never commit them. `npm run cards:docker` rebuilds them
+  after changing the data, `src/cards/` or anything in `src/lib/`; CI rebuilds them when those
+  inputs change and the deploy downloads them. Card text follows the site's wording rules; every
+  number comes from the decoders. Each image carries the NFR-40 credit, which the script checks.
 - Ship data, JS and CSS content-hashed (HR-3): import them through Vite, not `static/`. A
   data file is added to `src/lib/data/files.ts` with `?url` and loaded through `load.ts`;
   browser code never imports JSON directly. Build-time text comes from `+page.server.ts` through
@@ -166,10 +195,13 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   with `changeHref(code, state)`, which opens the overview with `?society=` for a society without
   2000–2003 data; pass `withSort` false from outside the module. Routes may have their own
   defaults (`defaultsFor`): the change routes sort by difference unless the URL says otherwise.
-- The change module can be removed in one build (`CHANGE_MODULE=off`, R-6, decisions 75 and
-  85): guard anything of it outside `src/routes/change/` with `CHANGE_MODULE`, keep its data in
-  `change-files.ts` and `server/change.ts`, list components only it uses in `vite.config.ts`'s
-  `withoutChangeModule`, and check the off build with `check:build`.
+  Load a sample's files only once the URL applies: `new Resource(() => (view.ready ?
+  loadX(view.state.sample) : undefined))` (decision 96).
+- The change module can be removed in one build (`CHANGE_MODULE=off`, R-6, decisions 75, 85
+  and 95): guard anything of it outside `src/routes/change/` with `CHANGE_MODULE`, keep its data
+  in `change-files.ts` and `server/change.ts` and its words in `change-text.ts`, list components
+  only it uses in `vite.config.ts`'s `withoutChangeModule`, and check the off build with
+  `check:build`, which refuses any mention of the 2000–2003 survey in it.
 - Quiz answers are read and written only through `quiz-store.ts` (FR-63, C-12, decision 80):
   never in a URL, request, log or error message. The story shows All data whatever the sample
   toggle (decision 82).
@@ -178,8 +210,9 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   colours for 3:1 (marks) and 4.5:1 (text) in both themes; `colors.spec.ts` does so for the
   palettes.
 - The inline theme script in `src/app.html` gets its CSP hash in `vite.config.ts`; keep scripts
-  out of `static/` and add no other inline script.
-- Add the analytics beacon's hosts to the CSP in `site/vite.config.ts` when the beacon lands
-  (after the hostname check in `docs/SETUP.md`).
+  out of `static/` and add no other inline script. The beacon tag in `app.html` must match
+  `analytics` in `site.config.js`, which the CSP and `check-build.js` read.
+- A `@playwright/test` update also needs the image tag in `ci.yml` (two jobs and a check) and new
+  visual baselines (`npm run test:visual:update`).
 - Python: Ruff (line length 100), strict mypy, type hints. Front end: TypeScript, Prettier,
   ESLint. Typographic `–`, `−` and `×` are fine in Python comments.

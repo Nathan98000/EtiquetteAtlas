@@ -10,7 +10,7 @@ package's full licence text ships with it.
 | --- | --- | --- |
 | [Global Study of Everyday Norms](https://doi.org/10.17605/OSF.IO/SH4RB), Eriksson et al. (2025), OSF sh4rb | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Every aggregate in `data/derived/`; credited on every page (NFR-40) |
 | 2000–2003 comparison data, [Gelfand et al. (2011)](https://doi.org/10.1126/science.1197754), via the GSN deposit | Deposited in OSF sh4rb under CC BY 4.0; whether that covers this extract is open (SRS §11.2) | Society–cell aggregates only, in the change module (C-6, NFR-41) |
-| [Natural Earth](https://www.naturalearthdata.com/) 1:110m land, through [world-atlas](https://github.com/topojson/world-atlas) 2.0.2 | Public domain (Natural Earth); ISC (world-atlas) | The dot map's outlines (FR-24) |
+| [Natural Earth](https://www.naturalearthdata.com/) 1:110m land, through [world-atlas](https://github.com/topojson/world-atlas) 2.0.2 | Public domain (Natural Earth); ISC (world-atlas) | The dot map's outlines (FR-24) and the Societies share image |
 
 ## Code shipped to the browser
 
@@ -26,6 +26,12 @@ package's full licence text ships with it.
 | [internmap](https://github.com/mbostock/internmap) (d3-array's dependency) | 2.0.3 | ISC |
 | [topojson-client](https://github.com/topojson/topojson-client) | 3.1.0 | ISC |
 
+## Services the browser contacts
+
+| Service | Terms | Used for |
+| --- | --- | --- |
+| [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) beacon, loaded from `static.cloudflareinsights.com` and reporting to `cloudflareinsights.com` | Cloudflare's terms and [privacy policy](https://www.cloudflare.com/privacypolicy/); the script is not redistributed | Counting page views without cookies (FR-90); described on the method page (FR-92) |
+
 ## Build and test tools (site)
 
 | Package | Licence |
@@ -36,6 +42,8 @@ package's full licence text ships with it.
 | Playwright (`@playwright/test`) | Apache-2.0 |
 | axe-core and `@axe-core/playwright` | MPL-2.0 (used unmodified, in tests only) |
 | Lighthouse CI (`@lhci/cli`) and Lighthouse | Apache-2.0 |
+| [Playwright Docker image](https://mcr.microsoft.com/en-us/artifact/mar/playwright) (`mcr.microsoft.com/playwright`), for the share images and visual regression in CI and locally | Apache-2.0 (Playwright); Ubuntu packages under their own licences |
+| [Liberation Sans](https://github.com/liberationfonts/liberation-fonts), from that image, renders the share images' text | SIL Open Font License 1.1; the font is not shipped, only its glyphs drawn into the PNGs |
 
 ## Pipeline (Python)
 

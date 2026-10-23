@@ -4,7 +4,7 @@
 </script>
 
 <!-- FR-52, FR-70, NFR-41, §4.7, §4.8; decisions 67 to 75. Compiled to nothing in a build without
-     the change module, so none of its text reaches build/ (R-6, decisions 75 and 93). -->
+     the change module, so none of its text reaches build/ (R-6, decisions 75 and 95). -->
 <section id="change">
 	<h2>Change since the early 2000s</h2>
 	<p>
