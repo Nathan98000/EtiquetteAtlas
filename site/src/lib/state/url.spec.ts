@@ -5,12 +5,18 @@ import {
 	AUDIENCES_KEYS,
 	AUDIENCES_ROUTE,
 	CELL_KEYS,
+	CHANGE_DEFAULTS,
+	CHANGE_KEYS,
+	CHANGE_ROUTE,
+	CHANGE_SOCIETY_KEYS,
+	CHANGE_SOCIETY_ROUTE,
 	DEFAULT_VIEW,
 	FINGERPRINT_KEYS,
 	FINGERPRINT_ROUTE,
 	GLOBAL_KEYS,
 	MATRIX_KEYS,
 	SOCIETIES_KEYS,
+	defaultsFor,
 	keysFor,
 	parseView,
 	societyCode,
@@ -96,6 +102,23 @@ describe('FR-80: view state round-trips through the URL', () => {
 		expect(viewSearch({ ...chile, scope: 'global' }, AUDIENCE_KEYS)).toBe(
 			'?society=chl&scope=global&split=gender'
 		);
+	});
+
+	it('decision 67: the change routes open on the largest differences, the society in the path', () => {
+		expect(keysFor(CHANGE_ROUTE)).toBe(CHANGE_KEYS);
+		expect(keysFor(CHANGE_SOCIETY_ROUTE)).toBe(CHANGE_SOCIETY_KEYS);
+		expect(defaultsFor(CHANGE_ROUTE)).toBe(CHANGE_DEFAULTS);
+		expect(defaultsFor('/explore')).toBe(DEFAULT_VIEW);
+		expect(parseView(new URLSearchParams(''), CHANGE_ROUTE).sort).toBe('difference');
+		expect(parseView(new URLSearchParams('sort=paper'), CHANGE_SOCIETY_ROUTE).sort).toBe('paper');
+		expect(parseView(new URLSearchParams('sort=mean'), CHANGE_ROUTE).sort).toBe('difference');
+		const state: ViewState = { ...CHANGE_DEFAULTS, society: 'CHL', sample: 'paper' };
+		expect(viewSearch(state, CHANGE_KEYS, CHANGE_DEFAULTS)).toBe('?society=chl&sample=paper');
+		expect(viewSearch({ ...state, sort: 'paper' }, CHANGE_SOCIETY_KEYS, CHANGE_DEFAULTS)).toBe(
+			'?sample=paper&sort=paper'
+		);
+		// Elsewhere paper order is the default.
+		expect(viewSearch({ ...state, sort: 'paper' }, MATRIX_KEYS)).toBe('?society=chl&sample=paper');
 	});
 
 	it('decision 45: only a fingerprint sorts by its own differences', () => {
