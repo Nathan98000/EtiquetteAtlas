@@ -9,13 +9,13 @@ is sent or published from a coding session.
 
 | Item | Status | Automated | Left to the maintainer |
 | --- | --- | --- | --- |
-| All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 and NFR-20 pass only as `docs/srs-changes.md` rewords them: FR-34 lists collection sites, which the site leaves out as quasi-identifying (decision 9; `site` is a forbidden column, C-5), and NFR-20 names the two latest versions of each browser, of which Playwright runs only the current one (decision 98) | CI on every pull request and deploy | Screen readers (NFR-13); real devices (NFR-20); accept or reject the FR-34 and §2.4/NFR-20 edits |
+| All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 (no collection sites, decision 9) and §2.4 (current browser versions tested automatically, the previous ones by hand, decision 98) pass as the SRS now words them (89993c7) | CI on every pull request and deploy | Screen readers (NFR-13); real devices, with each browser's previous version (NFR-20) |
 | Lighthouse, size and accessibility budgets met on the deployed URL | Met on both deploys of 23 October 2026 (below); on the second (6632baa): median LCP 0.88–1.35 s, CLS ≤ 0.012, TBT ≤ 79 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105) | — | The reader's checklist below |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026) | Both, in CI | Look at a sample of images (AT-5, below) |
-| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105) | `npm run test:deployed` | Check the Cloudflare dashboard (`docs/SETUP.md`), including whether view changes count as page views (launch decision 4) |
+| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107) | `npm run test:deployed` | Check that page views reach the Cloudflare dashboard (`docs/SETUP.md`) |
 | Social cards checked for the home page, one cell and one society | Tags and images on every route (AT-7) | — | The validators below (NFR-61) |
-| Optional courtesy note to the GSN authors | — | — | The points below; a draft on request. If it is sent, a preview window of about a week before the announcement, with the change module on unless the authors object (R-6) |
+| Optional courtesy note to the GSN authors | Not sent: the maintainer's decision (decision 108); the change module stays on, and `CHANGE_MODULE=off` removes it in one deploy (R-6) | — | — |
 
 ## Findings
 
@@ -91,8 +91,8 @@ and the launch docs), with every CI job green:
 
 Still to do:
 
-- [ ] confirm page views in the Cloudflare dashboard, and whether moving between views counts
-  extra page views (`docs/SETUP.md`, launch decision 4);
+- [ ] confirm page views reach the Cloudflare dashboard (`docs/SETUP.md`); how view changes count
+  is settled (decision 107);
 - [ ] turn on Dependabot alerts (`docs/SETUP.md`);
 - [x] run axe on the deployed URL (above).
 
@@ -104,7 +104,7 @@ What the launch needs beyond §9.4's list:
 - [ ] **R-8:** the address is final. The account's and repository's names set it
   (`https://nathan98000.github.io/EtiquetteAtlas/`, case-sensitive), so neither is renamed after
   the announcement; if the site ever moves, a redirect page stays at the old address.
-- [ ] The SRS edits the maintainer accepts are applied (`docs/srs-changes.md`).
+- [x] The SRS edits the maintainer accepted (all 28) are applied (89993c7, `docs/srs-changes.md`).
 - [ ] Every launch-blocking finding is fixed, and the rest are in `docs/v1.1.md`.
 - [ ] The launch commit is deployed with CI green and the four commands above pass on it;
   `v1.0.0` is tagged on it locally. Pushing the tag and creating a GitHub release are the
@@ -162,9 +162,8 @@ emulated Pixel. Before launch, open the home page, a cell, a fingerprint, the st
 page on:
 
 - [ ] an iPhone (Safari) and an Android phone (Chrome), portrait and landscape;
-- [ ] desktop Safari, Firefox, Chrome and Edge, and the previous major version of each (§2.4
-  names the two latest; optional only if the maintainer accepts the §2.4/NFR-20 edit in
-  `docs/srs-changes.md`).
+- [ ] desktop Safari, Firefox, Chrome and Edge, and the previous major version of each (§2.4:
+  the current versions are tested automatically, the previous ones by hand before launch).
 
 ## Share images (AT-5, NFR-61)
 
@@ -212,12 +211,4 @@ Ask the reader to check, against the GSN paper and `docs/method-notes.md`:
 
 ## Courtesy note to the GSN authors (optional, §11.2)
 
-Not sent from here. Points to cover if the maintainer writes one:
-
-- the link, and that the site is an independent, non-commercial atlas of their CC BY 4.0 data,
-  credited on every page and image;
-- what it adds (disagreement with intervals, per-society views, audiences, the reader's own answers)
-  and that it shows aggregates only, never below 10 respondents;
-- the question SRS §11.2 leaves open: whether the OSF licence covers the 2000–2003 extract the
-  change module summarises, which can be removed in one build if they prefer (R-6);
-- an offer of a preview before the announcement, and a contact for corrections.
+Not sent (decision 108). The points a note would have covered are in this file's history.

@@ -1,13 +1,25 @@
-# Proposed SRS changes
+# SRS changes
 
-Edits to `The Etiquette Atlas Software Requirements Specification.md` recommended during M5 to M7,
-and places where a decision departs from or extends its wording (decision 103). None is applied:
-the maintainer decides. One line each: the requirement, its current wording, the proposed wording
-and the decision behind it.
+Edits to `The Etiquette Atlas Software Requirements Specification.md` recommended during M5 to M7
+and at the launch, and places where a decision departs from or extends its wording (decision 103).
+The maintainer decides; one line each: the requirement, its wording, the proposed wording and the
+decision behind it.
 
-## Wording that no longer matches the site
+## Proposed, not applied
 
 | Requirement | Current wording | Proposed wording | Why |
+| --- | --- | --- | --- |
+| §3.2 | The layout's root folder `etiquette-atlas/` | `EtiquetteAtlas/` | The repository's name, as the accepted slug edit and §11.2 now say |
+| §11.2 | "- [ ] Send the GSN authors a courtesy note before launch, …?" | "- [x] … Closed: no note was sent (the maintainer's decision, 23 October 2026); whether the OSF licence covers the 2000–2003 extract stays unasked, and `CHANGE_MODULE=off` removes the module if that is ever questioned (R-6)." | Decision 108 |
+
+## Applied
+
+All 28 lines below were accepted by the maintainer on 23 October 2026 and applied in commit 89993c7,
+with the SRS's date line moved to 23 October 2026. None was rejected.
+
+### Wording that no longer matched the site
+
+| Requirement | Wording before | Applied wording | Why |
 | --- | --- | --- | --- |
 | Summary, §6.1, §8.1, HR-1 | `https://<owner>.github.io/etiquette-atlas/`; base path `/etiquette-atlas/` | `https://nathan98000.github.io/EtiquetteAtlas/`; base path `/EtiquetteAtlas` (case-sensitive) | The repository's name sets the free URL (`site/site.config.js`); closes §11.2's slug question |
 | FR-4 | "A global sample toggle shall switch every view …" | "… every view except the guided story, which always shows All data …" | Decision 82 |
@@ -28,9 +40,9 @@ and the decision behind it.
 | §8.5 | "Its docs do not say whether a `*.github.io` hostname is accepted, so this is checked in the first milestone." | "Cloudflare accepted the `github.io` hostname (23 October 2026); GoatCounter is not needed." | `docs/SETUP.md` |
 | §11.2 | Open questions on the quiz cells, the slug and the share images' style | Close them: the cells of decision 78, the slug `EtiquetteAtlas`, the quiet editorial style of decision 91 | Decisions 78 and 91 |
 
-## Decisions that refine a requirement
+### Decisions that refine a requirement
 
-| Requirement | Current wording | Proposed wording | Why |
+| Requirement | Wording before | Applied wording | Why |
 | --- | --- | --- | --- |
 | DR-5 | "Intervals shall be 95% percentile bootstrap intervals …" | add "except the shrunken estimate's, an empirical-Bayes interval using the bootstrap variance of the global mean" | Decision 3 |
 | DR-14 | "the Pearson correlation of two societies' shrunken, centered cell estimates" | "the Pearson correlation of their fingerprints (shrunken estimate − global cell mean)" | Decision 16: centering does not change a correlation, and raw profiles all correlate near 0.9 |
