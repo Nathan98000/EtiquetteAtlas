@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { attribution } from '#lib/attribution.ts';
-	import { audienceRows } from '#lib/charts/audience-model.ts';
+	import { audienceRows, slopeTable, type SlopeTableRow } from '#lib/charts/audience-model.ts';
 	import Beeswarm from '#lib/charts/Beeswarm.svelte';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
 	import DataTable, { type Column } from '#lib/charts/DataTable.svelte';
@@ -64,6 +64,14 @@
 				]
 			: undefined
 	);
+
+	const audienceColumns: Column<SlopeTableRow>[] = [
+		{ header: 'Audience', text: (r) => r.context, rowHeader: true },
+		{ header: 'Score', text: (r) => r.value },
+		{ header: '95% interval', text: (r) => r.interval },
+		{ header: 'Respondents', text: (r) => r.respondents },
+		{ header: 'Chose an appropriate answer', text: (r) => r.share }
+	];
 
 	let hovered: string | null = $state(null);
 
@@ -326,11 +334,21 @@
 					/>
 				{/snippet}
 				{#snippet table()}
-					<p>
-						Alone {score(n.audience.alone)}; in front of management or professors {score(
-							n.audience.management
-						)}. The behavior's page has the full table.
-					</p>
+					<!-- NFR-11: the slopegraph's values in full, as on the behavior's own page. -->
+					{#if audience}
+						<DataTable
+							caption="{behaviorText.label}: the score of all societies in front of each audience"
+							rows={slopeTable(audience, false)}
+							columns={audienceColumns}
+							key={(r) => r.key}
+						/>
+					{:else}
+						<p>
+							Alone {score(n.audience.alone)}; in front of management or professors {score(
+								n.audience.management
+							)}.
+						</p>
+					{/if}
 				{/snippet}
 			</ChartFrame>
 		{/snippet}

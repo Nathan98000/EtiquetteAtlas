@@ -158,3 +158,19 @@ test.describe('without JavaScript', () => {
 		);
 	});
 });
+
+test('NFR-11: the audience step shows its slopegraph as a full table', async ({ page }) => {
+	await page.goto(url('story/'));
+	const audience = step(page, 'audience');
+	await audience.scrollIntoViewIfNeeded();
+	await expect(audience.locator('.slopegraph [data-context="0"]')).toBeAttached();
+	await audience.getByRole('button', { name: 'Show as table' }).click();
+	const table = audience.getByRole('table');
+	await expect(table.locator('tbody tr')).toHaveCount(3);
+	await expect(table.locator('tbody th')).toHaveText([
+		'Alone',
+		'In front of colleagues or classmates',
+		'In front of management or professors'
+	]);
+	await expect(table.locator('tbody tr').first()).toContainText('to');
+});
