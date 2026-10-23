@@ -12,7 +12,7 @@ is sent or published from a coding session.
 | All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 (no collection sites, decision 9) and §2.4 (current browser versions tested automatically, the previous ones by hand, decision 98) pass as the SRS now words them (89993c7). Waived for v1.0 by the maintainer, not passed: the screen-reader checks (NFR-13), a real iPhone and the previous browser versions (NFR-20; decision 109) | CI on every pull request and deploy | Real devices: Chrome on Android and the current desktop browsers (NFR-20) |
 | Lighthouse, size and accessibility budgets met on the deployed URL | Met on all three deploys of 23 October 2026 (below); on the third (bad0529): median LCP 0.89–1.33 s, CLS ≤ 0.012, TBT ≤ 36 ms, Lighthouse accessibility 1.00 on 12 routes; 35.99 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105); reviewed by a fresh agent in place of a human reader, a departure from §9.4 (decision 110), its findings below | — | — |
-| Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026) | Both, in CI | Look at a sample of images (AT-5, below) |
+| Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026); the maintainer read the credit on the 10 sample images on the deployed site, all complete (23 October 2026) | Both, in CI | — |
 | Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107). Counting confirmed in the dashboard, 23 October 2026: 188 visits, 191 page views | `npm run test:deployed` | — |
 | Social cards checked for the home page, one cell and one society | Tags and images on every route (AT-7) | — | The validators below (NFR-61) |
 | Optional courtesy note to the GSN authors | Not sent: the maintainer's decision (decision 108); the change module stays on, and `CHANGE_MODULE=off` removes it in one deploy (R-6) | — | — |
@@ -149,7 +149,7 @@ What the launch needs beyond §9.4's list:
 | AT-2 | Playwright: a cell URL with `society` and `sample` | Pass |
 | AT-3 | Playwright: the quiz's requests, storage and reload | Pass |
 | AT-4 | `check-build.js` and Playwright on `/change/` | Pass |
-| AT-5 | `check-build.js` (every page); `share-images.js` (every image's text) | Automated part passes; manual sample left |
+| AT-5 | `check-build.js` (every page); `share-images.js` (every image's text) | Pass: automated, and the maintainer's sample of 10 images |
 | AT-6 | axe on 18 routes in both themes; keyboard paths in Playwright | Pass on `build/`, and axe on the deployed site; screen readers left |
 | AT-7 | `check-build.js` (every route, 247 images); `e2e/share.e2e.ts` | Pass |
 | AT-8 | `uv run pytest -m needs_raw` (a fresh build matches the committed files; the paper's counts) | Pass (local raw files) |
@@ -204,8 +204,10 @@ page on:
 
 ## Share images (AT-5, NFR-61)
 
-- [ ] **Attribution on a sample.** Run `npm run cards:docker` (or download the `share-images`
-  artifact from a CI run) and open, in `site/share-images/`: `home.png`, `explore.png`,
+- [x] **Attribution on a sample** (done on the deployed images, 23 October 2026: all 10 complete).
+  Open them on the deployed site at `share/<path>` (for example
+  https://nathan98000.github.io/EtiquetteAtlas/share/home.png), or run `npm run cards:docker` and
+  look in `site/share-images/`: `home.png`, `explore.png`,
   `story.png`, `method.png`, `change.png`, `societies.png`, `explore/kiss/job-interview.png`,
   `explore/talk/party.png`, `societies/usa.png` and `societies/mng.png`. On each, read the credit
   at the foot: authors, year, title, journal, the OSF DOI, CC BY 4.0 with its link, "Values shown
