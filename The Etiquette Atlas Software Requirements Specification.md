@@ -1,10 +1,10 @@
 # The Etiquette Atlas: Software Requirements Specification
 
-Oct 22, 2026 · @Nathan Nguyen
+Oct 23, 2026 · @Nathan Nguyen
 
 ## Summary
 
-The Etiquette Atlas v1 is a free, static Svelte and D3 website on GitHub Pages, at `https://<owner>.github.io/etiquette-atlas/`, that lets the public explore how appropriate 15 everyday behaviors are in 10 situations across 90 societies. It is built from aggregates of the Global Study of Everyday Norms; no respondent-level data, server or purchased domain is involved.
+The Etiquette Atlas v1 is a free, static Svelte and D3 website on GitHub Pages, at `https://nathan98000.github.io/EtiquetteAtlas/`, that lets the public explore how appropriate 15 everyday behaviors are in 10 situations across 90 societies. It is built from aggregates of the Global Study of Everyday Norms; no respondent-level data, server or purchased domain is involved.
 
 | Decision | v1 choice |
 | --- | --- |
@@ -120,7 +120,7 @@ The interface is designed for the general public first: plain-language labels an
 
 ### 2.4 Operating environment
 
-- **Browsers:** the two latest major versions of Chrome, Edge, Firefox and Safari, including Safari on iOS and Chrome on Android.
+- **Browsers:** Chrome, Edge, Firefox and Safari, including Safari on iOS and Chrome on Android: the current versions, tested automatically, and the previous versions checked by hand before launch.
 - **Screens:** 320 px to 2560 px wide; touch, mouse and keyboard input.
 - **Network:** usable on a mid-range phone over a 4G connection.
 - **Build:** Python 3.12 or later for the data pipeline; Node.js active LTS for the site build; both run locally and in GitHub Actions.
@@ -167,7 +167,7 @@ The privacy gate is the one point every number passes through: nothing reaches t
 | Map | d3-geo with Natural Earth 1:110m outlines as TopoJSON | Public domain and small |
 | Data pipeline | Python 3.12+, DuckDB and pandas, NumPy | Fast enough for 850,000-row files on a laptop |
 | Validation | pandera schemas and pytest | Fails the run on any schema, count or privacy breach |
-| Share images | Rendered at build time from SVG templates (for example Satori with resvg) | Static PNGs; no server |
+| Share images | Card pages drawn by the site's own Svelte components, photographed with Playwright's Chromium in CI and written as 256-colour PNGs | Static PNGs; no server |
 | Tests | pytest, Vitest, Playwright, axe-core, Lighthouse CI | See §9 |
 | Hosting | GitHub Pages through GitHub Actions | See §8 |
 | Analytics | Cloudflare Web Analytics (GoatCounter as fallback) | Free and cookie-less |
@@ -273,7 +273,7 @@ The paper's mixed models use a further complete-case sample (17,288 respondents,
 | DR-2 | GSN ratings shall be recoded as `rating − 3.5`; the 2000–2003 file shall be used as stored. | Must |
 | DR-3 | The pipeline shall rebuild the three samples in 4.4 and stop unless it reproduces 25,422 / 90, 18,656 / 71 and 15,599 / 80. | Must |
 | DR-4 | For each sample × society × cell it shall output n, mean, SD and the count of each of the six responses. | Must |
-| DR-5 | Intervals shall be 95% percentile bootstrap intervals with 2,000 replicates and a fixed seed, resampling respondents within each society, so that a respondent's many ratings move together. | Must |
+| DR-5 | Intervals shall be 95% percentile bootstrap intervals with 2,000 replicates and a fixed seed, resampling respondents within each society, so that a respondent's many ratings move together, except the shrunken estimate's, an empirical-Bayes interval using the bootstrap variance of the global mean. | Must |
 | DR-6 | Society–cell means shall be shrunk toward the global cell mean by empirical Bayes: weight = τ² / (τ² + SE²), where τ² is that cell's between-society variance estimated by the method of moments (floored at 0). Raw and shrunken values shall both be output. | Must |
 | DR-7 | The global cell mean shall be the unweighted mean of society means, as in the paper, with a bootstrap interval. | Must |
 | DR-8 | Disagreement for a cell shall be τ, the between-society SD after removing sampling error, with a bootstrap interval; the raw SD of society means shall also be output. | Must |
@@ -282,7 +282,7 @@ The paper's mixed models use a further complete-case sample (17,288 respondents,
 | DR-11 | Each society–cell and global cell shall also carry the share of ratings of 4–6. | Must |
 | DR-12 | Context aggregates shall cover 15 behaviors × 5 contexts: three audiences (alone, colleagues/classmates, management/professors) and two actor genders (a man, a woman). They shall be output globally and per society, and by respondent gender only globally. | Must |
 | DR-13 | Change aggregates shall cover the overlapping 12 behaviors × 10 situations in 26 societies (22 in the paper's sample): n, mean and SD per wave and the difference with a bootstrap interval. No 2000–2003 row shall be exported. | Must |
-| DR-14 | Society similarity shall be the Pearson correlation of two societies' shrunken, centered cell estimates over cells both have (at least 120 of 150); the top five per society shall be output. | Must |
+| DR-14 | Society similarity shall be the Pearson correlation of two societies' fingerprints (shrunken estimate − global cell mean) over cells both have (at least 120 of 150); the top five per society shall be output. | Must |
 | DR-15 | Society metadata shall hold code, display name, region, map coordinates, respondents by sample, student share, interface languages and fieldwork period (first and last month). UNDP, IMF and WVS covariates shall not be shipped in v1, as their terms are unverified. | Must |
 | DR-16 | No output shall contain ResponseId, StartDate, EndDate, Duration, Progress, the free-text `belief_god_orig`, `site`, `country_carib`, exact age or any respondent-level row. The privacy scan shall fail the build if any appears. | Must |
 
@@ -308,7 +308,7 @@ The core payload for the default sample is about 215 KB compressed; all three sa
 ### 4.8 Caveats the method page must state
 
 - Samples are mostly convenience samples and student-heavy (about 55% students); labels say "respondents in Chile", not "Chileans".
-- Fieldwork ran from 14 July 2023 to 31 May 2024; the comparison data were collected in 2000–2003 (Gelfand et al. 2011).
+- Fieldwork ran from July 2023 to May 2024; the comparison data were collected in 2000–2003 (Gelfand et al. 2011).
 - The paper found norms vary "far more across situations than across societies": in its model the society SD is 0.19, against 0.31 for situated behaviors and 1.11 residual. The story shall lead with this finding.
 - Measurement invariance was tested only for the values scale, not for appropriateness ratings.
 - The companion README calls the Gelfand individual-level file "not public (it was provided privately)", which is why only aggregates of it are shown ([xv2g6 README](https://osf.io/download/wpq5r/)).
@@ -324,7 +324,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | FR-1 | The home route shall open the quiz entry, with a visible "Skip to the atlas" link that goes straight to the matrix. | Must |
 | FR-2 | A persistent header shall link to: Explore (matrix), Societies (fingerprint), Audiences, Change, Story and Method. | Must |
 | FR-3 | A global society picker shall support type-ahead search by society name and full keyboard use. The selected society shall be highlighted in every view and kept in the URL. | Must |
-| FR-4 | A global sample toggle shall switch every view between the default sample (All data, 90 societies) and the alternatives in §4. A badge shall show when a non-default sample is active. | Must |
+| FR-4 | A global sample toggle shall switch every view, except the guided story, which always shows All data, between the default sample (All data, 90 societies) and the alternatives in §4. A badge shall show when a non-default sample is active. | Must |
 | FR-5 | A scale toggle shall switch between raw scores and within-society centered scores, so differences in how societies use the scale are not mistaken for culture. | Should |
 | FR-6 | Every page shall show the attribution footer defined in NFR-40. | Must |
 | FR-7 | Every chart shall have an "About this chart" control that opens the matching method note. | Should |
@@ -349,7 +349,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | FR-20 | A beeswarm shall place each society by its estimate for the cell, with its 95% interval shown on hover or focus, and as whiskers when "Show uncertainty" is on. | Must |
 | FR-21 | Society dots shall be coloured by region and their sample size shown in the tooltip. | Must |
 | FR-22 | A toggle shall switch between shrunken (default) and raw estimates; societies with small samples shall carry a visible flag. | Must |
-| FR-23 | The global mean shall be drawn as a reference line, with the disagreement interval as a band. | Must |
+| FR-23 | The global mean shall be drawn as a reference line, with a band spanning the global mean ± τ, with τ's interval given in the text. | Must |
 | FR-24 | A dot map shall place each society at its GSN coordinates, coloured by the same estimate; hover and selection shall be linked both ways with the beeswarm. | Must |
 | FR-25 | The selected society shall be labelled with its rank, e.g., "12th most accepting of 90". | Must |
 | FR-26 | A strip shall show the same behavior across all 10 situations, and next/previous controls shall move between cells. | Should |
@@ -363,7 +363,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | FR-31 | Cells where the society's interval excludes the global mean shall be marked as notably stricter or looser. | Must |
 | FR-32 | The five most similar societies (DR-14) shall be listed with a similarity score; selecting one switches the view. | Must |
 | FR-33 | A compare mode shall show two societies cell by cell as a dumbbell list. | Should |
-| FR-34 | A facts panel shall show the society's respondents, sites, student share, interface languages and fieldwork period. | Must |
+| FR-34 | A facts panel shall show the society's respondents, student share, interface languages and fieldwork period. | Must |
 
 ### 5.5 "Who's watching?" (Audiences)
 
@@ -379,19 +379,19 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-50 | For overlapping societies and cells, an arrow or dumbbell shall run from the 2000–2003 aggregate to the 2023–2024 aggregate. | Must |
-| FR-51 | A summary shall count cells and societies that became more permissive or stricter, beyond their intervals. | Must |
+| FR-51 | A summary shall count pairs and societies judged more or less appropriate in 2023–2024 than in 2000–2003, beyond their intervals. | Must |
 | FR-52 | The module shall state that samples, instruments and eras differ, that values are survey-to-survey differences rather than change in individuals, and that only aggregates of the 2000–2003 data are shown. | Must |
-| FR-53 | When the selected society has no 2000–2003 data, the module shall say so and show the global comparison instead. | Must |
+| FR-53 | When the selected society has no 2000–2003 data, the module shall say so and show the societies in both surveys instead. | Must |
 
 ### 5.7 Quiz and guided story
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| FR-60 | The quiz shall ask the reader to rate three situated behaviors on the GSN response scale. The three items shall be set in a configuration file. | Must |
-| FR-61 | After each answer, the page shall show where it falls among the 90 society estimates and, if a society is chosen, among that society's response distribution. | Must |
+| FR-60 | The quiz shall ask the reader to rate three situated behaviors on the GSN response scale. The three items shall be set in `site/src/lib/quiz/items.ts`. | Must |
+| FR-61 | After each answer, the page shall show where it falls among the society estimates of the active sample and, if a society is chosen, among that society's response distribution. | Must |
 | FR-62 | The reader may pick their society before the quiz, or skip it. | Should |
 | FR-63 | Answers shall live only in page memory (and sessionStorage, to survive a reload). They shall never be sent, logged or included in analytics or URLs. | Must |
-| FR-64 | A guided story of four to six scroll steps shall open with the paper's main finding, that norms vary far more across situations than across societies, then annotate the most universal cell, the most culture-dependent cell, the audience effect and the largest change since the early 2000s, and hand over to the explorer. | Must |
+| FR-64 | A guided story of four to six scroll steps shall open with the paper's main finding, that norms vary far more across situations than across societies, then annotate the most universal cell, the most culture-dependent cell, the audience effect and the largest difference between the 2000–2003 and 2023–2024 surveys, and hand over to the explorer. | Must |
 | FR-65 | The story shall be skippable at every step, fully keyboard operable, and shall respect reduced-motion settings. | Must |
 
 ### 5.8 Method and about
@@ -409,7 +409,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | --- | --- | --- |
 | FR-80 | Every view's state (module, cell, society, sample, scale, sort) shall be encoded in the URL, and opening that URL shall restore the view exactly. | Must |
 | FR-81 | A "Copy link" control shall copy the current permalink. | Must |
-| FR-82 | Share images shall be prebuilt for the home page, each module, each of the 150 cells and each of the 90 societies. | Must |
+| FR-82 | Share images shall be prebuilt for the home page, each module, each of the 150 cells and each of the 90 societies; a behavior's audiences page and a society's change page use their module's image. | Must |
 | FR-83 | Each prerendered route shall carry its own title, description and share-image meta tags, readable without JavaScript. | Must |
 | FR-84 | Browser back and forward shall move between view states. | Must |
 | FR-85 | A custom 404 page shall link back to the atlas. | Must |
@@ -428,12 +428,12 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 
 ### 6.1 Routes and screens
 
-Entities that need their own share image (cells, societies, behaviors) live in the URL path, because prerendered meta tags cannot vary by query string. Toggles live in the query string. All routes sit under the host's base path (for example `/etiquette-atlas/` on a project site).
+Entities that need their own share image (cells, societies, behaviors) live in the URL path, because prerendered meta tags cannot vary by query string. Toggles live in the query string. All routes sit under the host's base path, `/EtiquetteAtlas` (case-sensitive).
 
 | Route | Screen | Main content | Key controls |
 | --- | --- | --- | --- |
-| `/` | Home and quiz | Title, one-line promise, three quiz questions, result reveal | Society picker, Skip to the atlas |
-| `/story` | Guided story | Four to six annotated scroll steps | Next, Skip, progress dots |
+| `/` | Home and quiz | Title, one-line promise, three quiz questions, one at a time, result reveal | Society picker, Skip to the atlas |
+| `/story` | Guided story | Four to six annotated scroll steps | Previous, Next, Skip, progress dots |
 | `/explore` | Etiquette matrix | 15 × 10 matrix (list on phones), cell summary panel | Sort, sample, scale, society |
 | `/explore/[behavior]/[situation]` | Cell drill-down | Beeswarm, dot map, behavior strip across situations | Raw/shrunken, uncertainty, previous/next |
 | `/societies` and `/societies/[society]` | Society fingerprint | Deviation matrix, most similar societies, facts panel | Compare with…, sample, scale |
@@ -450,7 +450,7 @@ Query parameters: `society`, `sample`, `scale` (`raw` or `centered`), `sort`, `c
 | --- | --- |
 | ≥ 1024 px | Header with module tabs; control bar under it; main chart left, detail panel right (about 320 px) |
 | 640–1023 px | Header collapses to a menu; detail panel moves below the chart |
-| < 640 px | Matrix becomes a list; details open in a bottom sheet; society picker stays reachable in a sticky bar; map shrinks to full width under the beeswarm |
+| < 640 px | Matrix becomes a list; details open in a bottom sheet, except the slopegraph and the change arrows, whose details sit below the chart or in each row; society picker stays reachable in a sticky bar; map shrinks to full width under the beeswarm |
 
 No view shall scroll horizontally at any width from 320 px.
 
@@ -511,10 +511,10 @@ No view shall scroll horizontally at any width from 320 px.
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| NFR-30 | The site shall set no cookies. Browser storage shall hold only the theme choice (localStorage) and quiz answers (sessionStorage). | Must |
+| NFR-30 | The site shall set no cookies. Browser storage shall hold only the theme choice (localStorage) and the quiz answers, in one sessionStorage key (`etiquette-atlas:quiz`); SvelteKit's scroll-position keys (`sveltekit:`) are also allowed. | Must |
 | NFR-31 | Apart from the analytics beacon, the site shall make no request to any third party. | Must |
 | NFR-32 | A Content Security Policy shall limit scripts and connections to the site itself and the analytics beacon. Where the host cannot set headers, it shall be set by a meta tag. | Must |
-| NFR-33 | Continuous integration shall run dependency audits (npm and pip) and automated dependency updates. | Should |
+| NFR-33 | Continuous integration shall run dependency audits (npm and uv) and automated dependency updates. | Should |
 | NFR-34 | The method page shall carry a short privacy notice covering analytics, storage and the absence of personal data. | Must |
 
 ### 7.5 Licensing and attribution
@@ -539,14 +539,14 @@ No view shall scroll horizontally at any width from 320 px.
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| NFR-60 | The build shall emit a sitemap, a robots.txt and canonical URLs on the free subdomain. | Should |
+| NFR-60 | The build shall emit a sitemap and canonical URLs on the free subdomain. | Should |
 | NFR-61 | Share images shall render correctly in the major social-card validators before launch. | Should |
 
 ## 8. Hosting and deployment
 
 ### 8.1 Decision
 
-The atlas shall be hosted on **GitHub Pages** from a public repository, deployed by a custom GitHub Actions workflow, at `https://<owner>.github.io/etiquette-atlas/`. This costs nothing, needs no account beyond GitHub, and needs no purchased domain; HTTPS comes with the github.io subdomain ([GitHub Pages HTTPS](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https)).
+The atlas shall be hosted on **GitHub Pages** from a public repository, deployed by a custom GitHub Actions workflow, at `https://nathan98000.github.io/EtiquetteAtlas/`. This costs nothing, needs no account beyond GitHub, and needs no purchased domain; HTTPS comes with the github.io subdomain ([GitHub Pages HTTPS](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https)).
 
 The fallback is **Cloudflare Workers static assets** at `<worker>.<account>.workers.dev`, deployable from the same workflow. It is used only if traffic outgrows GitHub's soft bandwidth limit, because changing hosts without a custom domain changes the URL.
 
@@ -569,7 +569,7 @@ Other free hosts were rejected: Netlify Free pauses every site on the account at
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| HR-1 | All asset, data and link URLs shall respect the `/etiquette-atlas/` base path (SvelteKit `paths.base`). | Must |
+| HR-1 | All asset, data and link URLs shall respect the `/EtiquetteAtlas` base path, which is case-sensitive (SvelteKit `paths.base`). | Must |
 | HR-2 | The build shall use SvelteKit's static adapter with one prerendered `index.html` per route and a root `404.html`. | Must |
 | HR-3 | All JavaScript, CSS and data files shall have content-hashed names, because GitHub Pages fixes `Cache-Control` at `max-age=600` and allows no custom headers. | Must |
 | HR-4 | Data shall ship as minified JSON or CSV so GitHub Pages' gzip applies; no served file shall exceed 5 MB. | Must |
@@ -585,15 +585,15 @@ The compression, cache and plain-HTTP behaviours above were observed on live git
 
 | Workflow | Trigger | Steps |
 | --- | --- | --- |
-| `ci.yml` | Every pull request | Lint and type-check; Python and Vitest unit tests; build; Playwright end-to-end, visual and axe tests; Lighthouse CI and size budgets |
-| `deploy.yml` | Merge to `main` | Build (share images restored from cache when data and templates are unchanged) → `upload-pages-artifact` → `deploy-pages` |
+| `ci.yml` | Every pull request | Lint and type-check; Python and Vitest unit tests; build; Playwright end-to-end, visual and axe tests; Lighthouse CI and size budgets; share images; dependency audits; the content review; Firefox, WebKit, iPhone and Pixel smoke tests |
+| `deploy.yml` | Merge to `main` | Build (share images built, or restored from cache, by CI's images job and downloaded as an artifact) → `upload-pages-artifact` → `deploy-pages` |
 | `pipeline.yml` | Manual | Download OSF files → verify checksums → run the pipeline and validations → open a pull request that updates `data/derived/` only |
 
 Raw OSF files are cached privately in GitHub Actions or kept locally; they are never committed (NFR-52).
 
 ### 8.5 Analytics setup
 
-Cloudflare Web Analytics is free, sets no cookies and works on sites not hosted by Cloudflare through a JavaScript beacon, for up to 10 such sites ([Cloudflare Web Analytics](https://developers.cloudflare.com/web-analytics/about/); [limits](https://developers.cloudflare.com/web-analytics/limits/)). Its docs do not say whether a `*.github.io` hostname is accepted, so this is checked in the first milestone.
+Cloudflare Web Analytics is free, sets no cookies and works on sites not hosted by Cloudflare through a JavaScript beacon, for up to 10 such sites ([Cloudflare Web Analytics](https://developers.cloudflare.com/web-analytics/about/); [limits](https://developers.cloudflare.com/web-analytics/limits/)). Cloudflare accepted the `github.io` hostname (23 October 2026); GoatCounter is not needed.
 
 If it is not accepted, the site shall switch to GoatCounter, which is also free and cookie-less and works on any host ([GoatCounter](https://www.goatcounter.com/)). The CSP shall allow only the chosen beacon's script and reporting hosts.
 
@@ -610,7 +610,7 @@ v1 is accepted when every Must requirement passes its test below and the launch 
 | Privacy scan | No forbidden columns (IDs, free text, exact age, location below society) and no cell below the minimum n in any output | Custom script | Every pipeline run and build |
 | Front-end unit tests | URL state round trip, sorting, number formatting, similarity ranking | Vitest | Every commit |
 | End-to-end tests | Quiz → story → explore; permalink restore; back and forward; keyboard-only path | Playwright | Every pull request |
-| Visual regression | Each module at 360, 800 and 1280 px, light and dark | Playwright screenshots | Every pull request |
+| Visual regression | Each module at 360, 800 and 1280 px, light and dark; the top 1200 px of each page, against baselines from the Playwright Linux image | Playwright screenshots | Every pull request |
 | Accessibility | Zero serious or critical findings; manual screen-reader checklist | axe-core in Playwright; VoiceOver and NVDA | Every pull request; manual before launch |
 | Performance | Budgets in NFR-1, NFR-2 and NFR-5 on five representative routes | Lighthouse CI; size check | Every pull request |
 | Links and metadata | Every route has a title, description and existing share image; no broken links | Build script; link checker | Every build |
@@ -622,13 +622,13 @@ v1 is accepted when every Must requirement passes its test below and the launch 
 | AT-1 | Open `/explore` under Lighthouse's mobile profile: Largest Contentful Paint ≤ 2.5 s, and the list shows all 150 cells with mean and disagreement marks. | FR-10, FR-11, FR-17, NFR-2 |
 | AT-2 | Open a cell URL with `society` and `sample` set in a fresh browser: that society is highlighted and ranked, the sample badge shows, and suppressed societies read "too few responses". | FR-4, FR-20–FR-27, FR-80 |
 | AT-3 | Answer the three quiz items: positions are shown; the network log contains no request carrying an answer; a reload keeps the answers and a new tab does not. | FR-60–FR-63, NFR-30, NFR-31 |
-| AT-4 | Open `/change`: arrows, summary counts and the provenance note appear; a search of the built files finds no respondent-level 2000–2003 data. | FR-50–FR-53, C-6 |
+| AT-4 | Open `/change`: arrows, summary counts and the provenance note appear; the build check finds the 2000–2003 survey only in the three change files, with only their aggregate keys and no group below 10, and the provenance note on every change page. | FR-50–FR-53, C-6 |
 | AT-5 | An automated check finds the attribution footer on every prerendered page; a manual check finds it on a sample of share images. | NFR-40, C-7 |
 | AT-6 | axe-core reports zero serious or critical issues on every module route; a keyboard-only user completes quiz, story, matrix and drill-down. | NFR-10–NFR-13 |
 | AT-7 | Share images exist for the home page, each module, all 150 cells and all 90 societies, and each route's meta tags point to its image. | FR-82, FR-83 |
 | AT-8 | Two pipeline runs on the same inputs give byte-identical outputs, and the sample counts match the paper. | NFR-50, NFR-51 |
-| AT-9 | The deployed site sets no cookie, and its only third-party requests go to the analytics beacon. | C-11, NFR-30–NFR-32, FR-90 |
-| AT-10 | The deployed site is under 60 MB and its largest file under 5 MB. | NFR-5, C-1 |
+| AT-9 | The deployed site sets no cookie, and its only third-party requests go to the analytics beacon; checked against `build/` on every pull request and against the deployed site after each push. | C-11, NFR-30–NFR-32, FR-90 |
+| AT-10 | The deployed site is under 60 MB and its largest file under 5 MB; checked against `build/` on every pull request and against the deployed site after each push. | NFR-5, C-1 |
 | AT-11 | Selecting another society, sample or scale updates every visible view and the URL together; back and forward restore earlier states. | FR-3–FR-5, FR-84 |
 | AT-12 | A content review of every page finds no causal wording and the "respondents in X" phrasing throughout. | FR-73 |
 
@@ -692,7 +692,7 @@ If the schedule slips, Should items move to v1.1 first; Must items and the launc
 | R-3 | Small society samples give noisy estimates and unstable ranks | Medium | High | Shrinkage, intervals, minimum-n suppression (DR-9), and rank shown with its uncertainty |
 | R-4 | Societies use the response scale differently, or translations shift meaning | Medium | Medium | Within-society centered toggle; method note on measurement invariance as reported by the authors |
 | R-5 | The paper's samples cannot be rebuilt exactly from the data flags | Low | Medium | Reproduce counts first (NFR-51); use the authors' R scripts as reference; otherwise default to all respondents and say so |
-| R-6 | The 2000–2003 comparison raises provenance or permission concerns | Medium | Medium | Aggregates only (C-6), clear provenance label, and a configuration switch that removes the module in one build |
+| R-6 | The 2000–2003 comparison raises provenance or permission concerns | Medium | Medium | Aggregates only (C-6), clear provenance label, and `CHANGE_MODULE=off` (the repository variable `CHANGE_MODULE` for the deploy), which removes the module, its data and every word about it, in one build |
 | R-7 | The free host changes its terms or limits | Low | Medium | Plain static output that can move to another free host within an hour; no host-specific features in the app |
 | R-8 | Moving hosts later breaks shared links | Low | Medium | Choose the host once at launch; if a move is needed, leave a redirect page at the old address |
 | R-9 | Generating about 250 share images slows every build | Medium | Low | Generate them in a cached step that reruns only when data or templates change |
@@ -703,10 +703,10 @@ If the schedule slips, Should items move to v1.1 first; Must items and the launc
 
 ### 11.2 Open questions
 
-- [ ] Which three cells should the quiz use? Proposal: decide after the first pipeline run, choosing one near-universal cell, one highly divisive cell and one with a surprising audience or change effect.
-- [ ] Confirm the project slug `etiquette-atlas`, which sets the free URL.
+- [x] Which three cells should the quiz use? Proposal: decide after the first pipeline run, choosing one near-universal cell, one highly divisive cell and one with a surprising audience or change effect. Closed: eating in a restaurant, singing at a funeral, and music on headphones in the library (decision 78).
+- [x] Confirm the project slug `etiquette-atlas`, which sets the free URL. Closed: the slug is `EtiquetteAtlas`, from the repository's name.
 - [ ] Send the GSN authors a courtesy note before launch, offering a preview and asking whether the OSF CC BY license covers the 2000–2003 extract? (Recommended; the license itself does not require it.)
-- [ ] Share-image visual style: a quiet editorial look or a bolder, social-first look?
+- [x] Share-image visual style: a quiet editorial look or a bolder, social-first look? Closed: quiet and editorial, matching the site (decision 91).
 
 ## Sources
 
