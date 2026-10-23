@@ -25,6 +25,25 @@ const KB = 1024;
 
 const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	{ path: '', ready: async () => {} },
+	{
+		// The quiz's worst case: an answer revealed with a society's answers (decision 80).
+		path: '?society=chl',
+		ready: async (page) => {
+			await page.getByRole('radio', { name: 'very appropriate', exact: true }).check();
+			await page.getByRole('button', { name: 'See where your answer falls' }).click();
+			await expect(page.locator('.distribution li')).toHaveCount(6);
+		}
+	},
+	{
+		// Every step of the story loaded, the change step included.
+		path: 'story/',
+		ready: async (page) => {
+			for (const id of ['universal', 'dependent', 'audience', 'change', 'explore']) {
+				await page.locator(`section#${id}`).scrollIntoViewIfNeeded();
+			}
+			await expect(page.locator('#story-change-rows circle.dot').first()).toBeVisible();
+		}
+	},
 	{ path: 'explore/', ready: matrixReady },
 	{ path: 'explore/?society=chl', ready: matrixReady },
 	{

@@ -13,8 +13,28 @@ import {
 	url
 } from './helpers';
 
+/** The quiz with an answer revealed and a society's answers drawn (FR-61). */
+async function quizAnswered(page: Page) {
+	await page.getByRole('radio', { name: 'very appropriate', exact: true }).check();
+	await page.getByRole('button', { name: 'See where your answer falls' }).click();
+	await expect(page.locator('.beeswarm .marker-label')).toBeVisible();
+	await expect(page.locator('.distribution li')).toHaveCount(6);
+}
+
+/** Every step of the story with its chart drawn (FR-64). */
+async function storyRead(page: Page) {
+	for (const id of ['universal', 'dependent', 'audience', 'change', 'explore']) {
+		await page.locator(`section#${id}`).scrollIntoViewIfNeeded();
+	}
+	await expect(page.locator('#story-change-rows circle.dot').first()).toBeVisible();
+	await expect(page.locator('#dependent .beeswarm [data-code]').first()).toBeVisible();
+	await expect(page.locator('#audience .slopegraph [data-context="0"]')).toBeAttached();
+}
+
 const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	{ path: '', ready: async () => {} },
+	{ path: '?society=chl', ready: quizAnswered },
+	{ path: 'story/', ready: storyRead },
 	{ path: 'explore/?society=chl', ready: matrixReady },
 	{ path: 'explore/usemphone/funeral/?society=chl', ready: swarmReady },
 	{ path: 'societies/', ready: societiesReady },

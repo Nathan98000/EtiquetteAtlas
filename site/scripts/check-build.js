@@ -27,8 +27,12 @@ const MAX_ROUTE_PAYLOAD_BYTES = 2048;
 // before the hash (src/lib/data/files.ts).
 const JS_CSS_BUDGET = 200 * 1024;
 const DATA_BUDGET = 300 * 1024;
+// The quiz and the story load more as the reader goes on (decisions 80 and 81): e2e/budget.e2e.ts
+// measures that; here the home page counts the picker's societies and the story the files its
+// first steps fetch.
 const ROUTE_DATA = {
-	home: [],
+	home: ['societies'],
+	story: ['global-all', 'cells-all', 'societies'],
 	explore: ['societies', 'global-all', 'cells-all'],
 	cell: ['societies', 'global-all', 'cells-all', 'land-110m'],
 	societies: ['societies'],
@@ -43,23 +47,25 @@ const ROUTE_DATA = {
 const kindOf = (file) =>
 	file === 'index.html'
 		? 'home'
-		: file === 'explore/index.html'
-			? 'explore'
-			: /^explore\/[^/]+\/[^/]+\/index\.html$/.test(file)
-				? 'cell'
-				: file === 'societies/index.html'
-					? 'societies'
-					: /^societies\/[a-z]{3}\/index\.html$/.test(file)
-						? 'society'
-						: file === 'audiences/index.html'
-							? 'audiences'
-							: /^audiences\/[a-z]+\/index\.html$/.test(file)
-								? 'audience'
-								: file === 'change/index.html'
-									? 'change'
-									: /^change\/[a-z]{3}\/index\.html$/.test(file)
-										? 'change-society'
-										: 'other';
+		: file === 'story/index.html'
+			? 'story'
+			: file === 'explore/index.html'
+				? 'explore'
+				: /^explore\/[^/]+\/[^/]+\/index\.html$/.test(file)
+					? 'cell'
+					: file === 'societies/index.html'
+						? 'societies'
+						: /^societies\/[a-z]{3}\/index\.html$/.test(file)
+							? 'society'
+							: file === 'audiences/index.html'
+								? 'audiences'
+								: /^audiences\/[a-z]+\/index\.html$/.test(file)
+									? 'audience'
+									: file === 'change/index.html'
+										? 'change'
+										: /^change\/[a-z]{3}\/index\.html$/.test(file)
+											? 'change-society'
+											: 'other';
 const ATTRIBUTION = [
 	'data-attribution',
 	'Eriksson',
@@ -274,6 +280,8 @@ const sitemap = files.includes('sitemap.xml')
 	? readFileSync(join(root, 'sitemap.xml'), 'utf8')
 	: '';
 const changePages = files.filter((f) => /^change\/([a-z]{3}\/)?index\.html$/.test(f));
+// The story's change step carries the provenance note too (FR-52, FR-64; decision 70).
+const provenancePages = [...changePages, ...files.filter((f) => f === 'story/index.html')];
 if (changeModule) {
 	if (changeFiles.length !== 3) {
 		problems.push(`AT-4: expected the three change files, found ${changeFiles.length}`);
@@ -284,7 +292,9 @@ if (changeModule) {
 	if (changePages.length !== CHANGE_SOCIETY_PAGES + 1) {
 		problems.push(`FR-50: expected /change/ and 26 society pages, found ${changePages.length}`);
 	}
-	for (const file of changePages) {
+	if (!provenancePages.includes('story/index.html'))
+		problems.push('FR-64: story/index.html is missing');
+	for (const file of provenancePages) {
 		const html = readFileSync(join(root, file), 'utf8');
 		for (const text of PROVENANCE) {
 			if (!html.includes(text)) problems.push(`FR-52, NFR-41: ${file} lacks ${text}`);

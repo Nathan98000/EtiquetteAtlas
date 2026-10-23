@@ -265,7 +265,7 @@ test('NFR-30, §6.4: the theme follows the system, and a manual choice is the on
 	expect(await background()).toBe('rgb(255, 255, 255)');
 	expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['theme']);
 	// SvelteKit's router keeps scroll positions per history entry in sessionStorage; nothing
-	// else may be stored there until the quiz (decision 43).
+	// else is stored there unless the reader takes the quiz (decisions 43 and 80).
 	const session = await page.evaluate(() => Object.keys(sessionStorage));
 	expect(session.filter((key) => !key.startsWith('sveltekit:'))).toEqual([]);
 	expect(await context.cookies()).toEqual([]);

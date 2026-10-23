@@ -3,7 +3,6 @@
 	import { resolve } from '$app/paths';
 	import { drill } from '#lib/charts/drill-model.ts';
 	import LoadError from '#lib/components/LoadError.svelte';
-	import QuizReveal from '#lib/components/QuizReveal.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
 	import { RESPONSES } from '#lib/data/format.ts';
@@ -72,9 +71,14 @@
 		return index === undefined ? null : file.counts(index, cell);
 	};
 
+	// NFR-3: the reveal's charts load with the data, not with the page (decision 80).
+	let revealCode: Promise<typeof import('#lib/components/QuizReveal.svelte')> | undefined =
+		$state();
+
 	function start() {
 		if (started) return;
 		started = true;
+		revealCode = import('#lib/components/QuizReveal.svelte');
 		const sample = view.state.sample;
 		preload(
 			() => loadGlobal(sample),
@@ -216,15 +220,26 @@
 				{#if revealed !== undefined}
 					<section class="answer" aria-labelledby="reveal-title">
 						<h3 id="reveal-title" tabindex="-1">Where your answer falls</h3>
-						<QuizReveal
-							{question}
-							response={revealed}
-							drill={drillFor(question.index)}
-							sample={vs.sample}
-							{society}
-							counts={countsFor(question.index)}
-							onselect={(code) => setView({ society: code })}
-						/>
+						{#await revealCode}
+							<p class="loading">Loading…</p>
+						{:then module}
+							{#if module}
+								<module.default
+									{question}
+									response={revealed}
+									drill={drillFor(question.index)}
+									sample={vs.sample}
+									{society}
+									counts={countsFor(question.index)}
+									onselect={(code) => setView({ society: code })}
+								/>
+							{/if}
+						{:catch error}
+							<LoadError
+								{error}
+								retry={() => (revealCode = import('#lib/components/QuizReveal.svelte'))}
+							/>
+						{/await}
 						<p>
 							<button type="button" class="button primary" onclick={next}>
 								{current + 1 < questions.length ? 'Next question' : 'See all your answers'}
@@ -385,6 +400,11 @@
 	.answer,
 	.summary {
 		margin-top: 2rem;
+	}
+
+	.loading {
+		min-height: 14rem;
+		color: var(--text-muted);
 	}
 
 	.summary li {

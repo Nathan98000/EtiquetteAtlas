@@ -351,7 +351,7 @@ test('FR-83, NFR-60: change routes have their own title, description and canonic
 	const sitemap = await (await page.request.get(url('sitemap.xml'))).text();
 	expect(sitemap).toContain('/EtiquetteAtlas/change/</loc>');
 	expect(sitemap.match(/\/change\/[a-z]{3}\/<\/loc>/g)).toHaveLength(26);
-	expect(sitemap.match(/<url>/g)).toHaveLength(287);
+	expect(sitemap.match(/<url>/g)).toHaveLength(288);
 });
 
 test('FR-7, FR-52: "About this chart" opens the method page’s change section', async ({ page }) => {

@@ -117,6 +117,9 @@
 			A few steps through the answers of 25,422 respondents in 90 societies, then on to the atlas.
 			The tour uses All data, every respondent in every society.
 		</p>
+		<noscript>
+			<p>The charts need JavaScript; the text of every step is below.</p>
+		</noscript>
 	</header>
 
 	<!-- FR-65: where you are, every step one press away, and a way out at all times. -->
