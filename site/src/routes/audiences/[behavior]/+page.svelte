@@ -35,7 +35,9 @@
 	const text = $derived(BEHAVIOR_TEXT[BEHAVIORS[behavior]]);
 
 	// NFR-3: the contexts file loads on the audiences routes only.
-	const contexts = new Resource(() => loadContexts(view.state.sample));
+	// The URL's sample applies once the app has mounted (decision 31); loading waits for it, so
+	// ?sample= never fetches All data's file first (decision 96).
+	const contexts = new Resource(() => (view.ready ? loadContexts(view.state.sample) : undefined));
 	const societies = new Resource(() => loadSocieties());
 
 	const file = $derived(contexts.current?.sample === vs.sample ? contexts.current : undefined);

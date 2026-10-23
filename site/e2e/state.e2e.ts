@@ -270,3 +270,33 @@ test('NFR-30, §6.4: the theme follows the system, and a manual choice is the on
 	expect(session.filter((key) => !key.startsWith('sveltekit:'))).toEqual([]);
 	expect(await context.cookies()).toEqual([]);
 });
+
+// Decision 96 (closing decision 67's gap): a sample in the URL is the first whose files load; All
+// data's are never fetched first. (Explore and fingerprints warm every sample's small global and
+// similarity files once the page is idle, so those may follow.)
+const SAMPLE_ROUTES: [string, string, string[]][] = [
+	['explore/?society=chl&sample=paper', 'paper', ['global', 'cells']],
+	['explore/usemphone/funeral/?sample=paper', 'paper', ['global', 'cells']],
+	['societies/chl/?sample=attention', 'attention', ['global', 'cells', 'similarity']],
+	['audiences/?sample=paper', 'paper', ['contexts']],
+	['audiences/usemphone/?sample=attention', 'attention', ['contexts']]
+];
+
+for (const [path, sample, prefixes] of SAMPLE_ROUTES) {
+	test(`FR-4, NFR-3: /${path} fetches only the ${sample} files`, async ({ page }) => {
+		const files: string[] = [];
+		page.on('request', (request) => {
+			const name = new URL(request.url()).pathname.split('/').pop() ?? '';
+			if (name.endsWith('.json')) files.push(name);
+		});
+		await page.goto(url(path), { waitUntil: 'networkidle' });
+		for (const prefix of prefixes) {
+			const first = files.find(
+				(f) => /^[a-z]+-(all|paper|attention)\./.test(f) && f.startsWith(`${prefix}-`)
+			);
+			expect(first, `the first ${prefix} file`).toMatch(new RegExp(`^${prefix}-${sample}\\.`));
+			const idle = prefix === 'global' || prefix === 'similarity';
+			if (!idle) expect(files.filter((f) => f.startsWith(`${prefix}-all.`))).toEqual([]);
+		}
+	});
+}

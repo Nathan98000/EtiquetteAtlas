@@ -57,9 +57,13 @@
 	const who = $derived(respondentsIn(data.code, data.name));
 	const title = $derived(who[0].toUpperCase() + who.slice(1));
 
-	const global = new Resource(() => loadGlobal(view.state.sample));
-	const cellsFile = new Resource(() => loadCells(view.state.sample));
-	const similarityFile = new Resource(() => loadSimilarity(view.state.sample));
+	// The URL's sample applies once the app has mounted (decision 31); loading waits for it, so
+	// ?sample= never fetches All data's files first (decision 96).
+	const global = new Resource(() => (view.ready ? loadGlobal(view.state.sample) : undefined));
+	const cellsFile = new Resource(() => (view.ready ? loadCells(view.state.sample) : undefined));
+	const similarityFile = new Resource(() =>
+		view.ready ? loadSimilarity(view.state.sample) : undefined
+	);
 	const societies = new Resource(() => loadSocieties());
 
 	// Use the sample's files together only once all are for the same sample.

@@ -24,11 +24,13 @@
 	let { data }: PageProps = $props();
 
 	const vs = $derived(view.state);
-	const global = new Resource(() => loadGlobal(view.state.sample));
+	// The URL's sample applies once the app has mounted (decision 31); loading waits for it, so
+	// ?sample= never fetches All data's file first (decision 96).
+	const global = new Resource(() => (view.ready ? loadGlobal(view.state.sample) : undefined));
 	const societies = new Resource(() => loadSocieties());
 	// FR-15: the society–cell file loads only once a society is selected (NFR-3).
 	const cellsFile = new Resource(() =>
-		view.state.society ? loadCells(view.state.sample) : undefined
+		view.ready && view.state.society ? loadCells(view.state.sample) : undefined
 	);
 
 	const cells = $derived(cellsFile.current?.sample === vs.sample ? cellsFile.current : undefined);
