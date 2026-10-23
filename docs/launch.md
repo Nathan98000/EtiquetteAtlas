@@ -8,11 +8,11 @@ the manual checklists. Nothing here is sent or published from a coding session.
 
 | Item | Status | Automated | Left to the maintainer |
 | --- | --- | --- | --- |
-| All Must requirements pass their tests | Passing on `build/` at the end of M7 (below); AT-9 and AT-10 need the deployed site | CI on every pull request and deploy | Push; run the deployed checks; screen readers (NFR-13); real devices (NFR-20) |
-| Lighthouse, size and accessibility budgets met on the deployed URL | Met on `build/`: LCP 1.67–2.00 s, CLS ≤ 0.010, TBT 0 ms on 12 routes; 36 MB of 60 MB | `LHCI_DEPLOYED=1 npm run lhci`, `npm run check:deployed`, axe below | Run them after the push |
+| All Must requirements pass their tests | Passing at the end of M7 (below), on `build/` and, for AT-9 and AT-10, on the deployed site | CI on every pull request and deploy | Screen readers (NFR-13); real devices (NFR-20) |
+| Lighthouse, size and accessibility budgets met on the deployed URL | Lighthouse and size met on the deployed site, 23 October 2026: LCP 0.87–1.16 s, CLS ≤ 0.012, TBT ≤ 1 ms, Lighthouse accessibility 1.00 on 12 routes; 35.98 MB of 60 MB, largest file 0.50 MB | `LHCI_DEPLOYED=1 npm run lhci`, `npm run check:deployed`, axe below | axe on the deployed URL (below) |
 | Method page reviewed by a second reader | Text settled (decision 93) | — | The reader's checklist below |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit | Both, in CI | Look at a sample of images (AT-5, below) |
-| Analytics confirmed counting, with no cookies set | Beacon on every page; no cookies on `build/` | `npm run test:deployed` | Check the Cloudflare dashboard (`docs/SETUP.md`) |
+| Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204) and sets no cookie or storage | `npm run test:deployed` | Check the Cloudflare dashboard (`docs/SETUP.md`) |
 | Social cards checked for the home page, one cell and one society | Tags and images on every route (AT-7) | — | The validators below (NFR-61) |
 | Optional courtesy note to the GSN authors | — | — | The points below |
 
@@ -28,13 +28,26 @@ LHCI_DEPLOYED=1 npm run lhci   # NFR-2 on the deployed URL, beacon included
 DEPLOYED_ORIGIN=https://nathan98000.github.io npx playwright test e2e/a11y.e2e.ts --project=chromium
 ```
 
-The first three each count a few page views in the analytics. Then:
+The first three each count a few page views in the analytics.
+
+Results of the first M7 deploy (commit e83dfed, 23 October 2026):
+
+- `npm run test:deployed`: 2 passed. Only the beacon's two hosts contacted, no cookie, nothing
+  stored; the beacon reported each page view, and a client-side navigation (a view change) sent
+  further reports, so view changes probably count as page views.
+- `npm run check:deployed`: 940 files, 35.98 MB of 60 MB, largest 0.50 MB, no cookies. Only the
+  HTML differed from a local build, by SvelteKit's version marker; the share images were identical
+  to the local Docker render.
+- `LHCI_DEPLOYED=1 npm run lhci`: every assertion met (figures in the table above). The beacon
+  transfers 10.5 KB, so the largest first load is about 110 KB of JS and CSS against NFR-1's
+  200 KB.
+
+Still to do:
 
 - [ ] confirm page views in the Cloudflare dashboard, and whether moving between views counts
   extra page views (`docs/SETUP.md`);
 - [ ] turn on Dependabot alerts (`docs/SETUP.md`);
-- [ ] note the beacon's transfer size from the Lighthouse report against NFR-1's 200 KB (the
-  largest page is 99 KB of JS and CSS without it).
+- [ ] run axe on the deployed URL (the last command above).
 
 ## Acceptance tests
 
@@ -48,8 +61,8 @@ The first three each count a few page views in the analytics. Then:
 | AT-6 | axe on 18 routes in both themes; keyboard paths in Playwright | Pass; screen readers left |
 | AT-7 | `check-build.js` (every route, 247 images); `e2e/share.e2e.ts` | Pass |
 | AT-8 | `uv run pytest -m needs_raw` (a fresh build matches the committed files; the paper's counts) | Pass (local raw files) |
-| AT-9 | `e2e/analytics.e2e.ts` on `build/`; `npm run test:deployed` | Pass on `build/`; deployed left |
-| AT-10 | `check-build.js` on `build/`; `npm run check:deployed` | Pass on `build/` (36 MB, largest 0.5 MB); deployed left |
+| AT-9 | `e2e/analytics.e2e.ts` on `build/`; `npm run test:deployed` | Pass on `build/` and on the deployed site |
+| AT-10 | `check-build.js` on `build/`; `npm run check:deployed` | Pass on `build/` and on the deployed site (35.98 MB, largest 0.50 MB) |
 | AT-11 | Playwright | Pass |
 | AT-12 | `npm run check:content`; the reading list below | Automated part passes; reading left |
 
