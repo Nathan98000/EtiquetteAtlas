@@ -20,7 +20,8 @@ is sent or published from a coding session.
 ## Findings
 
 Findings from the launch checks, the maintainer's and the coding session's, with what happened to
-each. Each is one of:
+each. L-2 to L-18 come from the method page's review (decision 110), each checked against its source
+(the paper and its Supplementary Information, Crossref, `data/derived/`, the code) before it was fixed. Each is one of:
 
 - **launch-blocking**: fails a Must; a factual, data-wording or wording-rule error (FR-73, FR-52,
   §6.5); an accessibility problem; a broken or wrongly credited share card (NFR-40, AT-5, FR-82); a
@@ -34,6 +35,24 @@ each. Each is one of:
 | ID | Finding | Page | Requirement | Category | Fix or reason | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
 | L-1 | The privacy notice said nothing chosen in the atlas is sent to the analytics, but a society's or pair's page has it in the path the beacon records | `/method/#privacy` | FR-92, NFR-34 | Launch-blocking (factual) | The notice now says the address names the page, and that the query string's choices and the quiz answers are not sent; `npm run test:deployed` fails on a query string in what the beacon sends, after a view change too (decision 105) | 8bd7fae, 8cc1038 |
+| L-2 | The paper's 1.11 was described as "individual respondents and noise"; in its Supplementary Table 9 respondents have their own 0.50 (and behaviors 0.36), and 1.11 is single ratings beyond the model | `/method/#story`, `/story/` step 1 | §4.8, FR-64 | Launch-blocking (factual) | Both say what 1.11 is; the method page lists all five components | e965975, c3b5389 |
+| L-3 | "Never a summary of fewer than 10 people", though the quiz shows answer counts of 1 to 9 within groups of at least 10 | `/method/#data` | DR-9, NFR-34 | Launch-blocking (privacy wording) | "Never a score or a count of answers for a group of fewer than 10 people" | c3b5389 |
+| L-4 | The 2000–2003 individual answers were called "not public" while the versions table links the file | `/method/#change` | C-6, §4.8 | Launch-blocking (factual) | Says only what the companion files say: provided to the GSN authors privately | c3b5389 |
+| L-5 | "You can switch to the raw scores at any time" pointed at the scale toggle, which keeps shrinkage on | `/method/#shrinkage` | FR-22 | Launch-blocking (factual) | Names the pair page's Estimate toggle | c3b5389 |
+| L-6 | Intervals were described only as bootstrap percentiles; the default estimate's is empirical Bayes | `/method/#intervals`, `#shrinkage` | DR-5 | Launch-blocking (factual) | A sentence on the shrunken interval's formula | c3b5389 |
+| L-7 | The 2026 audience analysis's last author was given as Tung, H.; Crossref lists Van Lange, P. A. M. last of 158 | `/method/#audiences` | FR-43 | Launch-blocking (credit) | Corrected in `attribution.ts`, with a test | 8f981d1 |
+| L-8 | "About 11 respondents in the median society" for one gender in front of one audience; the aggregates give a median of 55 per society, behavior and audience, with men about a third | `/method/#audiences` | DR-12 | Launch-blocking (factual) | Restated from the aggregates | c3b5389 |
+| L-9 | "The 150 situations" for the 150 behavior–situation pairs | `/method/#audiences` | §6.5 | Launch-blocking (factual) | Corrected | c3b5389 |
+| L-10 | "Student status was recorded by the collection sites rather than asked"; the paper's Supplementary Table 1 shows some sites asked, some recorded it for everyone recruited, some recorded none | `/method/#facts`, every society page | FR-34, §4.8 | Launch-blocking (factual) | Says so on the method page and in the facts panel | c3b5389 |
+| L-11 | "Recruited through universities and online panels" is not in the paper, which names email, social media and survey organizations, and convenience samples | `/method/#data`, `#limits` | §4.8, FR-70 | Launch-blocking (factual) | The paper's wording | c3b5389 |
+| L-12 | Measurement invariance was said to be tested "across languages"; the paper tested the values scale across societies, where it held only in part | `/method/#limits` | §4.8 | Launch-blocking (factual) | Corrected | c3b5389 |
+| L-13 | The similarity rule read as each society having 120 pairs; the pipeline needs 120 pairs both can show | `/method/#similar` | DR-14 | Launch-blocking (factual) | Corrected | c3b5389 |
+| L-14 | "Rank counts the societies with a higher score"; it is one more | `/method/#rank` | FR-25 | Launch-blocking (factual) | Corrected | c3b5389 |
+| L-15 | The story's first chart's "About this chart" opened the disagreement section | `/story/` step 1 | FR-7 | Launch-blocking (wrong link) | Opens `#story` | e965975 |
+| L-16 | "The paper's main finding" for a sentence from its conclusion; the abstract leads with moral foundations | `/method/#story`, `/story/`, the story card | §4.8 | Launch-blocking (attribution) | "One of the paper's conclusions" | e965975, c3b5389 |
+| L-17 | Wording: "how much societies really differ" (respondents); overall levels explained as scale use, a reason the data cannot give; "How judgments change over time" beside the change module; "the browser keeps scroll positions"; the 829 and 71 not tied to All data; the notice not saying Cloudflare receives the IP address | `/method/` | FR-73, FR-52, NFR-34 | Launch-blocking (wording) | Each corrected | c3b5389 |
+| L-18 | Clarity suggestions: explain "with replacement", the six answers' scores and "95% sure"; the paper's 17,288 "preregistered sample" against the Paper's sample's 18,656; societies too small for a pair still count in its global mean; the audience effect's sign sentence; the OSF links start large downloads; the society table's caption; UK and US spellings; "country" for "society"; session storage restored with tabs; a link to GitHub's privacy statement | `/method/` | FR-70 | v1.1 | Improvements, not errors (`docs/v1.1.md`) | — |
+| L-19 | `check:content` ended sentences at line breaks inside a paragraph, so a causal phrase wrapped across two lines of a built page would pass | `scripts/check-content.js` | AT-12, FR-73 | Launch-blocking (check) | Whitespace in each text collapses to one space; a wrapped "is why" now fails | 8ed3501 |
 
 ## After the push
 

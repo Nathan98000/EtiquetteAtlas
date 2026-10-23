@@ -5,7 +5,9 @@ Each section has the text for readers, then a short technical note for reviewers
 method page is complete (decision 93) and its wording is the current one for every section; the
 sections written for M7 (what each sample changes, the guided story, what the atlas cannot tell
 you, privacy, versions and checksums, about, and the table of every society) exist only on the
-page. The technical notes here remain the reviewers' reference. Wording follows SRS §6.5:
+page. The launch's corrections (findings L-2 to L-17 in `docs/launch.md`) were made on the page
+only: where these drafts differ from it, the page is right. The technical notes here remain the
+reviewers' reference. Wording follows SRS §6.5:
 "respondents in Chile", not "Chileans", and no causes (FR-73).
 
 ## Where the numbers come from
