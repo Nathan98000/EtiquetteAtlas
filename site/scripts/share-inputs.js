@@ -20,7 +20,9 @@ export const SHARE_INPUTS = [
 	'vite.config.ts',
 	'site.config.js',
 	'scripts/share-images.js',
-	'scripts/share-inputs.js'
+	'scripts/share-inputs.js',
+	'scripts/png.js',
+	'e2e/fonts.conf'
 ];
 
 /** @param {string} path @returns {string[]} */

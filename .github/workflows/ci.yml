@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   pipeline:
-    name: Pipeline (Ruff, mypy, pytest with coverage, privacy scan)
+    name: Pipeline (Ruff, mypy, pytest with coverage, privacy scan, audit)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -32,9 +32,59 @@ jobs:
         run: uv run pytest -m "not needs_raw" --cov
       - name: Privacy scan of data/derived (DR-9, DR-16)
         run: uv run pipeline privacy-scan
+      # NFR-33: known vulnerabilities in the locked Python dependencies (decision 99).
+      - name: Audit Python dependencies
+        run: uv audit --locked --preview-features audit-command
+
+  # FR-82, R-9 (decisions 88 to 92): the 247 share images, rendered in the Playwright Linux image so
+  # their text is the same on every run, and rebuilt only when their inputs change. The key lists
+  # what scripts/share-inputs.js hashes; the image tag follows @playwright/test in package-lock.json.
+  images:
+    name: Share images
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+      - id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: site/share-images
+          key: share-images-${{ hashFiles('data/derived/**', 'site/src/cards/**', 'site/src/lib/**', 'site/src/app.css', 'site/package-lock.json', 'site/vite.config.ts', 'site/site.config.js', 'site/scripts/share-images.js', 'site/scripts/share-inputs.js', 'site/scripts/png.js', 'site/e2e/fonts.conf') }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Check the image tag matches Playwright
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: test "$(node -p "require('@playwright/test/package.json').version")" = 1.64.1
+      - name: Build and photograph the cards (AT-5)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: FONTCONFIG_FILE="$PWD/e2e/fonts.conf" npm run cards
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: site/share-images
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: share-images
+          path: site/share-images
+          retention-days: 3
+          if-no-files-found: error
 
   site:
-    name: Site (lint, type-check, Vitest, build, Playwright, axe, Lighthouse)
+    name: Site (lint, type-check, Vitest, audit, build, Playwright, axe, Lighthouse)
+    needs: images
     runs-on: ubuntu-latest
     timeout-minutes: 25
     defaults:
@@ -48,12 +98,20 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
+      # NFR-33: known vulnerabilities in what ships to the browser (decision 99). Dev-only findings
+      # (in @lhci/cli) are known and stay out of this check.
+      - name: Audit npm dependencies
+        run: npm audit --omit=dev
       - name: Lint (Prettier, ESLint)
         run: npm run lint
       - name: Type-check (svelte-check)
         run: npm run check
       - name: Vitest
         run: npm run test:unit -- --run
+      - uses: actions/download-artifact@v8
+        with:
+          name: share-images
+          path: site/share-images
       # R-6: the site also builds without the change module, leaving no trace of it (decision 75).
       - name: Build and check without the change module (R-6)
         run: npm run build && npm run check:build
@@ -61,17 +119,74 @@ jobs:
           CHANGE_MODULE: 'off'
       - name: Build
         run: npm run build
-      - name: Check the build and first-load budgets (HR-1 to HR-7, NFR-1, NFR-5, NFR-40, FR-83, AT-4)
+      - name: Check the build, the share images and first-load budgets (HR-1 to HR-7, NFR-1, NFR-5, NFR-40, FR-83, AT-4, AT-7)
         run: npm run check:build
+      - name: Content review (AT-12)
+        run: npm run check:content
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
-      # AT-1 to AT-4, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1) and redraw
-      # times (NFR-4).
+      # AT-1 to AT-4, AT-7, AT-9, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1) and
+      # redraw times (NFR-4).
       - name: Playwright end-to-end and accessibility tests
-        run: npm run test:e2e
+        run: npm run test:e2e -- --project=chromium
       # NFR-2 and AT-1 on twelve routes under Lighthouse's mobile profile, with the runner's Chrome.
       - name: Lighthouse CI
         run: npm run lhci
+
+  # NFR-20, decision 98: Firefox, desktop Safari, Safari on iOS and Chrome on Android run the
+  # tests tagged @compat.
+  browsers:
+    name: Other browsers (Firefox, WebKit, iPhone, Pixel)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - name: Install the browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Smoke tests in each browser
+        run: npm run test:e2e -- --project=firefox --project=webkit --project=iphone --project=pixel
+
+  # §9.1, decisions 41 and 97: screenshots of every module at three widths in both themes, against
+  # baselines made in the same Playwright Linux image (npm run test:visual:update).
+  visual:
+    name: Visual regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    env:
+      VISUAL: '1'
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      # system-ui maps to Liberation Sans, as in scripts/in-docker.sh.
+      - name: Screenshots against the baselines
+        run: FONTCONFIG_FILE="$PWD/e2e/fonts.conf" npx playwright test
+      - name: Keep the differences
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-differences
+          path: site/test-results
+          retention-days: 7
 
   workflows:
     name: Workflow syntax (actionlint)

@@ -1,0 +1,30 @@
+# NFR-33, decision 99: weekly update pull requests for the site's npm packages, the pipeline's uv
+# lockfile and the workflows' actions, minor and patch updates grouped per ecosystem. Dependabot
+# alerts are a repository setting (docs/SETUP.md).
+#
+# A @playwright/test update also needs the Playwright image tag in .github/workflows/ci.yml
+# (mcr.microsoft.com/playwright:v<version>-noble, in two jobs and one check) and new visual
+# baselines (npm run test:visual:update); CI fails until both follow.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /site
+    schedule:
+      interval: weekly
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      uv-minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        update-types: [minor, patch]

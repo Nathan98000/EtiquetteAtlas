@@ -34,6 +34,12 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
+      # FR-82: the share images the checks built or restored in this run (ci.yml's images job). The
+      # build publishes them under share/; without them it fails its check (AT-7).
+      - uses: actions/download-artifact@v8
+        with:
+          name: share-images
+          path: site/share-images
       # The base path comes from site/site.config.js (HR-1). Setting the repository variable
       # CHANGE_MODULE to "off" deploys the site without the change module (R-6, decision 75).
       - name: Build
