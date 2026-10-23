@@ -1,9 +1,11 @@
-// NFR-60: the pages worth indexing, on the free subdomain (decisions 40, 56 and 57). Placeholder pages
+// NFR-60: the pages worth indexing, on the free subdomain (decisions 40, 56, 65 and 77). Placeholder pages
 // and the 404 page stay out. GitHub Pages serves a project site below the account's root, so a
 // robots.txt here would never be read; crawlers find this file through the canonical URLs.
 
 import { resolve } from '$app/paths';
+import { CHANGE_MODULE } from '#lib/change-module.ts';
 import { BEHAVIORS, CELLS, cellParams, slug } from '#lib/data/grid.ts';
+import { CHANGE_SOCIETIES } from '#lib/data/model.ts';
 import { societies } from '#lib/server/derived.ts';
 import type { RequestHandler } from './$types';
 
@@ -21,6 +23,13 @@ export const GET: RequestHandler = ({ url }) => {
 		...societies.list.map((s) => resolve(`societies/${s.code.toLowerCase()}/`)),
 		resolve('audiences/'),
 		...BEHAVIORS.map((b) => resolve(`audiences/${slug(b)}/`)),
+		// R-6: only in a build with the change module (decision 75).
+		...(CHANGE_MODULE
+			? [
+					resolve('change/'),
+					...CHANGE_SOCIETIES.map((code) => resolve(`change/${code.toLowerCase()}/`))
+				]
+			: []),
 		resolve('method/')
 	];
 	const body = [

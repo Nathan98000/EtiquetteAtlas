@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import Beeswarm from '#lib/charts/Beeswarm.svelte';
 	import BehaviorStrip from '#lib/charts/BehaviorStrip.svelte';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
@@ -17,16 +18,17 @@
 	import {
 		BEHAVIOR_TEXT,
 		CELLS,
+		CHANGE_BEHAVIORS,
 		SITUATION_TEXT,
 		cellParams,
 		headline,
 		slug
 	} from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSocieties } from '#lib/data/load.ts';
-	import { SAMPLE_LABEL, Status, type EstimateKind } from '#lib/data/model.ts';
+	import { SAMPLE_LABEL, Status, inChangeSurvey, type EstimateKind } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { CELL_KEYS, GLOBAL_KEYS } from '#lib/state/url.ts';
-	import { setView, view, withView } from '#lib/state/view.svelte.ts';
+	import { changeHref, setView, view, withView } from '#lib/state/view.svelte.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -178,6 +180,17 @@
 				{BEHAVIOR_TEXT[behavior].gerund} alone and in front of others
 			</a>
 		</p>
+		<!-- Decision 67: the 12 behaviors the 2000–2003 survey asked link to the change module, for
+		     the selected society when it was in both surveys. -->
+		{#if CHANGE_MODULE && CHANGE_BEHAVIORS.includes(behavior)}
+			<p class="more-link">
+				<a href={changeHref(vs.society, vs, false)}>
+					{selectedSociety && inChangeSurvey(selectedSociety.code)
+						? `Respondents in ${place(selectedSociety.code, selectedSociety.name)} compared with a survey from 2000–2003`
+						: 'Respondents in 26 societies in 2000–2003 and 2023–2024'}
+				</a>
+			</p>
+		{/if}
 		<!-- FR-26: previous and next cells in paper order (decision 39). -->
 		<StepLinks
 			label="Other pairs"

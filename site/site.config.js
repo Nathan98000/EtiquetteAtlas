@@ -21,3 +21,19 @@ export function normalizeBasePath(value) {
 
 export const basePath = normalizeBasePath(process.env.BASE_PATH ?? DEFAULT_BASE_PATH);
 export const origin = process.env.SITE_ORIGIN ?? DEFAULT_ORIGIN;
+
+/**
+ * R-6: `CHANGE_MODULE=off` builds the site without the change module, so it can be removed in one
+ * build if the 2000–2003 comparison raises a provenance or permission concern (decision 75).
+ * Unset, empty or `on` keeps it.
+ * @param {string | undefined} value
+ * @returns {boolean}
+ */
+export function parseSwitch(value) {
+	const v = (value ?? '').trim().toLowerCase();
+	if (v === '' || v === 'on') return true;
+	if (v === 'off') return false;
+	throw new Error(`CHANGE_MODULE must be "on" or "off", got ${JSON.stringify(value)}`);
+}
+
+export const changeModule = parseSwitch(process.env.CHANGE_MODULE);

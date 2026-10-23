@@ -2,11 +2,13 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
+	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import { changeHref, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import ThemeSwitch from './ThemeSwitch.svelte';
 
 	// FR-2: every module, including those built later, which have placeholder pages (decision 29).
+	// A build without the change module leaves its link out (R-6, decision 75).
 	const MODULES: { label: string; path: ResolvedPathname; section: string }[] = [
 		{ label: 'Explore', path: resolve('explore/'), section: '/explore' },
 		{ label: 'Societies', path: resolve('societies/'), section: '/societies' },
@@ -14,7 +16,7 @@
 		{ label: 'Change', path: resolve('change/'), section: '/change' },
 		{ label: 'Story', path: resolve('story/'), section: '/story' },
 		{ label: 'Method', path: resolve('method/'), section: '/method' }
-	];
+	].filter((module) => CHANGE_MODULE || module.section !== '/change');
 
 	let open = $state(false);
 	const section = $derived(page.route.id ?? '');

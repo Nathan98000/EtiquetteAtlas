@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_BASE_PATH, normalizeBasePath } from '../../site.config.js';
+import { DEFAULT_BASE_PATH, normalizeBasePath, parseSwitch } from '../../site.config.js';
 import { attribution } from './attribution';
 
 describe('HR-1: base path from config', () => {
@@ -19,6 +19,22 @@ describe('HR-1: base path from config', () => {
 
 	it.each(['EtiquetteAtlas', '//cdn.example.org', '/two words'])('rejects %j', (value) => {
 		expect(() => normalizeBasePath(value)).toThrow(/BASE_PATH/);
+	});
+});
+
+describe('R-6: the change module switch (decision 75)', () => {
+	it.each([
+		[undefined, true],
+		['', true],
+		['on', true],
+		[' OFF ', false],
+		['off', false]
+	])('reads %j as %j', (value, expected) => {
+		expect(parseSwitch(value)).toBe(expected);
+	});
+
+	it('rejects anything else, so a typo cannot ship the wrong build', () => {
+		expect(() => parseSwitch('no')).toThrow(/CHANGE_MODULE/);
 	});
 });
 

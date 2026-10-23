@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
+	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
 	import CompareTable from '#lib/charts/CompareTable.svelte';
 	import {
@@ -34,11 +35,18 @@
 	import { place, respondentsIn } from '#lib/data/format.ts';
 	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
-	import { SAMPLE_LABEL, SAMPLES } from '#lib/data/model.ts';
+	import { SAMPLE_LABEL, SAMPLES, inChangeSurvey } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { factsView, similarView } from '#lib/data/society.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
-	import { fingerprintHref, setView, societyHref, view, withView } from '#lib/state/view.svelte.ts';
+	import {
+		changeHref,
+		fingerprintHref,
+		setView,
+		societyHref,
+		view,
+		withView
+	} from '#lib/state/view.svelte.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -268,12 +276,20 @@
 		</aside>
 	</div>
 
-	<!-- The same society in the audiences module (decision 57). -->
+	<!-- The same society in the audiences module (decision 57) and, for the 26 societies in both
+	     surveys, in the change module (decision 67). -->
 	<p class="more-link">
 		<a href={withView(resolve('audiences/'), vs, GLOBAL_KEYS)}>
 			How {who} judged the 15 behaviors alone and in front of others
 		</a>
 	</p>
+	{#if CHANGE_MODULE && inChangeSurvey(code)}
+		<p class="more-link">
+			<a href={changeHref(code, vs, false)}>
+				How {who} answered in 2023–2024 and in a survey from 2000–2003
+			</a>
+		</p>
+	{/if}
 
 	<!-- FR-33: compare mode, two societies cell by cell (decision 49). -->
 	<section id="compare" class="compare needs-js" aria-labelledby="compare-title">
