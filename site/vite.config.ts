@@ -67,8 +67,10 @@ function withoutChangeModule(): Plugin {
  * as listed in its manifest, leaving out the change module's card in a build without it (R-6).
  * Without them the build still succeeds, and check-build.js reports every missing image (AT-7).
  */
+const shareSource = fileURLToPath(new URL(`./${SHARE_SOURCE}/`, import.meta.url));
+
 function shareImages(): Plugin {
-	const source = fileURLToPath(new URL(`./${SHARE_SOURCE}/`, import.meta.url));
+	const source = shareSource;
 	return {
 		name: 'share-images',
 		apply: 'build',
@@ -143,7 +145,17 @@ export default defineConfig({
 							'form-action': ['self']
 						}
 					},
-			prerender: { entries: cards ? ['*'] : ['*', '/404'] },
+			prerender: {
+				entries: cards ? ['*'] : ['*', '/404'],
+				// The crawler follows each page's og:image (FR-83), so a missing share image fails the
+				// build. Before `npm run cards` there are none at all: the build then goes on, and
+				// check-build.js reports every missing image instead (AT-7, decision 90).
+				handleHttpError: ({ path, status, message }) => {
+					const image = path.startsWith(`${basePath}/${SHARE_DIR}/`);
+					if (image && status === 404 && !existsSync(`${shareSource}manifest.json`)) return;
+					throw new Error(message);
+				}
+			},
 			// Small stylesheets go inline, so first paint waits on fewer requests (NFR-2). Inline
 			// styles are allowed by the CSP; scripts and data stay in hashed files (HR-3). Cards
 			// inline all their CSS, so each one is a single file.
