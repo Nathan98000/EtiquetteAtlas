@@ -37,3 +37,17 @@ export function parseSwitch(value) {
 }
 
 export const changeModule = parseSwitch(process.env.CHANGE_MODULE);
+
+/**
+ * FR-90, NFR-31, NFR-32: the Cloudflare Web Analytics beacon, the one third party the site
+ * contacts. `src/app.html` carries the snippet on every page; the CSP in vite.config.ts allows
+ * exactly these two origins, and check-build.js and the end-to-end tests compare against them.
+ * The token ships in every page, so it is public (docs/SETUP.md).
+ * @type {{ script: string, scriptOrigin: `https://${string}.${string}`, reportOrigin: `https://${string}.${string}`, token: string }}
+ */
+export const analytics = {
+	script: 'https://static.cloudflareinsights.com/beacon.min.js',
+	scriptOrigin: 'https://static.cloudflareinsights.com',
+	reportOrigin: 'https://cloudflareinsights.com',
+	token: '58ded44fdb764340973b62e1e32f48a6'
+};

@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { basePath } from '../site.config.js';
+import { analytics, basePath } from '../site.config.js';
 import { expect, test } from './helpers';
 
 const home = `${basePath}/`;
@@ -46,7 +46,7 @@ test('HR-1, NFR-40: home page renders under the base path with the attribution f
 	);
 });
 
-test('HR-1, HR-3, NFR-31: every request stays under the base path; JS and CSS are hashed', async ({
+test('HR-1, HR-3, NFR-31: every request but the beacon stays under the base path; JS and CSS are hashed', async ({
 	page,
 	baseURL
 }) => {
@@ -61,9 +61,11 @@ test('HR-1, HR-3, NFR-31: every request stays under the base path; JS and CSS ar
 	await page.goto(home, { waitUntil: 'networkidle' });
 
 	const prefix = new URL(home, baseURL).href;
-	expect(requests.filter((url) => !url.startsWith(prefix))).toEqual([]);
+	expect(requests.filter((url) => !url.startsWith(prefix))).toEqual([analytics.script]);
 	expect(failures).toEqual([]);
-	const assets = requests.filter((url) => /\.(js|css)$/.test(new URL(url).pathname));
+	const assets = requests.filter(
+		(url) => url.startsWith(prefix) && /\.(js|css)$/.test(new URL(url).pathname)
+	);
 	expect(assets.length).toBeGreaterThan(0);
 	for (const url of assets) expect(new URL(url).pathname).toMatch(`${basePath}/_app/immutable/`);
 });
@@ -75,8 +77,13 @@ test('HR-7, NFR-32: the CSP comes from a meta tag and nothing violates it', asyn
 	const csp = await page
 		.locator('meta[http-equiv="content-security-policy"]')
 		.getAttribute('content');
-	expect(csp).toMatch(/script-src 'self' 'sha256-[^']+'/);
-	expect(csp).toContain("connect-src 'self'");
+	// Scripts from this origin, hashed inline scripts and the beacon; connections to this origin
+	// and the beacon's reporting host (FR-90).
+	const directive = (name: string) => csp!.match(new RegExp(`${name} ([^;]*)`))![1].split(' ');
+	expect(
+		directive('script-src').filter((s) => s !== "'self'" && !s.startsWith("'sha256-"))
+	).toEqual([analytics.scriptOrigin]);
+	expect(directive('connect-src')).toEqual(["'self'", analytics.reportOrigin]);
 	expect(csp).not.toMatch(/unsafe-eval/);
 	// SvelteKit's hashed inline bootstrap ran, so the app hydrated under the policy.
 	expect(

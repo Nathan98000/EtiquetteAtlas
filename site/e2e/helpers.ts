@@ -1,5 +1,13 @@
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
-import { basePath } from '../site.config.js';
+import { analytics, basePath } from '../site.config.js';
+
+/**
+ * Test runs stay out of the analytics (FR-90, decision 87): every page gets an empty script in
+ * place of the Cloudflare beacon, so nothing reaches Cloudflare, while the request for it still
+ * shows that each page loads it. `BEACON=live` lets the real beacon through, for the checks of
+ * the deployed site after a push (AT-9).
+ */
+export const BEACON_LIVE = process.env.BEACON === 'live';
 
 /**
  * Pages are prerendered, so they show content before the app takes over: a click or keystroke
@@ -8,6 +16,15 @@ import { basePath } from '../site.config.js';
  * sets once the app has mounted (skipped when JavaScript is off or the page loads no app).
  */
 export const test = base.extend({
+	context: async ({ context }, use) => {
+		if (!BEACON_LIVE) {
+			await context.route(analytics.script, (route) =>
+				route.fulfill({ status: 200, contentType: 'text/javascript', body: '' })
+			);
+			await context.route(`${analytics.reportOrigin}/**`, (route) => route.abort());
+		}
+		await use(context);
+	},
 	page: async ({ page, javaScriptEnabled }, use) => {
 		if (javaScriptEnabled !== false) {
 			// Pages without client-side rendering, such as the 404 page, load no app to wait for.

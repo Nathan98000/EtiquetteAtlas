@@ -5,7 +5,7 @@ import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { basePath, changeModule, origin } from './site.config.js';
+import { analytics, basePath, changeModule, origin } from './site.config.js';
 
 // SvelteKit hashes only the inline scripts it writes itself, so the theme script in app.html
 // (applied before first paint, NFR-30) gets its hash here and the policy keeps out
@@ -73,13 +73,14 @@ export default defineConfig({
 			},
 			// Prerendered pages receive the policy as a <meta> tag with hashes for SvelteKit's
 			// inline scripts, because GitHub Pages cannot send headers (HR-7, NFR-32). Scripts and
-			// connections stay on this origin; the analytics beacon's hosts are added in M2.
+			// connections stay on this origin, except the analytics beacon's script and reporting
+			// hosts, as Cloudflare's FAQ asks for a manually embedded beacon (FR-90).
 			csp: {
 				mode: 'hash',
 				directives: {
 					'default-src': ['self'],
-					'script-src': ['self', ...inlineScripts],
-					'connect-src': ['self'],
+					'script-src': ['self', ...inlineScripts, analytics.scriptOrigin],
+					'connect-src': ['self', analytics.reportOrigin],
 					// Svelte and SvelteKit set inline style attributes; NFR-32 constrains scripts
 					// and connections only.
 					'style-src': ['self', 'unsafe-inline'],

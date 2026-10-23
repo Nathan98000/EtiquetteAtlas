@@ -1,6 +1,7 @@
 // Checks the static artifact in build/ after `npm run build`, one line per problem:
 // HR-1 base path, HR-2 index.html and 404.html at the root, HR-3 content-hashed JS, CSS and data,
-// HR-4/NFR-5 size limits, HR-7/NFR-32 CSP meta tag, NFR-31 no third-party resources,
+// HR-4/NFR-5 size limits, HR-7/NFR-32 CSP meta tag, NFR-31 no third-party resources but the
+// analytics beacon, FR-90 the beacon on every page,
 // NFR-40/AT-5 attribution footer on every page, FR-83 title, description and canonical URL,
 // NFR-1 first-load budgets per kind of route, which it also reports, AT-4/C-6 aggregates only for
 // the 2000–2003 comparison, and R-6: with CHANGE_MODULE=off, nothing of the change module.
@@ -8,7 +9,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { basePath, changeModule } from '../site.config.js';
+import { analytics, basePath, changeModule } from '../site.config.js';
 
 const root = resolve(import.meta.dirname, '..', 'build');
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -118,6 +119,10 @@ const PROVENANCE = [
 	'https://doi.org/10.17605/OSF.IO/SH4RB'
 ];
 const CHANGE_SOCIETY_PAGES = 26;
+// FR-90: the snippet in src/app.html, as SvelteKit writes it into each page (whitespace collapsed).
+const BEACON_TAG =
+	`<script type="module" src="${analytics.script}" ` +
+	`data-cf-beacon='{"token": "${analytics.token}"}'>`;
 
 /**
  * Every key of a JSON value, at any depth.
@@ -196,10 +201,26 @@ function checkPage(file, html) {
 	if (!csp) {
 		problems.push(`HR-7: ${file} has no Content-Security-Policy meta tag`);
 	} else {
-		const scriptSrc = csp.match(/script-src ([^;]*)/)?.[1] ?? '';
-		if (/unsafe-inline|unsafe-eval|https?:/.test(scriptSrc)) {
-			problems.push(`NFR-32: ${file} allows inline, eval or third-party scripts: ${scriptSrc}`);
+		// NFR-32: this origin, hashed inline scripts and the beacon's script host; connections to
+		// this origin and the beacon's reporting host. Nothing broader.
+		const directive = (/** @type {string} */ name) =>
+			(csp.match(new RegExp(`(?:^|;)\\s*${name} ([^;]*)`))?.[1] ?? '').trim().split(/\s+/);
+		const scripts = directive('script-src');
+		const thirdParty = scripts.filter((s) => s !== "'self'" && !/^'sha256-[^']+'$/.test(s));
+		if (thirdParty.join(' ') !== analytics.scriptOrigin || scripts[0] !== "'self'") {
+			problems.push(`NFR-32: ${file} allows scripts from ${scripts.join(' ')}`);
 		}
+		const connect = directive('connect-src').join(' ');
+		if (connect !== `'self' ${analytics.reportOrigin}`) {
+			problems.push(`NFR-32: ${file} allows connections to ${connect}`);
+		}
+	}
+	// FR-90: the beacon on every page, the 404 page included, exactly as Cloudflare gave it.
+	const beacons = (html.match(/<script\b[^>]*\bsrc="https:[^"]*"[^>]*>/g) ?? []).filter(
+		(tag) => tag.replace(/\s+/g, ' ').replace(' >', '>') === BEACON_TAG
+	);
+	if (beacons.length !== 1) {
+		problems.push(`FR-90: ${file} does not load the analytics beacon exactly once`);
 	}
 	for (const text of ATTRIBUTION) {
 		if (!html.includes(text)) problems.push(`NFR-40: ${file} lacks attribution text ${text}`);
@@ -214,9 +235,11 @@ function checkPage(file, html) {
 			problems.push(`FR-83: ${file} has no canonical URL`);
 		}
 	}
-	const external = html.match(
-		/<(?:script|img|iframe|source|audio|video)\b[^>]*\bsrc="https?:[^"]*"|<link\b(?=[^>]*\brel="(?:stylesheet|modulepreload|preload|icon)")[^>]*\bhref="https?:[^"]*"/g
-	);
+	const external = html
+		.replace(beacons[0] ?? BEACON_TAG, '')
+		.match(
+			/<(?:script|img|iframe|source|audio|video)\b[^>]*\bsrc="https?:[^"]*"|<link\b(?=[^>]*\brel="(?:stylesheet|modulepreload|preload|icon)")[^>]*\bhref="https?:[^"]*"/g
+		);
 	for (const tag of external ?? [])
 		problems.push(`NFR-31: ${file} loads a third-party resource: ${tag}`);
 	for (const [, url] of html.matchAll(/\b(?:src|href)="(\/[^"]*)"/g)) {
