@@ -85,6 +85,12 @@ test('FR-91, C-12, decision 94: nothing sent to the analytics carries a quiz ans
 	if (BEACON_LIVE) await page.waitForTimeout(1500);
 
 	expect(reports.length).toBeGreaterThan(0);
+	if (BEACON_LIVE) {
+		// The beacon did report, and named the page by its path alone.
+		const sent = reports.filter((report) => report.startsWith(analytics.reportOrigin));
+		expect(sent.length).toBeGreaterThan(0);
+		expect(sent.some((report) => report.includes(`${basePath}/explore/`))).toBe(true);
+	}
 	for (const report of reports) {
 		expect(report).not.toMatch(/extremely appropriate|eat\/restaurant|etiquette-atlas:quiz/);
 		expect(report).not.toMatch(/\b(society|sample|scale|compare)=/);
