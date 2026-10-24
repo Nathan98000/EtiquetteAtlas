@@ -10,7 +10,6 @@
 		globalChange,
 		societiesSummary,
 		societyStrip,
-		societyStripSummary,
 		subjectOf,
 		VERDICT,
 		type StripRow
@@ -63,9 +62,7 @@
 	const behaviors = $derived(file ? behaviorStrip(file) : undefined);
 
 	// Until the browser has the data, the prerendered All-data text stands in (FR-87, decision 74).
-	const summary = $derived(
-		arrows && strip ? `${changeSummary(scope, arrows, n)} ${societiesSummary(strip)}` : data.summary
-	);
+	const summary = $derived(arrows ? changeSummary(scope, arrows, n) : data.summary);
 	const others = $derived(
 		file && societies.current ? societies.current.count(vs.sample) - file.codes.length : null
 	);
@@ -110,7 +107,7 @@
 		<!-- FR-53: say so, and show the societies in both surveys instead. -->
 		<p class="notice" role="status">
 			The 2000–2003 survey did not include {place(missing.code, missing.name)}, so this page shows {together}.
-			<a href={changeHref(null, vs)}>Clear the society</a>
+			<a href={changeHref(null, vs)}>Show all {n} societies</a>
 		</p>
 	{/if}
 
@@ -131,7 +128,7 @@
 		<ChartFrame
 			id="societies-strip"
 			title="Each society, averaged over its pairs"
-			summary={strip ? societyStripSummary(strip) : data.societySummary}
+			summary={strip ? societiesSummary(strip) : data.societySummary}
 			about={resolve('method/#change')}
 		>
 			{#snippet chart()}

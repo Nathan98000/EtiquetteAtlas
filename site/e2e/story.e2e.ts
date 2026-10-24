@@ -62,7 +62,7 @@ test.describe('FR-64: the guided story', () => {
 		await change.scrollIntoViewIfNeeded();
 		await expect(change).toContainText('the largest of the 120 pairs both surveys asked');
 		await expect(
-			change.getByRole('complementary', { name: 'Two surveys, about 20 years apart' })
+			change.getByRole('complementary', { name: 'About the two surveys' })
 		).toBeVisible();
 		await expect(change.locator('#story-change-rows > li')).toHaveCount(25);
 		await change.getByRole('button', { name: 'Show all 26 societies' }).click();

@@ -20,7 +20,6 @@ import {
 	societyChange,
 	societyStrip,
 	societyArrows,
-	societyStripSummary,
 	valuesText,
 	type ChangeScope
 } from './change-model';
@@ -135,18 +134,18 @@ describe('decision 67: orders', () => {
 describe('FR-51, FR-52, FR-73: summaries', () => {
 	it('counts one society’s pairs as differences between surveys', () => {
 		expect(changeSummary(japan, jpn, 2)).toBe(
-			'Of the 119 pairs both surveys asked, respondents in Japan in 2023–2024 judged 118 clearly ' +
-				'more appropriate than respondents there in 2000–2003 and 1 clearly less; 0 were too ' +
-				'close to call.'
+			'Of the 119 pairs of a behavior and a situation that both surveys asked, respondents in ' +
+				'Japan in 2023–2024 judged 118 clearly more appropriate than respondents there in ' +
+				'2000–2003 and 1 clearly less; 0 were too close to call.'
 		);
 	});
 
 	it('names the societies in both surveys, never all societies', () => {
 		const text = changeSummary({ kind: 'global' }, globalChange(file), 2);
 		expect(text).toBe(
-			'Averaged over the 2 societies in both surveys, 60 of the 120 pairs were judged clearly ' +
-				'more appropriate in 2023–2024 than in 2000–2003 and 59 clearly less; 1 was too close to ' +
-				'call.'
+			'Averaged over the 2 societies in both surveys, 60 of the 120 pairs of a behavior and a ' +
+				'situation were judged clearly more appropriate in 2023–2024 than in 2000–2003 and 59 ' +
+				'clearly less; 1 was too close to call.'
 		);
 		expect(text).not.toMatch(/all societies|became|because|changed/i);
 	});
@@ -170,10 +169,7 @@ describe('NFR-11: the strips and table', () => {
 			'On average over their pairs, respondents in 1 of the 2 societies judged the pairs clearly ' +
 				'more appropriate in 2023–2024 and in 0 clearly less; 1 was too close to call.'
 		);
-		expect(societyStripSummary(strip)).toBe(
-			'Averaged over their pairs, differences run from +0.1 among respondents in the United ' +
-				'Kingdom to +0.2 among respondents in Japan.'
-		);
+		expect(societiesSummary([])).toBe('No society is in both surveys in this sample.');
 	});
 
 	it('orders behaviors by their mean difference, with societies above 0', () => {

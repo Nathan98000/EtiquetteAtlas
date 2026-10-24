@@ -12,7 +12,7 @@ import {
 
 const details = (page: Page) => page.getByRole('complementary', { name: 'Details' });
 const rows = (page: Page) => page.locator('#arrows-rows > li');
-const PROVENANCE = 'Two surveys, about 20 years apart';
+const PROVENANCE = 'About the two surveys';
 
 /** The differences after each row's track, as numbers. */
 async function gaps(page: Page): Promise<number[]> {
@@ -42,15 +42,21 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		);
 		// FR-51, D-4: how sure in words, as surveys judged them, never "became".
 		await expect(page.locator('.lede')).toHaveText(
-			'Averaged over the 26 societies in both surveys, 63 of the 120 pairs were judged clearly ' +
-				'more appropriate in 2023–2024 than in 2000–2003 and 46 clearly less; 11 were too close ' +
-				'to call. On average over their pairs, respondents in 13 of the 26 societies judged the ' +
-				'pairs clearly more appropriate in 2023–2024 and in 6 clearly less; 7 were too close to ' +
-				'call.'
+			'Averaged over the 26 societies in both surveys, 63 of the 120 pairs of a behavior and a ' +
+				'situation were judged clearly more appropriate in 2023–2024 than in 2000–2003 and 46 ' +
+				'clearly less; 11 were too close to call.'
+		);
+		// D-18: the societies' counts moved from the lede to their strip's summary.
+		await expect(page.locator('#societies-strip-summary')).toHaveText(
+			'On average over their pairs, respondents in 13 of the 26 societies judged the pairs ' +
+				'clearly more appropriate in 2023–2024 and in 6 clearly less; 7 were too close to call.'
 		);
 		// FR-52, NFR-41.
 		const note = page.getByRole('complementary', { name: PROVENANCE });
 		await expect(note).toContainText('not a change in anyone');
+		// D-18: the rest is one click away, in the page and its text, never removed.
+		await expect(note.getByText('Only summaries of the 2000–2003 survey are shown')).toBeHidden();
+		await note.getByText('About the 2000–2003 data').click();
 		await expect(note).toContainText('Only summaries of the 2000–2003 survey are shown');
 		await expect(note.getByRole('link', { name: /^Gelfand et al\. \(2011\)/ })).toHaveAttribute(
 			'href',
@@ -130,9 +136,9 @@ test.describe('FR-50: a society’s page', () => {
 			'Respondents in Japan in 2000–2003 and 2023–2024'
 		);
 		await expect(page.locator('.lede')).toHaveText(
-			'Of the 120 pairs both surveys asked, respondents in Japan in 2023–2024 judged 22 clearly ' +
-				'more appropriate than respondents there in 2000–2003 and 38 clearly less; 60 were too ' +
-				'close to call.'
+			'Of the 120 pairs of a behavior and a situation that both surveys asked, respondents in ' +
+				'Japan in 2023–2024 judged 22 clearly more appropriate than respondents there in ' +
+				'2000–2003 and 38 clearly less; 60 were too close to call.'
 		);
 		await expect(page.getByRole('complementary', { name: PROVENANCE })).toBeVisible();
 		await expect(page.locator('.facts')).toContainText('2000–2003 survey');
@@ -155,7 +161,9 @@ test.describe('FR-50: a society’s page', () => {
 
 	test('Israel: 119 pairs, the missing one set apart', async ({ page }) => {
 		await page.goto(url('change/isr/'));
-		await expect(page.locator('.lede')).toHaveText(/^Of the 119 pairs both surveys asked/);
+		await expect(page.locator('.lede')).toHaveText(
+			/^Of the 119 pairs of a behavior and a situation that both surveys asked/
+		);
 		await arrowsReady(page);
 		await page.getByText('1 pair not shown').click();
 		await expect(
@@ -185,7 +193,7 @@ test.describe('FR-53: a society without 2000–2003 data', () => {
 			'Averaged over the 26 societies in both surveys, pair by pair'
 		);
 		await arrowsReady(page);
-		await page.getByRole('link', { name: 'Clear the society' }).click();
+		await page.getByRole('link', { name: 'Show all 26 societies' }).click();
 		await expect(page).toHaveURL(/\/change\/$/);
 		await expect(page.getByRole('status').filter({ hasText: 'did not include' })).toHaveCount(0);
 	});
@@ -203,7 +211,7 @@ test.describe('FR-53: a society without 2000–2003 data', () => {
 		await page.getByRole('button', { name: 'Show all respondents' }).click();
 		await expect(page).toHaveURL(/\/change\/kor\/$/);
 		await expect(page.locator('.lede')).toHaveText(
-			/^Of the 120 pairs both surveys asked, respondents in South Korea/
+			/^Of the 120 pairs of a behavior and a situation that both surveys asked, respondents in South Korea/
 		);
 	});
 });

@@ -5,8 +5,7 @@ import {
 	changeSummary,
 	globalChange,
 	societiesSummary,
-	societyStrip,
-	societyStripSummary
+	societyStrip
 } from '#lib/charts/change-model.ts';
 import { changeAll } from '#lib/server/change.ts';
 import { societies } from '#lib/server/derived.ts';
@@ -20,9 +19,10 @@ export const load: PageServerLoad = () => {
 	const n = changeAll.codes.length;
 	const strip = societyStrip(changeAll, (code) => societies.get(code)?.name ?? code);
 	return {
-		summary: `${changeSummary(scope, view, n)} ${societiesSummary(strip)}`,
+		// D-18: the lede is one sentence; the societies' counts are the strip's summary.
+		summary: changeSummary(scope, view, n),
 		chartSummary: changeChartSummary(scope, view, n),
-		societySummary: societyStripSummary(strip),
+		societySummary: societiesSummary(strip),
 		behaviorSummary: behaviorStripSummary(behaviorStrip(changeAll), n)
 	};
 };

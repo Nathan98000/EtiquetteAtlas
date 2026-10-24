@@ -163,13 +163,15 @@ export function changeSummary(scope: ChangeScope, view: ChangeView, societies: n
 	const close = `${c.within} ${were(c.within)} too close to call`;
 	if (scope.kind === 'society') {
 		return (
-			`Of the ${c.shown} pairs both surveys asked, ${subjectOf(scope, societies)} in 2023–2024 ` +
+			`Of the ${c.shown} pairs of a behavior and a situation that both surveys asked, ` +
+			`${subjectOf(scope, societies)} in 2023–2024 ` +
 			`judged ${c.higher} clearly more appropriate than respondents there in 2000–2003 and ` +
 			`${c.lower} clearly less; ${close}.`
 		);
 	}
 	return (
-		`Averaged over ${subjectOf(scope, societies)}, ${c.higher} of the ${c.shown} pairs ` +
+		`Averaged over ${subjectOf(scope, societies)}, ${c.higher} of the ${c.shown} pairs of a ` +
+		`behavior and a situation ` +
 		`${were(c.higher)} judged clearly more appropriate in 2023–2024 than in 2000–2003 and ` +
 		`${c.lower} clearly less; ${close}.`
 	);
@@ -317,23 +319,12 @@ export function behaviorStrip(file: ChangeCells): StripRow[] {
  * less; 7 were too close to call."
  */
 export function societiesSummary(strip: readonly StripRow[]): string {
+	if (!strip.length) return 'No society is in both surveys in this sample.';
 	const c = changeCounts(strip);
 	return (
 		`On average over their pairs, respondents in ${c.higher} of the ${c.shown} societies judged ` +
 		`the pairs clearly more appropriate in 2023–2024 and in ${c.lower} clearly less; ` +
 		`${c.within} ${were(c.within)} too close to call.`
-	);
-}
-
-/** NFR-11: the societies strip in one sentence. */
-export function societyStripSummary(strip: readonly StripRow[]): string {
-	if (!strip.length) return 'No society is in both surveys in this sample.';
-	const high = strip[0];
-	const low = strip[strip.length - 1];
-	return (
-		`Averaged over their pairs, differences run from ${score(low.diff.value)} among ` +
-		`respondents in ${place(low.key, low.label)} to ${score(high.diff.value)} among ` +
-		`respondents in ${place(high.key, high.label)}.`
 	);
 }
 
