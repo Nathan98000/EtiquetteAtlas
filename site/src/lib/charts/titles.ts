@@ -20,7 +20,7 @@ export function pairsTitle(means: readonly number[]): string {
 }
 
 /** Subtitles fit one line on a phone; the legends say the rest (D-23). */
-export const PAIRS_SUBTITLE = 'Each square: a behavior in a situation';
+export const PAIRS_SUBTITLE = 'Each behavior in each situation';
 
 /** A beeswarm: how far the societies' averages run, in the response labels. */
 export function rangeTitle(values: readonly number[]): string {
@@ -68,7 +68,7 @@ export function fingerprintTitle(counts: {
 	return `Clearly looser than the global average on ${pairs(counts.looser)}, clearly stricter on ${counts.stricter}`;
 }
 
-export const FINGERPRINT_SUBTITLE = 'Each square: a behavior in a situation';
+export const FINGERPRINT_SUBTITLE = 'Each behavior in each situation, against the global average';
 
 /** A comparison: the pair with the largest gap between the two societies' respondents. */
 export function compareTitle(largest: Cell | undefined): string {
