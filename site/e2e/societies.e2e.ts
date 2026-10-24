@@ -153,6 +153,9 @@ test.describe('FR-17: below 640 px the fingerprint is a list', () => {
 	test('150 cells with bars, largest differences first when sorted so', async ({ page }) => {
 		await page.goto(`${chile}?sort=difference`);
 		const list = page.getByRole('list', { name: /compared with the global average$/ });
+		// D-20: the first 25 rows, then all 150 on request, so similar societies stay near.
+		await expect(list.getByRole('listitem')).toHaveCount(25);
+		await page.getByRole('button', { name: 'Show all 150 pairs' }).tap();
 		await expect(list.getByRole('listitem')).toHaveCount(150);
 		await expect(list.getByRole('button', { name: 'Loading' })).toHaveCount(0);
 		await expect(page.getByRole('grid')).toBeHidden();
@@ -205,6 +208,18 @@ test('FR-32, decision 53: societies without pairs or cells say so plainly', asyn
 		'No pair was rated by 10 or more respondents in Mongolia, so none can be shown.'
 	);
 	await expect(page.getByRole('grid')).toHaveCount(0);
+	// D-36: one block, with the region's other societies, instead of an empty chart, its sort,
+	// table and comparison.
+	const block = page.locator('.empty-state');
+	await expect(block).toContainText(/^Other societies in Asia: Armenia, /);
+	await expect(block.getByRole('link', { name: 'Japan' })).toHaveAttribute(
+		'href',
+		/\/societies\/jpn\/$/
+	);
+	for (const gone of ['#fingerprint-title', '#compare', 'main select']) {
+		await expect(page.locator(gone)).toHaveCount(0);
+	}
+	await expect(page.locator('details.facts')).toBeAttached();
 	// Kuwait is outside the paper's sample (§4.4).
 	await page.goto(url('societies/kwt/?sample=paper'));
 	await expect(page.locator('.lede')).toHaveText(
@@ -219,7 +234,10 @@ test('FR-34: the facts panel shows respondents, students, languages, fieldwork a
 	page
 }) => {
 	await page.goto(chile);
-	const facts = page.getByRole('region', { name: 'About these respondents' });
+	const facts = page.locator('details.facts');
+	// D-20: collapsed under "About these N respondents", in the page all the same.
+	await expect(facts.locator('summary')).toHaveText(/^About these \d+ respondents$/);
+	await facts.locator('summary').click();
 	await expect(facts).toContainText('Respondents');
 	await expect(facts).toContainText('Spanish');
 	await expect(facts).toContainText(
@@ -238,7 +256,7 @@ test('FR-34: the facts panel shows respondents, students, languages, fieldwork a
 	await expect(facts).toContainText("Respondents (the paper's sample)");
 	// Decision 17: Mauritius has no month with 10 respondents starting in the paper's sample.
 	await page.goto(url('societies/mus/?sample=paper'));
-	await expect(page.getByRole('region', { name: 'About these respondents' })).toContainText(
+	await expect(page.locator('details.facts')).toContainText(
 		'not shown: fewer than 10 respondents started in any one month'
 	);
 });
@@ -378,13 +396,21 @@ test.describe('FR-87: without JavaScript', () => {
 		await expect(page.locator('main noscript p').first()).toContainText(
 			'The fingerprint chart needs JavaScript.'
 		);
-		await expect(page.getByRole('region', { name: 'About these respondents' })).toContainText(
-			'Respondents'
-		);
+		await expect(page.locator('details.facts')).toContainText('Respondents');
 		await expect(
 			page.getByRole('region', { name: 'Most similar answers' }).getByRole('listitem')
 		).toHaveCount(5);
 		await page.goto(url('societies/'));
 		await expect(page.locator('.lede')).toHaveText(/^Respondents in 90 societies took part/);
 	});
+});
+
+test('D-21: "Compare with…" by the title opens the comparison\'s picker', async ({ page }) => {
+	await page.goto(chile);
+	await matrixReady(page);
+	await page.getByRole('link', { name: 'Compare with…' }).click();
+	await expect(page.getByRole('combobox', { name: 'Compare with' })).toBeFocused();
+	await page.keyboard.type('Peru');
+	await page.keyboard.press('Enter');
+	await expect(page).toHaveURL(/\/societies\/chl\/\?compare=per$/);
 });

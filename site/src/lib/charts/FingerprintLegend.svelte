@@ -8,36 +8,43 @@
 	interface Props {
 		/** Undefined while the data loads; the legend keeps its size. */
 		counts: FingerprintCounts | undefined;
+		/** The fill's key above the chart, or the marks and their counts under it (D-23). */
+		part: 'fill' | 'marks';
 	}
 
-	let { counts }: Props = $props();
+	let { counts, part }: Props = $props();
 
 	const max = DEVIATION_MAX.toFixed(1);
 	const missing = $derived(counts ? counts.tooFew + counts.notAsked : 0);
 </script>
 
-<div class="legend">
-	<div class="item">
-		<p class="key">Difference from the global average (fill)</p>
-		<Ramp ends={[`${signed(-DEVIATION_MAX)} or less: stricter`, '0', `+${max} or more: looser`]} />
-	</div>
-	<!-- FR-31: the marks, with how many pairs carry each. Rendered before the data arrives, so the
-	     grid below does not shift. -->
-	<ul class="item marks">
-		<li>
-			<span class="glyph" aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more
-			appropriate): <span class="num">{counts?.looser ?? '…'}</span>
-		</li>
-		<li>
-			<span class="glyph" aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter (less
-			appropriate): <span class="num">{counts?.stricter ?? '…'}</span>
-		</li>
-		<li>no mark: too close to call: <span class="num">{counts?.close ?? '…'}</span></li>
-		<li>
-			<span class="missing" aria-hidden="true">{MARK_GLYPH.missing}</span> too few responses or not
-			asked: <span class="num">{counts ? missing : '…'}</span>
-		</li>
-	</ul>
+<div class="legend" class:under={part === 'marks'}>
+	{#if part === 'fill'}
+		<div class="item">
+			<p class="key">Difference from the global average (fill)</p>
+			<Ramp
+				ends={[`${signed(-DEVIATION_MAX)} or less: stricter`, '0', `+${max} or more: looser`]}
+			/>
+		</div>
+	{:else}
+		<!-- FR-31: the marks, with how many pairs carry each. Rendered before the data arrives, so
+		     nothing shifts. -->
+		<ul class="item marks">
+			<li>
+				<span class="glyph" aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more
+				appropriate): <span class="num">{counts?.looser ?? '…'}</span>
+			</li>
+			<li>
+				<span class="glyph" aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter (less
+				appropriate): <span class="num">{counts?.stricter ?? '…'}</span>
+			</li>
+			<li>no mark: too close to call: <span class="num">{counts?.close ?? '…'}</span></li>
+			<li>
+				<span class="missing" aria-hidden="true">{MARK_GLYPH.missing}</span> too few responses or
+				not asked: <span class="num">{counts ? missing : '…'}</span>
+			</li>
+		</ul>
+	{/if}
 </div>
 
 <style>
@@ -47,6 +54,10 @@
 		gap: 0.75rem 2rem;
 		margin-bottom: 1rem;
 		font-size: var(--text-sm);
+	}
+
+	.legend.under {
+		margin: 0.75rem 0 0;
 	}
 
 	.item {

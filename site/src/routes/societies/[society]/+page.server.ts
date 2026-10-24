@@ -27,9 +27,19 @@ export const load: PageServerLoad = ({ params }) => {
 	const counts = fingerprintCounts(model);
 	const similar = similarView(similarityAll, societies, society.code);
 	const closest = similar[0] ? respondentsIn(similar[0].code, similar[0].name) : null;
+	// D-36: a society with nothing to draw links to the others in its region (two such societies).
+	const peers =
+		counts.shown === 0
+			? societies.list
+					.filter((s) => s.region === society.region && s.code !== society.code)
+					.sort((a, b) => a.name.localeCompare(b.name, 'en'))
+					.map((s) => ({ code: s.code, name: s.name }))
+			: [];
 	return {
 		code: society.code,
 		name: society.name,
+		region: society.region,
+		peers,
 		empty: counts.shown === 0,
 		summary: fingerprintSummary(who, counts, 'raw', closest),
 		chartSummary: fingerprintChartSummary(who, model, 'raw'),

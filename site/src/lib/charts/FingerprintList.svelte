@@ -17,6 +17,9 @@
 	}
 
 	let { cells, order, scale, who, href }: Props = $props();
+
+	/** D-20: the first rows, then "Show all", so similar societies and facts stay near (decision 54). */
+	const FIRST = 25;
 </script>
 
 <!-- FR-17, FR-30: below 640 px the fingerprint is a list of the 150 cells, each with its
@@ -31,6 +34,7 @@
 	max={DEVIATION_MAX}
 	valueText={(cell) => (cell.deviation === null ? '' : score(cell.deviation))}
 	{href}
+	limit={FIRST}
 >
 	{#snippet marks(cell)}
 		<span class="mark">{MARK_GLYPH[cell.mark]}</span>

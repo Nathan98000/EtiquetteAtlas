@@ -96,7 +96,7 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 	await page.goto(url('societies/chl/'));
 	await matrixReady(page);
 	const box = page.getByRole('combobox', { name: 'Society' });
-	const facts = page.getByRole('region', { name: 'About these respondents' });
+	const facts = page.locator('details.facts');
 	const similar = page.getByRole('region', { name: 'Most similar answers' });
 	const lede = page.locator('.lede');
 	await expect(box).toHaveValue('Chile');
@@ -170,15 +170,15 @@ test('NFR-13: by keyboard alone, pick a society, read its fingerprint and open a
 	expect(inGrid, 'Tab reaches the grid').toBe(true);
 	await page.keyboard.press('ArrowDown');
 	await expect(page.getByRole('complementary')).toContainText('Difference from the global average');
-	// Shift+Tab back to the similar societies, which come before the grid.
+	// Tab on to the similar societies, which come after the fingerprint (D-20).
 	let onSimilar = false;
 	for (let i = 0; i < 20 && !onSimilar; i++) {
-		await page.keyboard.press('Shift+Tab');
+		await page.keyboard.press('Tab');
 		onSimilar = await page.evaluate(
 			() => !!document.activeElement?.closest('[aria-labelledby="similar-title"] li a.name')
 		);
 	}
-	expect(onSimilar, 'Shift+Tab reaches a similar society').toBe(true);
+	expect(onSimilar, 'Tab reaches a similar society').toBe(true);
 	const name = (await page.locator(':focus').textContent())!.trim();
 	await page.keyboard.press('Enter');
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText(new RegExp(`${name}$`));

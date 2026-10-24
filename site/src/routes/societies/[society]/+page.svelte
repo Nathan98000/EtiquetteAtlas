@@ -146,6 +146,16 @@
 	const compareHref = (other: string) =>
 		`${fingerprintHref({ ...vs, compare: other })}#compare` as ResolvedPathname;
 
+	// D-21: "Compare with…" scrolls to the comparison and puts the cursor in its picker.
+	function openCompare(event: MouseEvent) {
+		const input = document.querySelector<HTMLInputElement>('#compare [role="combobox"]');
+		if (!input) return;
+		event.preventDefault();
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		document.getElementById('compare')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+		input.focus({ preventScroll: true });
+	}
+
 	function previewCell(cell: number | null) {
 		if (cell !== null) shown = cell;
 	}
@@ -182,14 +192,20 @@
 <Seo
 	{title}
 	description="Where {who} judged 15 everyday behaviors in 10 situations more or less appropriate than the global average, whose answers were most alike, and who took part."
-	imageAlt="A grid of the 150 behavior–situation pairs coloured by how far the answers of {who} lie from the global average, orange stricter and blue looser, with ▲ and ▼ where they are notably looser or stricter. {data.summary}"
+	imageAlt="A grid of the 150 behavior–situation pairs coloured by how far the answers of {who} lie from the global average, orange stricter and blue looser, with ▲ and ▼ where they are clearly looser or stricter. {data.summary}"
 />
 
 <div class="society-page">
 	<nav class="crumbs" aria-label="Breadcrumb">
 		<a href={societyHref(null, vs)}>All societies</a>
 	</nav>
-	<h1>{title}</h1>
+	<div class="title-row">
+		<h1>{title}</h1>
+		<!-- D-21: the comparison is at the foot of a long page; this opens its picker. -->
+		{#if !empty && !outside}
+			<a class="button needs-js" href="#compare" onclick={openCompare}>Compare with…</a>
+		{/if}
+	</div>
 	<p class="lede">{summary}</p>
 	<noscript>
 		<p>The fingerprint chart needs JavaScript.</p>
@@ -201,88 +217,103 @@
 		{/if}
 	{/each}
 
-	<!-- Facts and similar societies come first, so a phone's 150-row list does not bury them
-	     (decision 54). -->
-	<div class="cards">
-		<FactsPanel {facts} />
-		<SimilarList
-			{similar}
-			empty={outside ? 'not-in-sample' : 'no-pairs'}
-			href={otherHref}
-			{compareHref}
-		/>
-	</div>
-
-	<div class="layout">
-		<ChartFrame
-			id="fingerprint"
-			title="Compared with the global average, {CELL_COUNT} pairs"
-			summary={chartSummary}
-			about={resolve('method/#fingerprint')}
-			centered={vs.scale === 'centered'}
-			explain={CENTERING}
-		>
-			{#snippet controls()}
-				<SortSelect
-					keys={FINGERPRINT_SORT_KEYS}
-					value={vs.sort}
-					onchange={(sort) => setView({ sort })}
-				/>
-			{/snippet}
-			{#snippet legend()}
-				{#if !empty && !outside}<FingerprintLegend {counts} />{/if}
-			{/snippet}
-			{#snippet chart()}
-				{#if outside}
-					<SampleNotice text={outsideText} />
-				{:else if empty}
-					<!-- Decision 53: nothing to draw. -->
-					<p class="notice">
-						Every pair was rated by fewer than 10 {who}, so no difference can be shown. Their facts
-						are above.
-					</p>
-				{:else}
-					<div class="grid-view">
-						<Fingerprint
-							cells={model}
-							rows={order.rows}
-							columns={order.columns}
-							scale={vs.scale}
-							{who}
-							{href}
-							onpreview={previewCell}
-							describedBy="fingerprint-summary"
-						/>
-					</div>
-					<div class="list-view">
-						<FingerprintList cells={model} order={list} scale={vs.scale} {who} {href} />
-					</div>
-				{/if}
-			{/snippet}
-			{#snippet table()}
-				{#if model}
-					<FingerprintTable cells={model} order={list} scale={vs.scale} {who} />
-				{:else}
-					<p>{outside ? outsideText : 'No values to show.'}</p>
-				{/if}
-			{/snippet}
-		</ChartFrame>
-
-		<aside class="panel" aria-labelledby="details-title">
-			<h2 id="details-title">Details</h2>
-			{#if model && shown !== null}
-				<FingerprintDetails cell={model[shown]} scale={vs.scale} {who} />
-				<p class="open">
-					<a href={href(shown)}>See every society for this pair</a>
+	{#if empty && !outside}
+		<!-- D-36: nothing to draw, so one block instead of an empty chart with its controls. -->
+		<div class="empty-state">
+			{#if data.peers.length}
+				<p>
+					Other societies in {data.region === 'West' ? 'the West' : data.region}:
+					{#each data.peers as peer, i (peer.code)}{i ? ', ' : ''}<a
+							href={societyHref(peer.code, vs)}>{peer.name}</a
+						>{/each}.
 				</p>
 			{:else}
-				<p>
-					Point at a square, or move to it with the arrow keys, to see how {who} compare with the global
-					average. Select it to see every society for that pair.
-				</p>
+				<p><a href={societyHref(null, vs)}>All societies</a></p>
 			{/if}
-		</aside>
-	</div>
+		</div>
+		<FactsPanel {facts} />
+	{:else}
+		<div class="layout">
+			<ChartFrame
+				id="fingerprint"
+				title="Compared with the global average, {CELL_COUNT} pairs"
+				summary={chartSummary}
+				about={resolve('method/#fingerprint')}
+				centered={vs.scale === 'centered'}
+				explain={CENTERING}
+			>
+				{#snippet controls()}
+					<SortSelect
+						keys={FINGERPRINT_SORT_KEYS}
+						value={vs.sort}
+						onchange={(sort) => setView({ sort })}
+					/>
+				{/snippet}
+				{#snippet legend()}
+					{#if !empty && !outside}<FingerprintLegend {counts} part="fill" />{/if}
+				{/snippet}
+				<!-- D-23: the marks' key, with counts, under the chart, so the chart starts higher. -->
+				{#snippet below()}
+					{#if !empty && !outside}<FingerprintLegend {counts} part="marks" />{/if}
+				{/snippet}
+				{#snippet chart()}
+					{#if outside}
+						<SampleNotice text={outsideText} />
+					{:else}
+						<div class="grid-view">
+							<Fingerprint
+								cells={model}
+								rows={order.rows}
+								columns={order.columns}
+								scale={vs.scale}
+								{who}
+								{href}
+								onpreview={previewCell}
+								describedBy="fingerprint-summary"
+							/>
+						</div>
+						<div class="list-view">
+							<FingerprintList cells={model} order={list} scale={vs.scale} {who} {href} />
+						</div>
+					{/if}
+				{/snippet}
+				{#snippet table()}
+					{#if model}
+						<FingerprintTable cells={model} order={list} scale={vs.scale} {who} />
+					{:else}
+						<p>{outside ? outsideText : 'No values to show.'}</p>
+					{/if}
+				{/snippet}
+			</ChartFrame>
+
+			<aside class="panel" aria-labelledby="details-title">
+				<h2 id="details-title">Details</h2>
+				{#if model && shown !== null}
+					<FingerprintDetails cell={model[shown]} scale={vs.scale} {who} />
+					<p class="open">
+						<a href={href(shown)}>See every society for this pair</a>
+					</p>
+				{:else}
+					<p>
+						Point at a square, or move to it with the arrow keys, to see how {who} compare with the global
+						average. Select it to see every society for that pair.
+					</p>
+				{/if}
+			</aside>
+		</div>
+
+		<!-- D-20: similar societies after the fingerprint, then the facts, collapsed; a phone's list
+		     shows its first rows, so neither is buried (decision 54 amended). -->
+		<div class="cards">
+			<SimilarList
+				{similar}
+				empty={outside ? 'not-in-sample' : 'no-pairs'}
+				href={otherHref}
+				{compareHref}
+			/>
+			<FactsPanel {facts} />
+		</div>
+	{/if}
 
 	<!-- The same society in the audiences module (decision 57) and, for the 26 societies in both
 	     surveys, in the change module (decision 67). -->
@@ -299,80 +330,82 @@
 		</p>
 	{/if}
 
-	<!-- FR-33: compare mode, two societies cell by cell (decision 49). -->
-	<section id="compare" class="compare needs-js" aria-labelledby="compare-title">
-		<h2 id="compare-title">Compare with another society</h2>
-		<p class="hint">
-			Both societies' estimates{vs.scale === 'centered' ? `, ${RELATIVE},` : ''} for every pair they can
-			both show, largest gaps first.
-		</p>
-		<div class="compare-picker">
-			<SocietyPicker
-				societies={societies.current}
-				selected={other?.code ?? null}
-				sample={vs.sample}
-				exclude={code}
-				label="Compare with"
-				clearLabel="Stop comparing"
-				onselect={(c) => setView({ compare: c })}
-			/>
-		</div>
-		{#if other && !outside}
-			{#if files && otherIndex === undefined}
-				<p class="notice">
-					Respondents in {names[1]} are not in {SAMPLE_PHRASE[vs.sample]}.
-				</p>
-			{:else}
-				<ChartFrame
-					id="dumbbell"
-					title="Respondents in {names[0]} and in {names[1]}, pair by pair"
-					summary={result ? comparisonSummary(pair, result, vs.scale) : 'Loading the comparison…'}
-					about={resolve('method/#compare')}
-					centered={vs.scale === 'centered'}
-				>
-					{#snippet chart()}
-						{#if result && dumbbell}
-							{#await dumbbell}
-								<p class="muted">Loading…</p>
-							{:then { default: Dumbbell }}
-								<Dumbbell
-									id="dumbbell"
-									rows={compareRows(result, names)}
-									unpaired={result.unmatched}
-									key={[
-										{ label: `Respondents in ${names[0]}`, mark: 'dot' },
-										{ label: `Respondents in ${names[1]}`, mark: 'ring' },
-										{ label: 'Global average', mark: 'vtick' }
-									]}
-									label="Pairs both can show, largest gap first"
-									showFirst="Show the 25 largest gaps"
-									showAll="Show all {result.pairs.length} pairs both can show"
-									unpairedLabel="pairs not compared"
-									{href}
+	{#if !empty}
+		<!-- FR-33: compare mode, two societies cell by cell (decision 49). -->
+		<section id="compare" class="compare needs-js" aria-labelledby="compare-title">
+			<h2 id="compare-title">Compare with another society</h2>
+			<p class="hint">
+				Both societies' estimates{vs.scale === 'centered' ? `, ${RELATIVE},` : ''} for every pair they
+				can both show, largest gaps first.
+			</p>
+			<div class="compare-picker">
+				<SocietyPicker
+					societies={societies.current}
+					selected={other?.code ?? null}
+					sample={vs.sample}
+					exclude={code}
+					label="Compare with"
+					clearLabel="Stop comparing"
+					onselect={(c) => setView({ compare: c })}
+				/>
+			</div>
+			{#if other && !outside}
+				{#if files && otherIndex === undefined}
+					<p class="notice">
+						Respondents in {names[1]} are not in {SAMPLE_PHRASE[vs.sample]}.
+					</p>
+				{:else}
+					<ChartFrame
+						id="dumbbell"
+						title="Respondents in {names[0]} and in {names[1]}, pair by pair"
+						summary={result ? comparisonSummary(pair, result, vs.scale) : 'Loading the comparison…'}
+						about={resolve('method/#compare')}
+						centered={vs.scale === 'centered'}
+					>
+						{#snippet chart()}
+							{#if result && dumbbell}
+								{#await dumbbell}
+									<p class="muted">Loading…</p>
+								{:then { default: Dumbbell }}
+									<Dumbbell
+										id="dumbbell"
+										rows={compareRows(result, names)}
+										unpaired={result.unmatched}
+										key={[
+											{ label: `Respondents in ${names[0]}`, mark: 'dot' },
+											{ label: `Respondents in ${names[1]}`, mark: 'ring' },
+											{ label: 'Global average', mark: 'vtick' }
+										]}
+										label="Pairs both can show, largest gap first"
+										showFirst="Show the 25 largest gaps"
+										showAll="Show all {result.pairs.length} pairs both can show"
+										unpairedLabel="pairs not compared"
+										{href}
+									/>
+								{:catch error}
+									<LoadError
+										{error}
+										retry={() => (dumbbell = import('#lib/charts/Dumbbell.svelte'))}
+									/>
+								{/await}
+							{/if}
+						{/snippet}
+						{#snippet table()}
+							{#if result}
+								<CompareTable
+									comparison={result}
+									{names}
+									caption="Respondents in {names[0]} and in {names[1]}{vs.scale === 'centered'
+										? `, ${RELATIVE}`
+										: ''}, largest gap first"
 								/>
-							{:catch error}
-								<LoadError
-									{error}
-									retry={() => (dumbbell = import('#lib/charts/Dumbbell.svelte'))}
-								/>
-							{/await}
-						{/if}
-					{/snippet}
-					{#snippet table()}
-						{#if result}
-							<CompareTable
-								comparison={result}
-								{names}
-								caption="Respondents in {names[0]} and in {names[1]}{vs.scale === 'centered'
-									? `, ${RELATIVE}`
-									: ''}, largest gap first"
-							/>
-						{/if}
-					{/snippet}
-				</ChartFrame>
+							{/if}
+						{/snippet}
+					</ChartFrame>
+				{/if}
 			{/if}
-		{/if}
-	</section>
+		</section>
+	{/if}
 </div>
 
 <style>
@@ -399,10 +432,34 @@
 		font-size: var(--text-lg);
 	}
 
+	.title-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem 1rem;
+	}
+
+	.title-row h1 {
+		margin-bottom: 0.5rem;
+	}
+
 	.cards {
 		display: grid;
 		gap: 1rem;
-		margin: 1.5rem 0 2rem;
+		margin: 2rem 0 0;
+	}
+
+	.empty-state {
+		max-width: var(--measure);
+		margin: 1.5rem 0;
+		padding: 1rem;
+		border: 1px dashed var(--border-strong);
+		border-radius: var(--radius);
+	}
+
+	.empty-state p:last-child {
+		margin-bottom: 0;
 	}
 
 	/* ≥ 1024 px: facts and similar societies side by side; the chart on the left with a 320 px

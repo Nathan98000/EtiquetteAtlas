@@ -25,6 +25,8 @@
 		/** The bottom sheet's contents. */
 		details: Snippet<[T]>;
 		href: (cell: number) => ResolvedPathname;
+		/** Rows shown before "Show all", or every row (D-20: a fingerprint's list on a phone). */
+		limit?: number;
 	}
 
 	let {
@@ -39,16 +41,20 @@
 		tags,
 		marks,
 		details,
-		href
+		href,
+		limit
 	}: Props = $props();
 
 	let open: number | null = $state(null);
+	let all = $state(false);
+	const listId = $props.id();
+	const shown = $derived(limit && !all ? order.slice(0, limit) : order);
 </script>
 
 <!-- FR-17: below 640 px a 15 × 10 grid becomes a sortable list of the 150 cells, each with an
      inline bar from 0 and its marks. A tap opens the details; the sheet's link opens the cell. -->
-<ol class="list" aria-label={label}>
-	{#each order as index (index)}
+<ol id={listId} class="list" aria-label={label}>
+	{#each shown as index (index)}
 		{@const cell = cells?.[index]}
 		{@const v = cell ? value(cell) : null}
 		<li class="score" style={cell ? cellStyle(cell) : undefined}>
@@ -84,6 +90,18 @@
 	{/each}
 </ol>
 
+{#if limit && order.length > limit}
+	<button
+		type="button"
+		class="button more"
+		aria-controls={listId}
+		aria-expanded={all}
+		onclick={() => (all = !all)}
+	>
+		{all ? `Show the first ${limit}` : `Show all ${order.length} pairs`}
+	</button>
+{/if}
+
 <BottomSheet open={open !== null && !!cells} title="Details" onclose={() => (open = null)}>
 	{#if open !== null && cells}
 		{@render details(cells[open])}
@@ -102,6 +120,10 @@
 
 	li + li {
 		border-top: 1px solid var(--border);
+	}
+
+	.more {
+		margin-top: 0.75rem;
 	}
 
 	button {

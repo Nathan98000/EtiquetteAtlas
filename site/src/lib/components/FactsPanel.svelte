@@ -12,9 +12,11 @@
 </script>
 
 <!-- FR-34: who responded, in the active sample. Collection sites are left out (§4.4, decision 9);
-     the regions are the GSN authors' grouping (§4.4). -->
-<section class="card" aria-labelledby="facts-title">
-	<h2 id="facts-title">About these respondents</h2>
+     the regions are the GSN authors' grouping (§4.4). D-20: collapsed, after the fingerprint. -->
+<details class="card facts">
+	<summary>
+		About these {facts?.inSample ? `${facts.inSample.respondents} ` : ''}respondents
+	</summary>
 	<dl>
 		<div>
 			<dt>
@@ -52,7 +54,7 @@
 	<p class="note">
 		<a href={resolve('method/#facts')}>How these facts were recorded</a>
 	</p>
-</section>
+</details>
 
 <style>
 	.card {
@@ -62,9 +64,15 @@
 		background: var(--surface-muted);
 	}
 
-	h2 {
+	summary {
+		cursor: pointer;
 		font-size: var(--text-lg);
-		margin: 0 0 0.5rem;
+		font-weight: 700;
+		line-height: 1.3;
+	}
+
+	details[open] summary {
+		margin-bottom: 0.5rem;
 	}
 
 	dl {
