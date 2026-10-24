@@ -14,9 +14,11 @@
 		scale: Scale;
 		who: string;
 		href: (cell: number) => ResolvedPathname;
+		/** D-12: the rows run in paper order, so a picker can jump to a behavior. */
+		jump?: boolean;
 	}
 
-	let { cells, order, scale, who, href }: Props = $props();
+	let { cells, order, scale, who, href, jump = false }: Props = $props();
 
 	/** D-20: the first rows, then "Show all", so similar societies and facts stay near (decision 54). */
 	const FIRST = 25;
@@ -35,6 +37,7 @@
 	valueText={(cell) => (cell.deviation === null ? '' : score(cell.deviation))}
 	{href}
 	limit={FIRST}
+	{jump}
 >
 	{#snippet marks(cell)}
 		<span class="mark">{MARK_GLYPH[cell.mark]}</span>

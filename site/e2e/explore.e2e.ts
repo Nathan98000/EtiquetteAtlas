@@ -159,4 +159,26 @@ test.describe('AT-1, FR-17: below 640 px the matrix is a list', () => {
 		await sheet.getByRole('link', { name: /^Open:/ }).tap();
 		await expect(page).toHaveURL(/\/explore\/[a-z]+\/[a-z-]+\/$/);
 	});
+
+	test('D-12, D-13: a jump to a behavior; with a society, its averages as bars, the global one a tick', async ({
+		page
+	}) => {
+		await page.goto(`${explore}?society=jpn`);
+		const list = page.getByRole('list', { name: '150 behavior–situation pairs' });
+		await expect(list.locator('.tick')).toHaveCount(150);
+		await expect(
+			list.getByRole('button', { name: /^Eating on a bus: / }).locator('.value')
+		).toHaveText('−0.6');
+		await expect(page.getByText('their average,')).toBeVisible();
+
+		await page.getByLabel('Jump to a behavior').selectOption('eat');
+		await page.getByRole('button', { name: 'Go', exact: true }).tap();
+		const first = list.getByRole('button', { name: /^Eating at a funeral ceremony: / });
+		await expect(first).toBeFocused();
+		await expect(first).toBeInViewport();
+
+		// In another order the rows no longer run by behavior.
+		await page.getByLabel('Sort').selectOption('mean');
+		await expect(page.getByLabel('Jump to a behavior')).toHaveCount(0);
+	});
 });

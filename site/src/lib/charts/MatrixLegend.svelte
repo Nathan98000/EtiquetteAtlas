@@ -36,7 +36,15 @@
 {:else}
 	<div class="legend">
 		<div class="item">
-			<p class="key">Global average (fill)</p>
+			<p class="key">
+				{#if society?.inSample}
+					<!-- D-13: the phone list's bars then show the society's averages. -->
+					<span class="grid-only">Global average</span><span class="list-key">Average answer</span>
+				{:else}
+					Global average
+				{/if}
+				(fill)
+			</p>
 			<Ramp ends={['Extremely inappropriate', '0', 'Extremely appropriate']} />
 		</div>
 		<div class="item">
@@ -58,6 +66,9 @@
 			<div class="item society-pending" aria-hidden="true">
 				<p class="key">Respondents in Japan:</p>
 				<ul class="marks">
+					<li class="list-only">
+						<span class="bar-key"></span> their average, <span class="tick-key"></span> the global average
+					</li>
 					<li><span>{MARK_GLYPH.looser}</span> clearly looser (more appropriate)</li>
 					<li><span>{MARK_GLYPH.stricter}</span> clearly stricter (less appropriate)</li>
 					<li>no mark: too close to call</li>
@@ -71,6 +82,13 @@
 						respondentsIn(society.code, society.name).slice(1)}:
 				</p>
 				<ul class="marks">
+					<!-- D-13: on phones the list's bars are this society's, the global average a tick. -->
+					{#if society.inSample}
+						<li class="list-only">
+							<span class="bar-key" aria-hidden="true"></span> their average,
+							<span class="tick-key" aria-hidden="true"></span> the global average
+						</li>
+					{/if}
 					<li>
 						<span aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more appropriate)
 					</li>
@@ -182,10 +200,53 @@
 		visibility: hidden;
 	}
 
+	.list-key {
+		display: none;
+	}
+
+	.list-only {
+		display: none;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.bar-key {
+		display: inline-block;
+		width: 1.5rem;
+		height: 0.75rem;
+		background: var(--surface-muted);
+		box-shadow: inset 0 0 0 1px var(--border-strong);
+	}
+
+	.tick-key {
+		display: inline-block;
+		width: 2px;
+		height: 1rem;
+		margin-left: 0.25rem;
+		background: var(--text);
+	}
+
 	/* Below 640 px there is no grid to ring: the list tags the two pairs itself (D-23). */
 	@media (max-width: 639.98px) {
 		.rings {
 			display: none;
+		}
+
+		.list-only {
+			display: flex;
+		}
+
+		/* The key's extra line keeps the list's top on the first screen (D-23). */
+		.marks {
+			row-gap: 0;
+		}
+
+		.grid-only {
+			display: none;
+		}
+
+		.list-key {
+			display: inline;
 		}
 	}
 </style>

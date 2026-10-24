@@ -284,7 +284,14 @@
 							/>
 						</div>
 						<div class="list-view">
-							<FingerprintList cells={model} order={list} scale={vs.scale} {who} {href} />
+							<FingerprintList
+								cells={model}
+								order={list}
+								scale={vs.scale}
+								{who}
+								{href}
+								jump={vs.sort === 'paper'}
+							/>
 						</div>
 					{/if}
 				{/snippet}

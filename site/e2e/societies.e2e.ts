@@ -174,6 +174,20 @@ test.describe('FR-17: below 640 px the fingerprint is a list', () => {
 		await expect(page).toHaveURL(/\/explore\/[a-z]+\/[a-z-]+\/\?society=chl$/);
 	});
 
+	test('D-12: in paper order a jump reaches any behavior, past the first 25 rows', async ({
+		page
+	}) => {
+		await page.goto(`${chile}?sort=paper`);
+		const list = page.getByRole('list', { name: /compared with the global average$/ });
+		await expect(list.getByRole('listitem')).toHaveCount(25);
+		await page.getByLabel('Jump to a behavior').selectOption('usemphone');
+		await page.getByRole('button', { name: 'Go', exact: true }).tap();
+		await expect(list.getByRole('listitem')).toHaveCount(150);
+		await expect(
+			list.getByRole('button', { name: /^Using a mobile phone at a funeral ceremony: / })
+		).toBeFocused();
+	});
+
 	test('NFR-21: nothing scrolls sideways, compare mode included', async ({ page }) => {
 		await page.goto(`${chile}?compare=caf`);
 		await expect(page.locator('.dumbbell')).toBeVisible();

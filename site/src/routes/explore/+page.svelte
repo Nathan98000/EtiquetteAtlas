@@ -158,7 +158,15 @@
 					/>
 				</div>
 				<div class="list-view">
-					<MatrixList cells={model} order={list} scale={vs.scale} {society} {societyReady} {href} />
+					<MatrixList
+						cells={model}
+						order={list}
+						scale={vs.scale}
+						{society}
+						{societyReady}
+						{href}
+						jump={vs.sort === 'paper'}
+					/>
 				</div>
 			{/snippet}
 			{#snippet table()}

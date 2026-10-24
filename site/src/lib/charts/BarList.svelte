@@ -1,7 +1,14 @@
 <script lang="ts" generics="T extends Cell & { headline: string }">
-	import type { Snippet } from 'svelte';
+	import { tick as settle, type Snippet } from 'svelte';
 	import type { ResolvedPathname } from '$app/types';
-	import { BEHAVIOR_TEXT, CELLS, SITUATION_TEXT, type Cell } from '#lib/data/grid.ts';
+	import {
+		BEHAVIORS,
+		BEHAVIOR_TEXT,
+		CELLS,
+		SITUATION_TEXT,
+		type Behavior,
+		type Cell
+	} from '#lib/data/grid.ts';
 	import BottomSheet from '#lib/components/BottomSheet.svelte';
 
 	interface Props {
@@ -17,6 +24,8 @@
 		value: (cell: T) => number | null;
 		/** Values beyond ±max reach the track's end with an arrowhead. */
 		max: number;
+		/** D-13: a second value marked on the track, such as the global average under a society's bar. */
+		tick?: (cell: T) => number | null;
 		valueText: (cell: T) => string;
 		/** Tags under the situation, such as "Most universal". */
 		tags?: Snippet<[T]>;
@@ -27,6 +36,8 @@
 		href: (cell: number) => ResolvedPathname;
 		/** Rows shown before "Show all", or every row (D-20: a fingerprint's list on a phone). */
 		limit?: number;
+		/** D-12: in paper order the rows run by behavior, and a picker jumps to one. */
+		jump?: boolean;
 	}
 
 	let {
@@ -37,19 +48,53 @@
 		cellStyle,
 		value,
 		max,
+		tick,
 		valueText,
 		tags,
 		marks,
 		details,
 		href,
-		limit
+		limit,
+		jump = false
 	}: Props = $props();
 
 	let open: number | null = $state(null);
 	let all = $state(false);
 	const listId = $props.id();
 	const shown = $derived(limit && !all ? order.slice(0, limit) : order);
+	const at = (v: number) => 50 + (Math.max(-max, Math.min(max, v)) / max) * 50;
+
+	let target: Behavior = $state(BEHAVIORS[0]);
+
+	// D-12: show the behavior's first row, with focus on it, below the sticky bar.
+	async function jumpTo() {
+		const i = order.findIndex((index) => CELLS[index].behavior === target);
+		if (i < 0) return;
+		if (limit && i >= limit) all = true;
+		await settle();
+		const row = document.getElementById(`${listId}-${order[i]}`);
+		row?.scrollIntoView({ block: 'start' });
+		row?.querySelector('button')?.focus({ preventScroll: true });
+	}
 </script>
+
+{#if jump}
+	<form
+		class="jump"
+		onsubmit={(event) => {
+			event.preventDefault();
+			void jumpTo();
+		}}
+	>
+		<label for="{listId}-jump">Jump to a behavior</label>
+		<select id="{listId}-jump" bind:value={target}>
+			{#each BEHAVIORS as behavior (behavior)}
+				<option value={behavior}>{BEHAVIOR_TEXT[behavior].label}</option>
+			{/each}
+		</select>
+		<button type="submit" class="button">Go</button>
+	</form>
+{/if}
 
 <!-- FR-17: below 640 px a 15 × 10 grid becomes a sortable list of the 150 cells, each with an
      inline bar from 0 and its marks. A tap opens the details; the sheet's link opens the cell. -->
@@ -57,7 +102,8 @@
 	{#each shown as index (index)}
 		{@const cell = cells?.[index]}
 		{@const v = cell ? value(cell) : null}
-		<li class="score" style={cell ? cellStyle(cell) : undefined}>
+		{@const t = cell && tick ? tick(cell) : null}
+		<li id="{listId}-{index}" class="score" style={cell ? cellStyle(cell) : undefined}>
 			<button
 				type="button"
 				disabled={!cell}
@@ -79,6 +125,9 @@
 							class:clamped={Math.abs(v) > max}
 							style="--w: {(Math.min(max, Math.abs(v)) / max) * 50}%"
 						></span>
+					{/if}
+					{#if t !== null}
+						<span class="tick" style="--t: {at(t)}%"></span>
 					{/if}
 				</span>
 				<span class="value num" aria-hidden="true">{cell ? valueText(cell) : ''}</span>
@@ -122,11 +171,35 @@
 		border-top: 1px solid var(--border);
 	}
 
+	/* Below the sticky control bar (§6.2) when a jump brings the row up. */
+	li {
+		scroll-margin-top: 7rem;
+	}
+
+	.jump {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: 0.5rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.jump label {
+		flex-basis: 100%;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
+	.jump select {
+		flex: 1 1 10rem;
+		min-height: 2.75rem;
+	}
+
 	.more {
 		margin-top: 0.75rem;
 	}
 
-	button {
+	.list button {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) clamp(5rem, 32vw, 10rem) 2.5rem auto;
 		align-items: center;
@@ -178,6 +251,16 @@
 	.bar.negative {
 		left: auto;
 		right: 50%;
+	}
+
+	/* D-13: the global average across the society's bar. */
+	.tick {
+		position: absolute;
+		top: -0.125rem;
+		bottom: -0.125rem;
+		left: calc(var(--t) - 1px);
+		width: 2px;
+		background: var(--text);
 	}
 
 	/* Beyond the scale: the bar ends in an arrowhead (decision 46). */
