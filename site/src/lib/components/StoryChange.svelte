@@ -5,7 +5,7 @@
 	import DataTable, { type Column } from '#lib/charts/DataTable.svelte';
 	import Dumbbell from '#lib/charts/Dumbbell.svelte';
 	import type { PairRow } from '#lib/charts/dumbbell-model.ts';
-	import { score } from '#lib/data/format.ts';
+	import { responseLabel, score } from '#lib/data/format.ts';
 	import { CELLS, CHANGE_CELLS, headline, phrase } from '#lib/data/grid.ts';
 	import { loadChange, loadSocieties } from '#lib/data/load.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
@@ -61,15 +61,13 @@
 	{onnear}
 >
 	{#snippet text()}
+		<!-- D-22: about 50 words; the five largest differences in the chart, the rest on request. -->
 		<p>
-			For {numbers.societies} societies, a survey from 2000–2003 asked about 12 of the same behaviors
-			in the same situations. Averaged over those societies, respondents judged {phrase(cell)}
-			{score(numbers.older)} in 2000–2003 and {score(numbers.newer)} in 2023–2024: a difference of
-			{score(numbers.diff)}, the largest of the 120 pairs both surveys asked.
-		</p>
-		<p>
-			The two surveys asked different people in different ways, so this is a difference between two
-			surveys, not a change in anyone's views, and the data do not say why the answers differ.
+			For {numbers.societies} societies, a survey from 2000–2003 asked 12 of the same behaviors in the
+			same situations. Averaged over them, respondents judged {phrase(cell)}
+			{responseLabel(numbers.older)} then and {responseLabel(numbers.newer)} in 2023–2024: the largest
+			difference of the 120 pairs both surveys asked. It is a difference between two surveys, not a change
+			in anyone's views.
 		</p>
 		<ChangeProvenance />
 	{/snippet}
@@ -81,6 +79,7 @@
 				numbers.diff
 			)}."
 			about={resolve('method/#change')}
+			compact
 		>
 			{#snippet chart()}
 				<div class="reserve">
@@ -96,7 +95,8 @@
 								{ label: 'From 2000–2003 to 2023–2024', mark: 'arrow' }
 							]}
 							label="Societies in both surveys, largest difference first"
-							showFirst="Show the 25 largest differences"
+							first={5}
+							showFirst="Show the 5 largest differences"
 							showAll="Show all {rows.length} societies"
 							unpairedLabel="societies not shown"
 							note={ARROWS_NOTE}
@@ -122,13 +122,20 @@
 </StoryStep>
 
 <style>
+	/* The five rows with their key and button, measured at 375, 640 and 1024 px (NFR-2). */
 	.reserve {
-		min-height: 62rem;
+		min-height: 40.5rem;
 	}
 
 	@media (min-width: 640px) {
 		.reserve {
-			min-height: 50rem;
+			min-height: 31rem;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.reserve {
+			min-height: 25.5rem;
 		}
 	}
 </style>

@@ -330,6 +330,11 @@ export class SocietyCells {
 		return this.#c.status[society * CELL_COUNT + cell] as StatusCode;
 	}
 
+	/** DR-10: the society's mean deviation from the global cell means, or null without one. */
+	offset(society: number, kind: EstimateKind): number | null {
+		return (kind === 'shrunk' ? this.#offsetShrunk : this.#offset)[society] ?? null;
+	}
+
 	/** The society–cell estimate with its 95% interval, or null when suppressed. */
 	estimate(society: number, cell: number, kind: EstimateKind, scale: Scale): Estimate | null {
 		const i = society * CELL_COUNT + cell;

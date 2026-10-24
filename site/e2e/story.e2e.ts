@@ -20,23 +20,29 @@ test.describe('FR-64: the guided story', () => {
 		await expect(page.locator('.story-step > .text > h2')).toHaveText(
 			TITLES.map((title, i) => `Step ${i + 1} of 6 ${title}`)
 		);
-		// §4.8: the paper's finding, quoted and credited.
+		// §4.8: the paper's finding, quoted and credited; decision 3 (D-2): pictured with the
+		// atlas's own averages, the paper's model left to the method page.
 		const finding = step(page, 'finding');
 		await expect(finding).toContainText('"far more across situations than across societies"');
-		await expect(finding).toContainText('0.31');
-		await expect(finding).toContainText('0.19');
-		// Finding L-2: 1.11 is single ratings beyond the model, not individual respondents.
-		await expect(finding).toContainText('single ratings vary beyond what the model explains');
-		await expect(finding).not.toContainText('individual respondents');
-		// FR-7, finding L-15: the chart's note is the method page's section on the story.
-		await expect(finding.getByRole('link', { name: 'About this chart' })).toHaveAttribute(
-			'href',
-			/\/method\/#story$/
-		);
-		await expect(finding.getByRole('link', { name: 'Eriksson et al. (2025)' })).toHaveAttribute(
+		await expect(finding.getByRole('link', { name: 'Eriksson et al., 2025' })).toHaveAttribute(
 			'href',
 			'https://doi.org/10.1038/s44271-025-00324-4'
 		);
+		await expect(finding.locator('.spread circle')).toHaveCount(150 + 88);
+		await expect(finding).not.toContainText('0.31');
+		await expect(finding.locator('#story-finding-summary')).toHaveText(
+			"The 150 pairs' averages run from −2.0 to +2.1; the 88 societies' averages over all the " +
+				'pairs, from −1.0 to +0.4. Mongolia and Namibia are left out: none of their pairs had 10 ' +
+				'or more respondents.'
+		);
+		// D-22, FR-7: one "About this chart" per step holds the summary, the table and the note.
+		await finding.getByText('About this chart').click();
+		await expect(finding.getByRole('link', { name: 'How it is made' })).toHaveAttribute(
+			'href',
+			/\/method\/#story$/
+		);
+		await finding.getByRole('button', { name: 'Show as table' }).click();
+		await expect(finding.getByRole('table').locator('tbody tr')).toHaveCount(150 + 88);
 
 		// FR-16: the most universal and most culture-dependent cells, on their beeswarms.
 		await step(page, 'universal').scrollIntoViewIfNeeded();
@@ -45,26 +51,28 @@ test.describe('FR-64: the guided story', () => {
 		);
 		await expect(step(page, 'universal').locator('.beeswarm [data-code]').first()).toBeVisible();
 		await expect(step(page, 'dependent')).toContainText(
-			'Singing at a funeral ceremony divides societies most: disagreement is 0.89'
+			'Singing at a funeral ceremony divides societies most: their averages run from extremely ' +
+				'inappropriate (−2.3) to very appropriate (+1.2).'
 		);
 		await expect(step(page, 'dependent').locator('.beeswarm [data-code]').first()).toBeVisible();
 
 		// The audience effect, with the 2026 credit (FR-43).
 		await step(page, 'audience').scrollIntoViewIfNeeded();
-		await expect(step(page, 'audience')).toContainText(
-			'a drop of 3.0, the largest of the 15 behaviors'
-		);
+		await expect(step(page, 'audience')).toContainText('the largest drop of the 15 behaviors');
 		await expect(step(page, 'audience').locator('.slopegraph')).toBeVisible();
 		await expect(step(page, 'audience').locator('.credit')).toContainText('(2026)');
 
 		// The largest difference since the early 2000s, with the provenance note (FR-52, NFR-41).
 		const change = step(page, 'change');
 		await change.scrollIntoViewIfNeeded();
-		await expect(change).toContainText('the largest of the 120 pairs both surveys asked');
+		await expect(change).toContainText(
+			'the largest difference of the 120 pairs both surveys asked'
+		);
 		await expect(
 			change.getByRole('complementary', { name: 'About the two surveys' })
 		).toBeVisible();
-		await expect(change.locator('#story-change-rows > li')).toHaveCount(25);
+		// D-22: the five largest differences, the rest on request.
+		await expect(change.locator('#story-change-rows > li')).toHaveCount(5);
 		await change.getByRole('button', { name: 'Show all 26 societies' }).click();
 		await expect(change.locator('#story-change-rows > li')).toHaveCount(26);
 
@@ -175,6 +183,7 @@ test('NFR-11: the audience step shows its slopegraph as a full table', async ({ 
 	const audience = step(page, 'audience');
 	await audience.scrollIntoViewIfNeeded();
 	await expect(audience.locator('.slopegraph [data-context="0"]')).toBeAttached();
+	await audience.getByText('About this chart').click();
 	await audience.getByRole('button', { name: 'Show as table' }).click();
 	const table = audience.getByRole('table');
 	await expect(table.locator('tbody tr')).toHaveCount(3);

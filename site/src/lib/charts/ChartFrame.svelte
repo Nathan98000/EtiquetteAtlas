@@ -33,6 +33,11 @@
 		scaled?: boolean;
 		/** What centering does, said once per page on its first chart (CENTERING, or more). */
 		explain?: string | Snippet;
+		/**
+		 * D-22: the summary, "Show as table" and the method note in one "About this chart"
+		 * disclosure, as each step of the story has them.
+		 */
+		compact?: boolean;
 	}
 
 	let {
@@ -47,7 +52,8 @@
 		table,
 		centered = false,
 		scaled = false,
-		explain
+		explain,
+		compact = false
 	}: Props = $props();
 
 	let showTable = $state(false);
@@ -80,22 +86,37 @@
 	{@render below?.()}
 	<!-- D-23: what the chart says, its table and its method note come after it, so the chart starts
 	     near the top of the screen; NFR-11 and FR-7 are unchanged. -->
-	<div class="foot">
-		<p class="summary" id="{id}-summary">{summary}</p>
-		<div class="links">
-			<button
-				type="button"
-				class="button"
-				aria-expanded={showTable}
-				aria-controls="{id}-table"
-				onclick={() => (showTable = !showTable)}
-			>
-				{showTable ? 'Show as chart' : 'Show as table'}
-			</button>
-			<a class="about" href={about}>About this chart</a>
+	{#if compact}
+		<details class="foot compact">
+			<summary>About this chart</summary>
+			<p class="summary" id="{id}-summary">{summary}</p>
+			<div class="links">
+				{@render tableToggle()}
+				<a class="about" href={about}>How it is made</a>
+			</div>
+		</details>
+	{:else}
+		<div class="foot">
+			<p class="summary" id="{id}-summary">{summary}</p>
+			<div class="links">
+				{@render tableToggle()}
+				<a class="about" href={about}>About this chart</a>
+			</div>
 		</div>
-	</div>
+	{/if}
 </section>
+
+{#snippet tableToggle()}
+	<button
+		type="button"
+		class="button"
+		aria-expanded={showTable}
+		aria-controls="{id}-table"
+		onclick={() => (showTable = !showTable)}
+	>
+		{showTable ? 'Show as chart' : 'Show as table'}
+	</button>
+{/snippet}
 
 <style>
 	.chart-frame {
@@ -149,6 +170,18 @@
 
 	.foot {
 		margin-top: 0.75rem;
+	}
+
+	.compact summary {
+		width: fit-content;
+		padding: 0.25rem 0;
+		font-size: var(--text-sm);
+		color: var(--link);
+		cursor: pointer;
+	}
+
+	.compact[open] summary {
+		margin-bottom: 0.5rem;
 	}
 
 	.links {

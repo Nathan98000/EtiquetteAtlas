@@ -2,11 +2,12 @@ import { expect, test, url } from './helpers';
 
 // D-23 (design review, open decision 7): on a phone, every module route shows the top of its
 // main chart on the first screen, and no lede runs past 45 words. The chart's box is its reserved
-// space, so it counts before the data arrive. The story joins with its first picture (phase 5).
+// space, so it counts before the data arrive.
 
 test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true });
 
 const ROUTES = [
+	'story/',
 	'explore/',
 	'explore/?society=jpn',
 	'explore/eat/bus/?society=jpn',

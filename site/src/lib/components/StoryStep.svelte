@@ -50,31 +50,38 @@
 </script>
 
 <!-- FR-64, FR-65: one step of the story, its text beside its chart from 1024 px and above it
-     below that (§6.2), ending with Previous and Next (decision 81). -->
-<section {id} class="story-step" aria-labelledby="{id}-title" bind:this={section}>
+     below that (§6.2), ending with Previous and Next (decision 81): under the text beside the
+     chart, after the chart below 1024 px (D-22). -->
+<section
+	{id}
+	class="story-step"
+	class:figured={figure}
+	aria-labelledby="{id}-title"
+	bind:this={section}
+>
 	<div class="text">
 		<h2 id="{id}-title" tabindex="-1">
 			<span class="count">Step {index + 1} of {count}</span>
 			{title}
 		</h2>
 		{@render text()}
-		{#if previous || next}
-			<div class="step-links">
-				{#if previous}
-					<button type="button" class="button" onclick={previous}>
-						<span aria-hidden="true">←</span> Previous step
-					</button>
-				{/if}
-				{#if next}
-					<button type="button" class="button" onclick={next}>
-						Next step <span aria-hidden="true">→</span>
-					</button>
-				{/if}
-			</div>
-		{/if}
 	</div>
 	{#if figure}
 		<div class="figure">{@render figure()}</div>
+	{/if}
+	{#if previous || next}
+		<div class="step-links">
+			{#if previous}
+				<button type="button" class="button" onclick={previous}>
+					<span aria-hidden="true">←</span> Previous step
+				</button>
+			{/if}
+			{#if next}
+				<button type="button" class="button" onclick={next}>
+					Next step <span aria-hidden="true">→</span>
+				</button>
+			{/if}
+		</div>
 	{/if}
 </section>
 
@@ -91,8 +98,26 @@
 	@media (min-width: 1024px) {
 		.story-step {
 			grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
-			gap: 3rem;
+			column-gap: 3rem;
+			row-gap: 0;
 			align-items: start;
+		}
+
+		.story-step.figured {
+			grid-template-areas: 'text figure' 'links figure';
+			grid-template-rows: auto 1fr;
+		}
+
+		.figured .text {
+			grid-area: text;
+		}
+
+		.figured .figure {
+			grid-area: figure;
+		}
+
+		.figured .step-links {
+			grid-area: links;
 		}
 	}
 
@@ -123,8 +148,14 @@
 	.step-links {
 		display: flex;
 		flex-wrap: wrap;
+		align-content: start;
 		gap: 0.75rem;
-		margin-top: 1.5rem;
+	}
+
+	@media (min-width: 1024px) {
+		.step-links {
+			margin-top: 1.5rem;
+		}
 	}
 
 	.figure {

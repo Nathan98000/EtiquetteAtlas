@@ -10,6 +10,7 @@
 	import { drill } from '#lib/charts/drill-model.ts';
 	import Slopegraph from '#lib/charts/Slopegraph.svelte';
 	import SocietyTable from '#lib/charts/SocietyTable.svelte';
+	import SpreadStrips from '#lib/charts/SpreadStrips.svelte';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import { STORY_CHANGE_TITLE } from '#lib/change-text.ts';
 	import AudienceCredit from '#lib/components/AudienceCredit.svelte';
@@ -23,7 +24,14 @@
 	import { BEHAVIOR_TEXT, BEHAVIORS, CELLS, cellParams, headline, phrase } from '#lib/data/grid.ts';
 	import { loadCells, loadContexts, loadGlobal, loadSocieties } from '#lib/data/load.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
-	import { PAPER_SD, STEP_TITLE, storySteps, type StepId } from '#lib/story/story-model.ts';
+	import {
+		PAPER_SD,
+		STEP_TITLE,
+		spreadSummary,
+		storySpread,
+		storySteps,
+		type StepId
+	} from '#lib/story/story-model.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import {
 		audiencesHref,
@@ -48,7 +56,7 @@
 	const markCurrent = (id: string) => (current = id as StepId);
 
 	// The story shows All data whatever the sample toggle (decision 82).
-	const cellsNeeded = $derived(!!(near.universal || near.dependent));
+	const cellsNeeded = $derived(!!(near.finding || near.universal || near.dependent));
 	const global = new Resource(() => (cellsNeeded ? loadGlobal('all') : undefined));
 	const cells = new Resource(() => (cellsNeeded ? loadCells('all') : undefined));
 	const societies = new Resource(() => (cellsNeeded ? loadSocieties() : undefined));
@@ -58,6 +66,19 @@
 		global.current && cells.current && societies.current
 			? drill(cells.current, societies.current, global.current, cell, 'shrunk', 'raw')
 			: undefined;
+	// Decision 3: step 1's two rows, drawn from the same files as steps 2 and 3.
+	const spreadData = $derived(
+		global.current && cells.current ? storySpread(global.current, cells.current) : undefined
+	);
+	const spreadText = $derived(
+		spreadSummary(
+			n.spread,
+			societies.current && spreadData
+				? spreadData.without.map((code) => societies.current?.get(code)?.name ?? code)
+				: data.without
+		)
+	);
+
 	const audience = $derived(
 		contexts.current
 			? audienceRows(contexts.current, { scope: { kind: 'global' }, split: false })[
@@ -99,19 +120,31 @@
 	};
 	const atlas = $derived(withView(resolve('explore/'), vs, GLOBAL_KEYS));
 
-	interface SdRow {
+	interface SpreadRow {
+		key: string;
 		label: string;
-		sd: number;
+		value: number;
 	}
-	const SD_ROWS: SdRow[] = [
-		{ label: 'Between situated behaviors', sd: PAPER_SD.situations },
-		{ label: 'Between societies', sd: PAPER_SD.societies },
-		{ label: 'Single ratings, beyond what the model explains', sd: PAPER_SD.residual }
+	const spreadColumns: Column<SpreadRow>[] = [
+		{ header: 'Pair or society', text: (r) => r.label, rowHeader: true },
+		{ header: 'Average answer', text: (r) => score(r.value) }
 	];
-	const sdColumns: Column<SdRow>[] = [
-		{ header: 'Source of variation', text: (r) => r.label, rowHeader: true },
-		{ header: 'Standard deviation in the paper’s model', text: (r) => spread(r.sd) }
-	];
+	const spreadRows = $derived(
+		spreadData
+			? [
+					...spreadData.pairs.map((p) => ({
+						key: `cell-${p.cell}`,
+						label: headline(CELLS[p.cell]),
+						value: p.value
+					})),
+					...spreadData.societies.map((p) => ({
+						key: p.code,
+						label: `Respondents in ${societies.current?.get(p.code)?.name ?? p.code}`,
+						value: p.value
+					}))
+				].sort((a, b) => b.value - a.value)
+			: []
+	);
 
 	const behaviorText = $derived(BEHAVIOR_TEXT[BEHAVIORS[n.audience.behavior]]);
 </script>
@@ -131,8 +164,8 @@
 			<ShareButton />
 		</div>
 		<p class="lede">
-			A few steps through the answers of 25,422 respondents in 90 societies, then on to the atlas.
-			The tour uses all respondents in every society, whatever sample you pick.
+			A few steps through the answers of 25,422 respondents in 90 societies; the tour uses all of
+			them, whatever sample you pick.
 		</p>
 		<noscript>
 			<p>The charts need JavaScript; the text of every step is below.</p>
@@ -175,48 +208,42 @@
 		onnear={markNear}
 	>
 		{#snippet text()}
+			<!-- Decision 3 (D-2): the finding in the atlas's own averages; the paper's model and its
+			     standard deviations are on the method page. -->
 			<p>
 				The paper behind this atlas concludes that everyday norms vary "far more across situations
-				than across societies". In its model, two situated behaviors typically differ by more (a
-				standard deviation of {spread(PAPER_SD.situations)} on the −2.5 to +2.5 scale) than two societies
-				do ({spread(PAPER_SD.societies)}), and both are small next to how much single ratings vary
-				beyond what the model explains ({spread(PAPER_SD.residual)}).
-			</p>
-			<p>
-				The rest of this tour shows what that looks like in the answers.
-				<a href={attribution.articleUrl} rel="external">Eriksson et al. ({attribution.year})</a>.
+				than across societies" (<a href={attribution.articleUrl} rel="external"
+					>Eriksson et al., {attribution.year}</a
+				>). The answers show it: the 150 behaviors in their situations spread across most of the
+				scale, while each society's average over all of them stays near the middle.
 			</p>
 		{/snippet}
 		{#snippet figure()}
 			<ChartFrame
 				id="story-finding"
-				title="How much answers vary, in the paper's model"
-				summary="In the paper's model, the standard deviation is {spread(
-					PAPER_SD.situations
-				)} between situated behaviors, {spread(PAPER_SD.societies)} between societies and {spread(
-					PAPER_SD.residual
-				)} for single ratings, beyond what the model explains."
+				title="Behaviors in their situations vary more than societies"
+				summary={spreadText}
 				about={resolve('method/#story')}
+				compact
 			>
 				{#snippet chart()}
-					<ul class="bars" aria-label="Standard deviations in the paper's model">
-						{#each SD_ROWS as row (row.label)}
-							<li>
-								<span class="bar-label">{row.label}</span>
-								<span class="bar-track" aria-hidden="true">
-									<span class="bar" style="width: {(row.sd / PAPER_SD.residual) * 100}%"></span>
-								</span>
-								<span class="bar-value num">{spread(row.sd)}</span>
-							</li>
-						{/each}
-					</ul>
+					<div class="reserve spread">
+						{#if spreadData}
+							<SpreadStrips
+								spread={spreadData}
+								name={(code) => societies.current?.get(code)?.name ?? code}
+								label="Each pair's average answer, and each society's average over all the pairs"
+								describedBy="story-finding-summary"
+							/>
+						{/if}
+					</div>
 				{/snippet}
 				{#snippet table()}
 					<DataTable
-						caption="Standard deviations in the paper's model"
-						rows={SD_ROWS}
-						columns={sdColumns}
-						key={(r) => r.label}
+						caption="Each pair's and each society's average answer, highest first"
+						rows={spreadRows}
+						columns={spreadColumns}
+						key={(r) => r.key}
 					/>
 				{/snippet}
 			</ChartFrame>
@@ -236,22 +263,20 @@
 			onnear={markNear}
 		>
 			{#snippet text()}
+				<!-- D-22: about 50 words a step; the numbers are in the chart and its table. -->
 				{#if id === 'universal'}
 					<p>
 						Respondents everywhere judged {phrase(CELLS[c.cell])}
-						{responseLabel(c.mean)}: the average of the {c.societies} societies is {score(c.mean)},
-						and
-						{percent(c.share)} chose an appropriate answer. Disagreement between societies is {spread(
-							c.tau
-						)}, the lowest of the 150 pairs: society averages run only from {score(c.range[0])} to
-						{score(c.range[1])}.
+						{responseLabel(c.mean)}: {percent(c.share)} chose an appropriate answer, and society averages
+						run only from {score(c.range[0])} to {score(c.range[1])}. Societies disagree less about
+						it than about any other of the 150 pairs.
 					</p>
 				{:else}
 					<p>
-						{headline(CELLS[c.cell])} divides societies most: disagreement is {spread(c.tau)}, the
-						highest of the 150 pairs. On average respondents judged it {responseLabel(c.mean)} ({score(
-							c.mean
-						)}), but society averages run from {score(c.range[0])} to {score(c.range[1])}.
+						{headline(CELLS[c.cell])} divides societies most: their averages run from {responseLabel(
+							c.range[0]
+						)} ({score(c.range[0])}) to {responseLabel(c.range[1])} ({score(c.range[1])}). No other
+						of the 150 pairs divides them as much.
 					</p>
 				{/if}
 				<p><a href={cellHref(c.cell)}>See every society for this pair</a></p>
@@ -264,6 +289,7 @@
 						c.range[0]
 					)} to {score(c.range[1])}, around a global average of {score(c.mean)}."
 					about={resolve('method/#disagreement')}
+					compact
 				>
 					{#snippet chart()}
 						<div class="reserve swarm">
@@ -304,11 +330,8 @@
 		{#snippet text()}
 			<p>
 				Who is around matters too. Averaged over all societies, respondents judged {behaviorText.gerund.toLowerCase()}
-				{responseLabel(n.audience.alone)} when alone ({score(n.audience.alone)}) but {responseLabel(
-					n.audience.management
-				)} in front of management or professors ({score(n.audience.management)}): a drop of {Math.abs(
-					n.audience.effect
-				).toFixed(1)}, the largest of the 15 behaviors.
+				{responseLabel(n.audience.alone)} when alone but {responseLabel(n.audience.management)} in front
+				of management or professors: the largest drop of the 15 behaviors.
 			</p>
 			<p>
 				<a href={audiencesHref(BEHAVIORS[n.audience.behavior], vs)}>
@@ -325,6 +348,7 @@
 					n.audience.management
 				)} in front of management or professors."
 				about={resolve('method/#audiences')}
+				compact
 			>
 				{#snippet chart()}
 					<Slopegraph
@@ -470,33 +494,8 @@
 		font-size: var(--text-sm);
 	}
 
-	.bars {
-		margin: 0;
-		padding: 0;
-		list-style: none;
-		font-size: var(--text-sm);
-	}
-
-	.bars li {
-		display: grid;
-		grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) 3rem;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 0.5rem 0;
-	}
-
-	.bar-track {
-		height: 1.25rem;
-	}
-
-	.bar {
-		display: block;
-		height: 100%;
-		background: var(--text);
-	}
-
-	.bar-value {
-		text-align: right;
+	.reserve.spread {
+		min-height: 15.75rem;
 	}
 
 	.reserve.swarm {

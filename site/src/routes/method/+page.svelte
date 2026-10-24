@@ -6,13 +6,21 @@
 	import SocietyFacts from '#lib/components/SocietyFacts.svelte';
 	import { attribution, audienceCredit } from '#lib/attribution.ts';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { spread } from '#lib/data/format.ts';
 	import { listText } from '#lib/data/society.ts';
+	import { PAPER_SD } from '#lib/story/story-model.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const all = $derived(data.samples.find((s) => s.sample === 'all')!);
 	const others = $derived(data.samples.filter((s) => s.sample !== 'all'));
+	// The paper's model (§4.8), shown on the story's first step until decision 3.
+	const SD_ROWS = [
+		{ label: 'Between situated behaviors', sd: PAPER_SD.situations },
+		{ label: 'Between societies', sd: PAPER_SD.societies },
+		{ label: 'Single ratings, beyond what the model explains', sd: PAPER_SD.residual }
+	];
 	// Cloudflare's privacy policy, as linked from its Web Analytics page (FR-92, decision 94).
 	const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
 </script>
@@ -406,16 +414,42 @@
 	<!-- FR-64, §4.8; decisions 81 to 83. -->
 	<section id="story">
 		<h2>The guided story</h2>
+		<!-- Decision 3 (D-2): step 1's picture, how it differs from the paper's model, and the
+		     model's standard deviations, which the story showed before. -->
 		<p>
 			The guided story opens with one of the GSN paper's conclusions: norms vary "far more across
-			situations than across societies". In the paper's statistical model, after the predictors it
-			uses, judgments differ between situated behaviors with a standard deviation of 0.31 on the
-			−2.5 to +2.5 scale (on top of 0.36 between the 15 behaviors themselves), between societies
+			situations than across societies". Its first picture shows that in the atlas's own averages
+			from all respondents: a dot for each of the 150 pairs' global average, and a dot for each
+			society's average over all the pairs. A society's average there is its offset (the mean of its
+			differences from the global averages over the pairs it has, as on
+			<a href="#centered">the relative scale</a>) added to the mean of the 150 global averages, so a
+			society that lacks some pairs is still placed as if it had them all. Societies with no pair
+			rated by 10 or more respondents are left out, and the step names them.
+		</p>
+		<p>
+			The two rows are not the paper's measure. The pairs' row includes how much the 15 behaviors
+			differ from one another, which the paper's model keeps apart from situations, and neither row
+			removes what the model's predictors explain. In the paper's statistical model, after those
+			predictors, judgments differ between situated behaviors with a standard deviation of 0.31 on
+			the −2.5 to +2.5 scale (on top of 0.36 between the 15 behaviors themselves), between societies
 			with 0.19 and between individual respondents with 0.50; single ratings vary around all of
-			these with 1.11, what the model leaves unexplained. These are the paper's estimates for its
-			preregistered sample of 17,288 respondents (its Supplementary Table 9); the atlas does not
-			compute them. The story's other steps are chosen from all respondents, whatever sample you
-			picked elsewhere.
+			these with 1.11, what the model leaves unexplained.
+		</p>
+		<ul class="bars" aria-label="Standard deviations in the paper's model">
+			{#each SD_ROWS as row (row.label)}
+				<li>
+					<span class="bar-label">{row.label}</span>
+					<span class="bar-track" aria-hidden="true">
+						<span class="bar" style="width: {(row.sd / PAPER_SD.residual) * 100}%"></span>
+					</span>
+					<span class="bar-value num">{spread(row.sd)}</span>
+				</li>
+			{/each}
+		</ul>
+		<p>
+			These are the paper's estimates for its preregistered sample of 17,288 respondents (its
+			Supplementary Table 9); the atlas does not compute them. The story's other steps are chosen
+			from all respondents, whatever sample you picked elsewhere.
 		</p>
 	</section>
 
@@ -625,6 +659,36 @@
 	h3 {
 		font-size: var(--text-md);
 		margin-bottom: 0.5rem;
+	}
+
+	.bars {
+		max-width: var(--measure);
+		margin: 0 0 1rem;
+		padding: 0;
+		list-style: none;
+		font-size: var(--text-sm);
+	}
+
+	.bars li {
+		display: grid;
+		grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) 3rem;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.375rem 0;
+	}
+
+	.bar-track {
+		height: 1rem;
+	}
+
+	.bar {
+		display: block;
+		height: 100%;
+		background: var(--text);
+	}
+
+	.bar-value {
+		text-align: right;
 	}
 
 	table {

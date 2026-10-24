@@ -10,8 +10,16 @@ import { audienceRows } from '../charts/audience-model';
 import { STORY_CHANGE_TITLE } from '../change-text';
 import { globalChange } from '../charts/change-model';
 import { extremes, largestFirst } from '../data/derive';
-import { ALONE, MANAGEMENT } from '../data/grid';
-import type { ChangeCells, ContextCells, GlobalCells, SocietyCells } from '../data/model';
+import { score } from '../data/format';
+import { ALONE, CELL_COUNT, MANAGEMENT } from '../data/grid';
+import {
+	Status,
+	type ChangeCells,
+	type ContextCells,
+	type GlobalCells,
+	type SocietyCells
+} from '../data/model';
+import { listText } from '../data/society';
 
 /**
  * The paper's model (Eriksson et al. 2025), as SRS §4.8 states it: the standard deviation between
@@ -20,6 +28,71 @@ import type { ChangeCells, ContextCells, GlobalCells, SocietyCells } from '../da
  * The atlas does not estimate these itself.
  */
 export const PAPER_SD = { situations: 0.31, societies: 0.19, residual: 1.11 } as const;
+
+/**
+ * Decision 3 (D-2): step 1's picture, from All data on the raw scale. Each of the 150 pairs'
+ * global average, and each society's average over all the pairs: its offset (DR-10, its mean
+ * deviation from the global averages over the pairs it has) added to the mean of the 150 global
+ * averages. A society with no pair of 10 or more respondents has nothing to show (DR-9).
+ */
+export interface Spread {
+	pairs: { cell: number; value: number }[];
+	societies: { code: string; value: number }[];
+	/** Codes of the societies left out. */
+	without: string[];
+}
+
+export function storySpread(global: GlobalCells, cells: SocietyCells): Spread {
+	const pairs = Array.from({ length: CELL_COUNT }, (_, cell) => ({
+		cell,
+		value: global.mean(cell, 'raw')
+	}));
+	const grand = pairs.reduce((sum, p) => sum + p.value, 0) / pairs.length;
+	const societies: Spread['societies'] = [];
+	const without: string[] = [];
+	cells.codes.forEach((code, s) => {
+		const offset = cells.offset(s, 'raw');
+		const shown = Array.from({ length: CELL_COUNT }, (_, c) => cells.status(s, c)).some(
+			(status) => status === Status.Ok || status === Status.Small
+		);
+		if (offset === null || !shown) without.push(code);
+		else societies.push({ code, value: Math.round((grand + offset) * 100) / 100 });
+	});
+	return { pairs, societies, without };
+}
+
+/** The picture's ranges for the prerendered page (FR-87): only numbers and codes. */
+export interface SpreadNumbers {
+	pairs: [number, number];
+	societies: [number, number];
+	/** How many societies are shown. */
+	shown: number;
+	without: string[];
+}
+
+export function spreadNumbers(s: Spread): SpreadNumbers {
+	const range = (values: number[]): [number, number] => [Math.min(...values), Math.max(...values)];
+	return {
+		pairs: range(s.pairs.map((p) => p.value)),
+		societies: range(s.societies.map((p) => p.value)),
+		shown: s.societies.length,
+		without: s.without
+	};
+}
+
+/** NFR-11, FR-87: step 1's picture in one sentence; `without` names the societies left out. */
+export function spreadSummary(n: SpreadNumbers, without: readonly string[]): string {
+	const pairs = `The 150 pairs' averages run from ${score(n.pairs[0])} to ${score(n.pairs[1])}`;
+	const societies = `the ${n.shown} societies' averages over all the pairs, from ${score(
+		n.societies[0]
+	)} to ${score(n.societies[1])}`;
+	const left = without.length
+		? without.length === 1
+			? ` ${without[0]} is left out: none of its pairs had 10 or more respondents.`
+			: ` ${listText(without)} are left out: none of their pairs had 10 or more respondents.`
+		: '';
+	return `${pairs}; ${societies}.${left}`;
+}
 
 export interface CellStep {
 	/** Index into the 150-cell grid. */
@@ -34,6 +107,7 @@ export interface CellStep {
 }
 
 export interface StoryNumbers {
+	spread: SpreadNumbers;
 	universal: CellStep;
 	dependent: CellStep;
 	/** The behavior with the largest drop from alone to management or professors (decision 58). */
@@ -82,6 +156,7 @@ export function storyNumbers(
 		};
 	}
 	return {
+		spread: spreadNumbers(storySpread(global, cells)),
 		universal: cellStep(global, cells, universal),
 		dependent: cellStep(global, cells, dependent),
 		audience: {

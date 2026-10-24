@@ -35,6 +35,8 @@
 		href: (cell: number) => ResolvedPathname;
 		/** Hover or focus on a row (FR-13): the details panel follows it. */
 		onpreview?: (cell: number) => void;
+		/** Rows shown before "Show all": 25 (decision 49), or 5 in the story (D-22). */
+		first?: number;
 	}
 
 	let {
@@ -49,13 +51,12 @@
 		unpairedLabel,
 		note,
 		href,
-		onpreview
+		onpreview,
+		first = 25
 	}: Props = $props();
 
-	/** Rows shown before "Show all" (decision 49). */
-	const FIRST = 25;
 	let all = $state(false);
-	const shown = $derived(all ? rows : rows.slice(0, FIRST));
+	const shown = $derived(all ? rows : rows.slice(0, first));
 	/** The track's width in px, measured from the axis above the rows. */
 	let width = $state(0);
 	const HEIGHT = 20;
@@ -128,7 +129,7 @@
 			</li>
 		{/each}
 	</ol>
-	{#if rows.length > FIRST}
+	{#if rows.length > first}
 		<button
 			type="button"
 			class="button more"
