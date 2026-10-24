@@ -604,8 +604,8 @@ width is given; "–" where a page has no chart.
 | `/method/` | – | – | 90 → 161 | 40.0 → 44.6 | 11.2 → 11.5 | – |
 
 - **The brief's targets are met:** every module route starts its main chart on the first phone
-  screen, and no lede runs past 45 words (`e2e/first-screen.e2e.ts`, in Chromium, WebKit, the
-  iPhone and the Pixel). Query links shift the layout by at most 0.006 (they shifted 0.116 to 0.186
+  screen, and no lede runs past 45 words (`e2e/first-screen.e2e.ts`, in Chromium, with a phone's
+  font metrics in CI). Query links shift the layout by at most 0.006 (they shifted 0.116 to 0.186
   before; `e2e/layout-shift.e2e.ts`).
 - **Not met, and why:** words before the first chart fell from 76–288 to 72–137, still above the
   60 or so that would let a reader see the picture before reading. What remains is the society box,

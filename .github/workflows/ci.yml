@@ -125,13 +125,21 @@ jobs:
         run: npm run check:content
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
-      # AT-1 to AT-4, AT-7, AT-9, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1) and
-      # redraw times (NFR-4).
+      # AT-1 to AT-4, AT-7, AT-9, AT-11, keyboard paths, axe (NFR-10), measured budgets (NFR-1),
+      # redraw times (NFR-4) and the first phone screen (decision 138). The runner's default sans is
+      # wider than any phone's system font and would push charts below a phone's fold, so system-ui
+      # maps to Liberation Sans, Arial's metrics, as for the cards and the visual baselines.
       - name: Playwright end-to-end and accessibility tests
-        run: npm run test:e2e -- --project=chromium
+        run: |
+          test "$(fc-match -f '%{family}' system-ui)" = "Liberation Sans"
+          npm run test:e2e -- --project=chromium
+        env:
+          FONTCONFIG_FILE: ${{ github.workspace }}/site/e2e/fonts.conf
       # NFR-2 and AT-1 on twelve routes under Lighthouse's mobile profile, with the runner's Chrome.
       - name: Lighthouse CI
         run: npm run lhci
+        env:
+          FONTCONFIG_FILE: ${{ github.workspace }}/site/e2e/fonts.conf
 
   # NFR-20, decision 98: Firefox, desktop Safari, Safari on iOS and Chrome on Android run the
   # tests tagged @compat.
