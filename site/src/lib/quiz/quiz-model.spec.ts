@@ -84,7 +84,7 @@ describe('FR-61: where an answer falls among the societies’ estimates', () => 
 				'more approving than that; in 1 it was the same.'
 		);
 		expect(placementText(placement(cell5, 6), 6, 'paper')).toBe(
-			"You said extremely appropriate. In all 3 societies in the Paper's sample, respondents' " +
+			"You said extremely appropriate. In all 3 societies in the paper's sample, respondents' " +
 				'average answer was less approving than that.'
 		);
 	});

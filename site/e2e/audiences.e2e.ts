@@ -220,13 +220,13 @@ test.describe('FR-42: filters', () => {
 	}) => {
 		await page.goto(url('audiences/?society=kwt&sample=paper'));
 		await audiencesReady(page);
-		await expect(page.getByRole('status').filter({ hasText: 'not in this sample' })).toContainText(
-			"Respondents in Kuwait are not in this sample (Paper's sample)"
+		await expect(page.getByRole('status').filter({ hasText: 'are not in the' })).toContainText(
+			"Respondents in Kuwait are not in the paper's sample"
 		);
 		await expect(page.locator('#multiples-summary')).toHaveText(
 			/^On average across the 71 societies/
 		);
-		await page.getByRole('button', { name: 'Show All data' }).click();
+		await page.getByRole('button', { name: 'Show all respondents' }).click();
 		await expect(page).toHaveURL(/\/audiences\/\?society=kwt$/);
 		await expect(page.getByRole('link', { name: /^Kiss on the mouth Not asked$/ })).toBeVisible();
 	});
@@ -246,15 +246,15 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await expect(page.locator('#slope-summary')).toContainText('respondents in Japan');
 	const japan = await page.locator('#slope-summary').textContent();
 
-	await page.getByRole('radio', { name: 'Attention check' }).check();
+	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
-	await expect(page.locator('.badge')).toHaveText(/Attention check: 80 societies/);
+	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(page.locator('#slope-summary')).not.toHaveText(japan ?? '');
 
 	// The audiences use raw scores whatever the scale, and say so (decision 60).
-	await page.getByRole('radio', { name: 'Centered' }).check();
+	await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention&scale=centered$/);
-	await expect(page.getByText(/Centering applies to the situations only/)).toBeVisible();
+	await expect(page.getByText(/applies to the situations only/)).toBeVisible();
 
 	await page.goBack();
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
@@ -268,7 +268,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await page.goForward();
 	await page.goForward();
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Attention check' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'Passed the attention check' })).toBeChecked();
 	await expect(box).toHaveValue('Japan');
 
 	// The header carries the society, sample and scale into the module and out of it.

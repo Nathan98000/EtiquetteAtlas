@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { BEHAVIOR_TEXT, SITUATION_TEXT } from '#lib/data/grid.ts';
-	import { count, interval, percent, score } from '#lib/data/format.ts';
+	import { RELATIVE, count, interval, percent, score } from '#lib/data/format.ts';
 	import { Status, type Scale } from '#lib/data/model.ts';
 	import DataTable, { type Column } from './DataTable.svelte';
 	import { markPhrase, type FingerprintCell } from './fingerprint-model';
@@ -13,7 +13,7 @@
 	}
 
 	let { cells, order, scale, who }: Props = $props();
-	const centered = $derived(scale === 'centered' ? ', centered' : '');
+	const centered = $derived(scale === 'centered' ? `, ${RELATIVE}` : '');
 
 	const missing = (c: FingerprintCell) =>
 		c.status === Status.NotAsked ? 'not asked' : 'too few responses';

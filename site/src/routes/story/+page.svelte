@@ -128,7 +128,7 @@
 		<h1>A guided tour</h1>
 		<p class="lede">
 			A few steps through the answers of 25,422 respondents in 90 societies, then on to the atlas.
-			The tour uses All data, every respondent in every society.
+			The tour uses all respondents in every society, whatever sample you pick.
 		</p>
 		<noscript>
 			<p>The charts need JavaScript; the text of every step is below.</p>

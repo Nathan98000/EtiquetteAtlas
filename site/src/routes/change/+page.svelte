@@ -27,7 +27,7 @@
 	import { interval, place, score } from '#lib/data/format.ts';
 	import { CELLS, cellParams } from '#lib/data/grid.ts';
 	import { loadChange, loadSocieties } from '#lib/data/load.ts';
-	import { CHANGE_SOCIETIES, SAMPLE_LABEL, inChangeSurvey } from '#lib/data/model.ts';
+	import { CHANGE_SOCIETIES, SAMPLE_PHRASE, inChangeSurvey } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import { changeHref, setView, view, withView } from '#lib/state/view.svelte.ts';
@@ -158,8 +158,8 @@
 		</ChartFrame>
 		<p class="aside">
 			{#if others !== null}
-				The other {others} societies in this sample ({SAMPLE_LABEL[vs.sample]}) were not in the
-				2000–2003 survey.
+				The other {others} societies in {vs.sample === 'all' ? 'the GSN' : SAMPLE_PHRASE[vs.sample]} were
+				not in the 2000–2003 survey.
 			{:else}
 				The other GSN societies were not in the 2000–2003 survey.
 			{/if}

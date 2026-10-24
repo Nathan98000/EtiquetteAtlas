@@ -1,6 +1,14 @@
 <script lang="ts">
 	import { BEHAVIOR_TEXT, SITUATION_TEXT } from '#lib/data/grid.ts';
-	import { count, interval, percent, respondentsIn, score, spread } from '#lib/data/format.ts';
+	import {
+		RELATIVE,
+		count,
+		interval,
+		percent,
+		respondentsIn,
+		score,
+		spread
+	} from '#lib/data/format.ts';
 	import type { Scale } from '#lib/data/model.ts';
 	import DataTable, { type Column } from './DataTable.svelte';
 	import { societyPhrase, type MatrixCell, type SelectedSociety } from './matrix-model';
@@ -13,7 +21,7 @@
 	}
 
 	let { cells, order, scale, society }: Props = $props();
-	const centered = $derived(scale === 'centered' ? ', centered' : '');
+	const centered = $derived(scale === 'centered' ? `, ${RELATIVE}` : '');
 
 	const columns = $derived.by(() => {
 		const list: Column<MatrixCell>[] = [

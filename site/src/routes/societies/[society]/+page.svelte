@@ -33,10 +33,10 @@
 	import SimilarList from '#lib/components/SimilarList.svelte';
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
 	import { FINGERPRINT_SORT_KEYS } from '#lib/data/derive.ts';
-	import { place, respondentsIn } from '#lib/data/format.ts';
+	import { RELATIVE, place, respondentsIn } from '#lib/data/format.ts';
 	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
-	import { SAMPLE_LABEL, SAMPLES, inChangeSurvey } from '#lib/data/model.ts';
+	import { SAMPLE_PHRASE, SAMPLES, inChangeSurvey } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { factsView, similarView } from '#lib/data/society.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
@@ -107,7 +107,7 @@
 				: undefined
 	);
 
-	const outsideText = $derived(`${title} are not in this sample (${SAMPLE_LABEL[vs.sample]}).`);
+	const outsideText = $derived(`${title} are not in ${SAMPLE_PHRASE[vs.sample]}.`);
 	const summary = $derived.by(() => {
 		if (outside) return outsideText;
 		if (!counts || !similar || !similarity) return data.summary;
@@ -303,7 +303,7 @@
 	<section id="compare" class="compare needs-js" aria-labelledby="compare-title">
 		<h2 id="compare-title">Compare with another society</h2>
 		<p class="hint">
-			Both societies' estimates{vs.scale === 'centered' ? ', centered,' : ''} for every pair they can
+			Both societies' estimates{vs.scale === 'centered' ? `, ${RELATIVE},` : ''} for every pair they can
 			both show, largest gaps first.
 		</p>
 		<div class="compare-picker">
@@ -320,7 +320,7 @@
 		{#if other && !outside}
 			{#if files && otherIndex === undefined}
 				<p class="notice">
-					Respondents in {names[1]} are not in this sample ({SAMPLE_LABEL[vs.sample]}).
+					Respondents in {names[1]} are not in {SAMPLE_PHRASE[vs.sample]}.
 				</p>
 			{:else}
 				<ChartFrame
@@ -364,7 +364,7 @@
 								comparison={result}
 								{names}
 								caption="Respondents in {names[0]} and in {names[1]}{vs.scale === 'centered'
-									? ', centered'
+									? `, ${RELATIVE}`
 									: ''}, largest gap first"
 							/>
 						{/if}

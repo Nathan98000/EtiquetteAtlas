@@ -40,11 +40,11 @@
 			<li><a href="#scores">A society's score</a></li>
 			<li><a href="#intervals">Intervals</a></li>
 			<li><a href="#small-samples">Small samples</a></li>
-			<li><a href="#shrinkage">Shrinkage</a></li>
+			<li><a href="#shrinkage">Adjusted for small samples</a></li>
 			<li><a href="#global">The global picture</a></li>
 			<li><a href="#disagreement">Disagreement</a></li>
-			<li><a href="#centered">Centered scores</a></li>
-			<li><a href="#notable">Stricter or looser</a></li>
+			<li><a href="#centered">Relative to each society's average</a></li>
+			<li><a href="#notable">Clearly stricter or looser</a></li>
 			<li><a href="#fingerprint">Society fingerprints</a></li>
 			<li><a href="#compare">Comparing two societies</a></li>
 			<li><a href="#similar">Similar societies</a></li>
@@ -86,14 +86,16 @@
 		<h2>Samples</h2>
 		<p>You can switch between three groups of respondents:</p>
 		<ul>
-			<li><strong>All data</strong> (the default): everyone who rated at least one behavior.</li>
 			<li>
-				<strong>Paper's sample</strong>: the respondents behind the main figures of the GSN paper.
-				It leaves out people who took the survey after February 2024, and Kuwait.
+				<strong>All respondents</strong> (the default): everyone who rated at least one behavior.
 			</li>
 			<li>
-				<strong>Attention check</strong>: respondents who passed a check that they were reading
-				carefully, in the societies the GSN authors kept with it.
+				<strong>The paper's sample</strong>: the respondents behind the main figures of the GSN
+				paper. It leaves out people who took the survey after February 2024, and Kuwait.
+			</li>
+			<li>
+				<strong>Passed the attention check</strong>: respondents who passed a check that they were
+				reading carefully, in the societies the GSN authors kept with it.
 			</li>
 		</ul>
 		<h3>What each sample changes</h3>
@@ -107,14 +109,14 @@
 					<strong>{sample.label}</strong>: {sample.respondents} respondents in {sample.societies} societies.
 					It leaves out {sample.leftOut.length} societies: {listText(sample.leftOut)}. Across the
 					150 pairs, the average of all societies moves by {sample.shift?.mean} on average and by at most
-					{sample.shift?.max} from All data.
+					{sample.shift?.max} from all respondents.
 				</li>
 			{/each}
 		</ul>
 		<p>
 			With fewer respondents, a society's scores rest on fewer answers: their intervals widen, more
 			pairs read "too few responses", and ranks can move. Societies outside the chosen sample read
-			"not in this sample". The guided story always shows All data.
+			"not in this sample". The guided story always shows all respondents.
 		</p>
 		<p>
 			The paper's statistical models use a further subset, the 17,288 respondents with every answer
@@ -165,14 +167,15 @@
 	</section>
 
 	<section id="shrinkage">
-		<h2>Shrinkage (the default estimate)</h2>
+		<h2>Adjusted for small samples (the default)</h2>
 		<p>
 			Scores from small groups of respondents bounce around more. To keep a few unusual answers from
 			making a society look extreme, the default view pulls each society's score part of the way
 			toward the average of all societies. Scores based on many respondents barely move; scores
-			based on few move more. A shrunken score's interval comes from a formula that combines the
-			society's own uncertainty with that of the average of all societies. On a pair's page, the
-			Estimate toggle switches to the raw scores.
+			based on few move more; statisticians call this shrinkage. An adjusted score's interval comes
+			from a formula that combines the society's own uncertainty with that of the average of all
+			societies. On a pair's page, the estimate toggle switches between "Adjusted for small samples"
+			and "Unadjusted", each society's plain average.
 		</p>
 	</section>
 
@@ -180,8 +183,8 @@
 		<h2>The global picture</h2>
 		<p>
 			The matrix shows the average score of all societies for each pair, with every society counting
-			equally, however many respondents it had. In All data, the 829 respondents in the United
-			States count as much as the 71 in Chile.
+			equally, however many respondents it had. Among all respondents, the 829 in the United States
+			count as much as the 71 in Chile.
 		</p>
 	</section>
 
@@ -198,22 +201,25 @@
 	</section>
 
 	<section id="centered">
-		<h2>Centered scores</h2>
+		<h2>Relative to each society's average (centered scores)</h2>
 		<p>
 			Respondents in some societies rate nearly everything higher than respondents elsewhere; the
-			data cannot tell whether that is general leniency or a way of using the scale. The centered
-			view removes each society's overall tendency, so you see where it is stricter or looser than
-			usual for itself. The GSN paper makes no such adjustment; it is our addition.
+			data cannot tell whether that is general leniency or a way of using the scale. The scale
+			"Relative to each society's average" removes each society's overall tendency, so you see where
+			it is stricter or looser than usual for itself. The GSN paper makes no such adjustment; it is
+			our addition.
 		</p>
 	</section>
 
 	<section id="notable">
-		<h2>Stricter or looser</h2>
+		<h2>Clearly stricter or looser</h2>
 		<p>
-			With a society selected, a pair is marked stricter or looser when we are 95% sure the
-			society's score is below or above the global average. On the centered scale the same test uses
-			centered scores, so a society that rates everything higher is marked only where it departs
-			from its own tendency.
+			With a society selected, a pair is marked clearly stricter or looser when we are 95% sure the
+			society's score is below or above the global average: the 95% interval of the difference
+			leaves out 0. Otherwise the comparison is too close to call. Relative to each society's
+			average, the same test uses those scores, so a society that rates everything higher is marked
+			only where it departs from its own tendency. The comparison of the two surveys uses the same
+			words: "clearly higher", "clearly lower" or "too close to call".
 		</p>
 	</section>
 
@@ -222,18 +228,17 @@
 		<p>
 			A society's fingerprint shows, for each of the 150 pairs, how far its respondents' score lies
 			above or below the average of all societies. It uses the default estimate, which pulls scores
-			from few respondents toward the average (see Shrinkage), so a handful of unusual answers
-			cannot make a society look extreme. Blue means the society's respondents judged the pair more
-			appropriate than average (looser), orange less appropriate (stricter). The colours run out at
-			1.5 points either way; the few larger differences take the end colours, and the details give
-			their exact value.
+			from few respondents toward the average (see Adjusted for small samples), so a handful of
+			unusual answers cannot make a society look extreme. Blue means the society's respondents
+			judged the pair more appropriate than average (looser), orange less appropriate (stricter).
+			The colours run out at 1.5 points either way; the few larger differences take the end colours,
+			and the details give their exact value.
 		</p>
 		<p>
 			A ▲ or ▼ marks a pair where we are 95% sure the society's score is above or below the global
 			average. A pair can have a clear colour and no mark when few respondents rated it. A pair
 			rated by fewer than 10 respondents, or left out of that society's survey, shows a dash and no
-			colour. On the centered scale, both the colours and the marks use centered scores (see
-			Centered scores).
+			colour. Relative to each society's average, both the colours and the marks use those scores.
 		</p>
 	</section>
 
@@ -241,10 +246,10 @@
 		<h2>Comparing two societies</h2>
 		<p>
 			On a society's page you can compare it with any other society, pair by pair. Each row shows
-			both societies' estimates (shrunken, on the scale you chose) with the global mean as a tick,
-			and the gap between them; the largest gaps come first. Pairs that either society cannot show
-			are listed apart. Each estimate has its own uncertainty, so a small gap may be noise: the
-			table gives each estimate's 95% interval.
+			both societies' estimates (adjusted for small samples, on the scale you chose) with the global
+			mean as a tick, and the gap between them; the largest gaps come first. Pairs that either
+			society cannot show are listed apart. Each estimate has its own uncertainty, so a small gap
+			may be noise: the table gives each estimate's 95% interval.
 		</p>
 	</section>
 
@@ -295,10 +300,10 @@
 			intervals cannot simply be combined, and a small difference in one society may be noise.
 		</p>
 		<p>
-			These charts always show raw scores. Centering subtracts each society's average over the 150
-			behavior–situation pairs, which these questions are not part of, and the audience effect
-			compares a society with itself, so the way a society's respondents use the scale mostly
-			cancels out.
+			These charts always show scores as answered. The relative scale subtracts each society's
+			average over the 150 behavior–situation pairs, which these questions are not part of, and the
+			audience effect compares a society with itself, so the way a society's respondents use the
+			scale mostly cancels out.
 		</p>
 		<p>
 			Women and men respondents are shown for all societies together only: within one society, a
@@ -325,12 +330,12 @@
 			On the home page you can rate three behaviors in situations on the six answers the survey
 			offered, from extremely inappropriate to extremely appropriate. The question wording is the
 			atlas's own; the six answers are the survey's. Your answer is placed among each society's
-			average answer (the shrunken estimate, on the raw scale) in the sample you chose. An average
+			average answer (adjusted for small samples, as answered) in the sample you chose. An average
 			is the middle of many people's answers, while yours is a single answer on one of the six
-			points, so "above the average answer of respondents in 4 societies" says where your answer
-			falls, not how you compare with anyone. If you choose a society, you also see how many of its
-			respondents gave each answer. Societies with fewer than 10 respondents for a question are left
-			out and counted apart.
+			points, so "in 83 of 87 societies, respondents' average answer was more approving than that"
+			says where your answer falls, not how you compare with anyone. If you choose a society, you
+			also see how many of its respondents gave each answer. Societies with fewer than 10
+			respondents for a question are left out and counted apart.
 		</p>
 		<p>
 			Your answers stay in this browser tab: they are kept in its session storage, so a reload keeps
@@ -350,8 +355,8 @@
 			with 0.19 and between individual respondents with 0.50; single ratings vary around all of
 			these with 1.11, what the model leaves unexplained. These are the paper's estimates for its
 			preregistered sample of 17,288 respondents (its Supplementary Table 9); the atlas does not
-			compute them. The story's other steps are chosen from All data, whatever sample you picked
-			elsewhere.
+			compute them. The story's other steps are chosen from all respondents, whatever sample you
+			picked elsewhere.
 		</p>
 	</section>
 

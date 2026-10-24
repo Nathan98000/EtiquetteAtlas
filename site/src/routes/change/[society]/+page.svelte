@@ -18,7 +18,7 @@
 	import { count, respondentsIn } from '#lib/data/format.ts';
 	import { CELLS, cellParams } from '#lib/data/grid.ts';
 	import { loadChange, loadSocieties } from '#lib/data/load.ts';
-	import { CHANGE_SOCIETIES, SAMPLE_LABEL } from '#lib/data/model.ts';
+	import { CHANGE_SOCIETIES, SAMPLE_LABEL, SAMPLE_PHRASE } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import { changeHref, setView, societyHref, view, withView } from '#lib/state/view.svelte.ts';
@@ -49,7 +49,7 @@
 		file ? (index === undefined ? reference : societyChange(file, index)) : undefined
 	);
 
-	const outsideText = $derived(`${Who} are not in this sample (${SAMPLE_LABEL[vs.sample]}).`);
+	const outsideText = $derived(`${Who} are not in ${SAMPLE_PHRASE[vs.sample]}.`);
 	// Until the browser has the data, the prerendered All-data text stands in (FR-87, decision 74).
 	const summary = $derived(
 		outside ? outsideText : arrows ? changeSummary(scope, arrows, n) : data.summary

@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { loadSocieties } from '#lib/data/load.ts';
 	import { SAMPLE_LABEL, SAMPLES, type SampleId, type Scale } from '#lib/data/model.ts';
+	import { RELATIVE } from '#lib/data/format.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { setView, view } from '#lib/state/view.svelte.ts';
 	import CopyLink from './CopyLink.svelte';
@@ -14,8 +15,9 @@
 	const sample = $derived(view.state.sample);
 	const sampleOptions = SAMPLES.map((value) => ({ value, label: SAMPLE_LABEL[value] }));
 	const scaleOptions: { value: Scale; label: string }[] = [
-		{ value: 'raw', label: 'Raw scores' },
-		{ value: 'centered', label: 'Centered' }
+		// Decision 5 (D-8): the scales in plain words; the URL keeps `scale=centered`.
+		{ value: 'raw', label: 'As answered' },
+		{ value: 'centered', label: RELATIVE[0].toUpperCase() + RELATIVE.slice(1) }
 	];
 	const counts: Record<SampleId, number> = { all: 90, paper: 71, attention: 80 };
 </script>
@@ -64,7 +66,7 @@
 					options={scaleOptions}
 					onchange={(value) => setView({ scale: value })}
 				/>
-				<a class="about" href={resolve('method/#centered')}>About centering</a>
+				<a class="about" href={resolve('method/#centered')}>About the two scales</a>
 			</div>
 			<CopyLink />
 		</div>

@@ -95,10 +95,10 @@ describe('FR-31: notable cells and their counts', () => {
 
 	it('names each cell for screen readers', () => {
 		expect(fingerprintLabel(aaa[0])).toBe(
-			'Arguing at a funeral ceremony: −0.4, notably stricter than the global average'
+			'Arguing at a funeral ceremony: −0.4, clearly stricter than the global average'
 		);
 		expect(fingerprintLabel(bbb[1])).toBe(
-			'Arguing on a city sidewalk: 0.0, not notably different from the global average, small sample'
+			'Arguing on a city sidewalk: 0.0, too close to call against the global average, small sample'
 		);
 		expect(fingerprintLabel(ccc[0])).toBe('Arguing at a funeral ceremony: too few responses');
 		expect(fingerprintLabel(ccc[2])).toBe('Arguing in the library: not asked');
@@ -135,16 +135,16 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 				'respondents in the Philippines'
 			)
 		).toBe(
-			'Respondents in Alpha were notably stricter than the global average in 150 of the 150 ' +
-				'pairs and notably looser in none, and their answers are most like those of respondents ' +
+			'Respondents in Alpha were clearly stricter than the global average on 150 of the 150 ' +
+				'pairs and clearly looser on none, and their answers are most like those of respondents ' +
 				'in the Philippines.'
 		);
 	});
 
 	it('says when pairs are missing and when no similar society can be named', () => {
 		expect(fingerprintSummary('respondents in Gamma', fingerprintCounts(ccc), 'raw', null)).toBe(
-			'Respondents in Gamma were notably stricter than the global average in none of the 148 ' +
-				'pairs with enough responses and notably looser in 148; too few of their pairs have ' +
+			'Respondents in Gamma were clearly stricter than the global average on none of the 148 ' +
+				'pairs with enough responses and clearly looser on 148; too few of their pairs have ' +
 				'enough responses to compare them with other societies.'
 		);
 	});
@@ -160,8 +160,8 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 				false
 			)
 		).toBe(
-			'On the centered scale, respondents in Alpha were notably stricter than the global ' +
-				'average in none of the 150 pairs and notably looser in none.'
+			"Relative to each society's average, respondents in Alpha were clearly stricter than the global " +
+				'average on none of the 150 pairs and clearly looser on none.'
 		);
 	});
 
@@ -177,8 +177,8 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 
 	it('names the largest differences either way for the chart', () => {
 		expect(fingerprintChartSummary('respondents in Alpha', uneven(), 'raw')).toBe(
-			'Respondents in Alpha were notably stricter than the global average in 150 of the 150 ' +
-				'pairs and notably looser in none; the largest differences are for arguing in a ' +
+			'Respondents in Alpha were clearly stricter than the global average on 150 of the 150 ' +
+				'pairs and clearly looser on none; the largest differences are for arguing in a ' +
 				'restaurant (+1.2) and using a mobile phone at a funeral ceremony (−1.0).'
 		);
 		expect(fingerprintChartSummary('respondents in Gamma', ccc, 'raw')).toMatch(

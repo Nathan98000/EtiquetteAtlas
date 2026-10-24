@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+		RELATIVE,
 		count,
 		interval,
 		narrow,
@@ -22,7 +23,7 @@
 
 	let { cell, scale, society, societyReady = true }: Props = $props();
 
-	const centered = $derived(scale === 'centered' ? ' (centered)' : '');
+	const centered = $derived(scale === 'centered' ? ` (${RELATIVE})` : '');
 	const who = $derived(society ? respondentsIn(society.code, society.name) : '');
 </script>
 

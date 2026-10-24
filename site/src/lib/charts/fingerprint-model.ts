@@ -88,7 +88,7 @@ export interface FingerprintCounts {
 	notAsked: number;
 }
 
-/** FR-31: how many pairs are notably stricter or looser, and how many cannot be shown. */
+/** FR-31: how many pairs are clearly stricter or looser, and how many cannot be shown. */
 export function fingerprintCounts(cells: readonly FingerprintCell[]): FingerprintCounts {
 	const counts = { shown: 0, stricter: 0, looser: 0, close: 0, tooFew: 0, notAsked: 0 };
 	for (const cell of cells) {
@@ -148,11 +148,11 @@ const howMany = (n: number) => (n === 0 ? 'none' : String(n));
 export function markPhrase(mark: Mark): string {
 	switch (mark) {
 		case 'looser':
-			return 'notably looser than the global average';
+			return 'clearly looser than the global average';
 		case 'stricter':
-			return 'notably stricter than the global average';
+			return 'clearly stricter than the global average';
 		case 'close':
-			return 'not notably different from the global average';
+			return 'too close to call against the global average';
 		case 'missing':
 			return 'not shown';
 	}
@@ -172,18 +172,18 @@ export function fingerprintLabel(cell: FingerprintCell): string {
 }
 
 /**
- * The counts in words: "Respondents in Chile were notably stricter than the global average in
- * 23 of the 150 pairs and notably looser in 41". `who` is "respondents in Chile".
+ * The counts in words: "Respondents in Chile were clearly stricter than the global average on
+ * 23 of the 150 pairs and clearly looser on 41". `who` is "respondents in Chile".
  */
 function countsClause(who: string, counts: FingerprintCounts, scale: Scale): string {
 	const pairs =
 		counts.shown === CELL_COUNT
 			? `the ${CELL_COUNT} pairs`
 			: `the ${counts.shown} pairs with enough responses`;
-	const start = scale === 'centered' ? `On the centered scale, ${who}` : capital(who);
+	const start = scale === 'centered' ? `Relative to each society's average, ${who}` : capital(who);
 	return (
-		`${start} were notably stricter than the global average in ${howMany(counts.stricter)} ` +
-		`of ${pairs} and notably looser in ${howMany(counts.looser)}`
+		`${start} were clearly stricter than the global average on ${howMany(counts.stricter)} ` +
+		`of ${pairs} and clearly looser on ${howMany(counts.looser)}`
 	);
 }
 

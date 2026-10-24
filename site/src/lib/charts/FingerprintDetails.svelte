@@ -1,5 +1,13 @@
 <script lang="ts">
-	import { count, interval, narrow, percent, responseLabel, score } from '#lib/data/format.ts';
+	import {
+		RELATIVE,
+		count,
+		interval,
+		narrow,
+		percent,
+		responseLabel,
+		score
+	} from '#lib/data/format.ts';
 	import { Status, type Scale } from '#lib/data/model.ts';
 	import { markPhrase, type FingerprintCell } from './fingerprint-model';
 
@@ -12,7 +20,7 @@
 
 	let { cell, scale, who }: Props = $props();
 
-	const centered = $derived(scale === 'centered' ? ' (centered)' : '');
+	const centered = $derived(scale === 'centered' ? ` (${RELATIVE})` : '');
 	const Who = $derived(who[0].toUpperCase() + who.slice(1));
 </script>
 

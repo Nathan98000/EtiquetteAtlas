@@ -24,15 +24,15 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 
 	// FR-4: the sample changes every view and shows its badge.
 	const before = await page.locator('#swarm-summary').textContent();
-	await page.getByRole('radio', { name: 'Attention check' }).check();
+	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
-	await expect(page.locator('.badge')).toHaveText(/Attention check: 80 societies/);
+	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(page.locator('#swarm-summary')).not.toHaveText(before ?? '');
 
 	// FR-5: the scale changes every view.
-	await page.getByRole('radio', { name: 'Centered' }).check();
+	await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention&scale=centered$/);
-	await expect(page.getByRole('heading', { name: /shrunken estimate, centered/ })).toBeVisible();
+	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
 	// D-3: every centered chart says so beside its title, the first one with what centering does.
 	await expect(page.locator('.scale-chip')).toHaveCount(3);
 	await expect(page.locator('.scale-chip').first()).toContainText(
@@ -42,20 +42,18 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 	// FR-84: back and forward step through the states.
 	await page.goBack();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
-	await expect(
-		page.getByRole('heading', { name: "Every society's shrunken estimate" })
-	).toBeVisible();
+	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
+	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
 	await page.goBack();
 	await expect(page).toHaveURL(/\?society=chl$/);
-	await expect(page.getByRole('radio', { name: 'All data' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'All respondents' })).toBeChecked();
 	await expect(page.locator('.badge')).toHaveText('');
 	await page.goBack();
 	await expect(box).toHaveValue('');
 	await page.goForward();
 	await page.goForward();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Attention check' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'Passed the attention check' })).toBeChecked();
 	await expect(box).toHaveValue('Chile');
 });
 
@@ -71,7 +69,7 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 			.getByRole('link', { name: /respondents in Japan/ })
 			.first()
 	).toBeVisible();
-	await page.getByRole('radio', { name: 'Centered' }).check();
+	await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 	await expect(page).toHaveURL(/\?society=jpn&scale=centered$/);
 	await expect(page.locator('#matrix-summary')).toBeVisible();
 	// D-3: the matrix barely changes when centered, and says so.
@@ -85,9 +83,11 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 	await expect(page).toHaveURL(/\?society=jpn$/);
 	await expect(chip).toHaveCount(0);
 	await page.goBack();
-	await expect(page.getByRole('radio', { name: 'Centered' })).toBeChecked();
+	await expect(
+		page.getByRole('radio', { name: "Relative to each society's average" })
+	).toBeChecked();
 	await page.goBack();
-	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
 });
 
 test('AT-11: on a fingerprint, society, sample and scale update every view and the URL; back and forward restore them', async ({
@@ -109,16 +109,16 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Respondents in Japan');
 	await expect(page.getByRole('grid', { name: /^Respondents in Japan compared/ })).toBeVisible();
 	await matrixReady(page);
-	await expect(lede).toHaveText(/^Respondents in Japan were notably/);
+	await expect(lede).toHaveText(/^Respondents in Japan were clearly/);
 	await expect(similar.getByRole('listitem')).not.toHaveText(chileSimilar);
 	await expect(facts).toContainText('Japanese');
 
 	// FR-4: the sample changes the grid, summary, facts and similar societies.
 	const before = await lede.textContent();
-	await page.getByRole('radio', { name: 'Attention check' }).check();
+	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
 	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
-	await expect(page.locator('.badge')).toHaveText(/Attention check: 80 societies/);
-	await expect(facts).toContainText('Respondents (Attention check)');
+	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
+	await expect(facts).toContainText('Respondents (the attention-check sample)');
 	await expect(lede).not.toHaveText(before ?? '');
 
 	// FR-5: the scale changes the grid's colours, marks and summary.
@@ -127,18 +127,18 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 			.locator('.grid-view a[data-cell]')
 			.evaluateAll((links) => links.map((a) => getComputedStyle(a).backgroundColor).join());
 	const rawFills = await fills();
-	await page.getByRole('radio', { name: 'Centered' }).check();
+	await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention&scale=centered$/);
-	await expect(lede).toHaveText(/^On the centered scale, respondents in Japan/);
+	await expect(lede).toHaveText(/^Relative to each society's average, respondents in Japan/);
 	expect(await fills()).not.toBe(rawFills);
 
 	// FR-84: back and forward step through the states, the society included.
 	await page.goBack();
-	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
 	await expect(lede).toHaveText(/^Respondents in Japan/);
 	await page.goBack();
 	await expect(page).toHaveURL(/\/societies\/jpn\/$/);
-	await expect(page.getByRole('radio', { name: 'All data' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'All respondents' })).toBeChecked();
 	await page.goBack();
 	await expect(page).toHaveURL(/\/societies\/chl\/$/);
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Respondents in Chile');
@@ -147,7 +147,7 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 	await page.goForward();
 	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
 	await expect(box).toHaveValue('Japan');
-	await expect(facts).toContainText('Respondents (Attention check)');
+	await expect(facts).toContainText('Respondents (the attention-check sample)');
 });
 
 test('NFR-13: by keyboard alone, pick a society, read its fingerprint and open a similar one', async ({
@@ -193,8 +193,8 @@ test('§4.4: a society outside the sample reads "not in this sample"', async ({ 
 test('§6.1: invalid query values fall back to the defaults', async ({ page }) => {
 	await page.goto(url('explore/?society=zzz&sample=everyone&scale=log&sort=random'));
 	await matrixReady(page);
-	await expect(page.getByRole('radio', { name: 'All data' })).toBeChecked();
-	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'All respondents' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
 	await expect(page.getByLabel('Sort')).toHaveValue('paper');
 	await expect(page.getByRole('combobox', { name: 'Society' })).toHaveValue('');
 });

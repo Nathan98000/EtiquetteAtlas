@@ -5,10 +5,18 @@
  */
 
 import { rank, rankText, type Rank } from '../data/derive';
-import { count, interval, place, responseLabel, score } from '../data/format';
+import {
+	RELATIVE,
+	count,
+	estimateWords,
+	interval,
+	place,
+	responseLabel,
+	score
+} from '../data/format';
 import {
 	REGIONS,
-	SAMPLE_LABEL,
+	SAMPLE_PHRASE,
 	Status,
 	type Estimate,
 	type EstimateKind,
@@ -171,14 +179,14 @@ export function societyBox(
 		const e = where.point.estimate!;
 		const value =
 			d.scale === 'centered'
-				? `${score(e.value)} (relative to each society's average)`
+				? `${score(e.value)} (${RELATIVE})`
 				: `${responseLabel(e.value)} (${score(e.value)})`;
 		const small = where.point.status === Status.Small ? ' (small sample)' : '';
 		return {
 			lead: `${who}: ${value}, ${versusGlobal(where.point.notable)}; ${where.text}.`,
 			note:
 				`95% interval ${interval(e.lo, e.hi)} · ${count(where.point.n ?? 0)} respondents` +
-				`${small} · ${d.kind === 'shrunk' ? 'shrunken' : 'raw'} estimate`
+				`${small} · ${estimateWords(d.kind)}`
 		};
 	}
 	if (where.kind === 'too-few') {
@@ -193,7 +201,7 @@ export function societyBox(
 	if (where.kind === 'not-in-sample') {
 		return {
 			lead: `${who}: not in this sample.`,
-			note: `The sample shown (${SAMPLE_LABEL[sample]}) leaves this society out.`
+			note: `${SAMPLE_PHRASE[sample][0].toUpperCase()}${SAMPLE_PHRASE[sample].slice(1)} leaves this society out.`
 		};
 	}
 	return { lead: who, note: 'Loading…' };

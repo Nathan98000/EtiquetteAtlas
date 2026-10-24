@@ -25,10 +25,17 @@ import {
 
 export type SampleId = 'all' | 'paper' | 'attention';
 export const SAMPLES: readonly SampleId[] = ['all', 'paper', 'attention'];
+/** The samples' names on the toggle and the badge, in plain words (decision 5, D-8). */
 export const SAMPLE_LABEL: Record<SampleId, string> = {
-	all: 'All data',
-	paper: "Paper's sample",
-	attention: 'Attention check'
+	all: 'All respondents',
+	paper: "The paper's sample",
+	attention: 'Passed the attention check'
+};
+/** The same inside a sentence: "Respondents in Kuwait are not in the paper's sample." */
+export const SAMPLE_PHRASE: Record<SampleId, string> = {
+	all: 'all respondents',
+	paper: "the paper's sample",
+	attention: 'the attention-check sample'
 };
 
 export type Scale = 'raw' | 'centered';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { societyLabel } from '#lib/charts/audience-model.ts';
-	import { SAMPLE_LABEL, type Society } from '#lib/data/model.ts';
+	import { SAMPLE_PHRASE, type Society } from '#lib/data/model.ts';
 	import { setView, view } from '#lib/state/view.svelte.ts';
 	import SampleNotice from './SampleNotice.svelte';
 	import Segmented from './Segmented.svelte';
@@ -39,9 +39,7 @@
 			/>
 		{:else if outside}
 			<SampleNotice
-				text="{who} are not in this sample ({SAMPLE_LABEL[
-					vs.sample
-				]}), so the charts show all societies."
+				text="{who} are not in {SAMPLE_PHRASE[vs.sample]}, so the charts show all societies."
 			/>
 		{:else}
 			<p class="hint">Showing all societies. Pick a society above to see its respondents.</p>
@@ -68,11 +66,12 @@
 			they count everywhere else.
 		{/if}
 		{#if vs.scale === 'centered'}
-			Centering applies to the situations only: these charts show raw scores. The drop from alone to
-			management or professors is a difference within each society either way.
+			"Relative to each society's average" applies to the situations only: these charts show scores
+			as answered. The drop from alone to management or professors is a difference within each
+			society either way.
 			<a href={resolve('method/#audiences')}>Why</a>
 		{:else}
-			Raw scores, from −2.5 (extremely inappropriate) to +2.5 (extremely appropriate).
+			Scores as answered, from −2.5 (extremely inappropriate) to +2.5 (extremely appropriate).
 		{/if}
 	</p>
 </div>

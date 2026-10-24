@@ -101,7 +101,7 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		await expect(societies.getByRole('listitem')).toHaveCount(26);
 		await expect(societies.getByRole('link').first()).toHaveText('Malaysia');
 		await expect(societies.getByRole('link').last()).toHaveText('Australia');
-		await expect(page.getByText('The other 64 societies in this sample (All data)')).toBeVisible();
+		await expect(page.getByText('The other 64 societies in the GSN')).toBeVisible();
 		const behaviors = page.getByRole('list', { name: 'Behaviors, highest mean difference first' });
 		await expect(behaviors.getByRole('listitem')).toHaveCount(12);
 		const cry = behaviors.getByRole('listitem').first();
@@ -137,7 +137,7 @@ test.describe('FR-50: a society’s page', () => {
 		await expect(page.getByRole('complementary', { name: PROVENANCE })).toBeVisible();
 		await expect(page.locator('.facts')).toContainText('2000–2003 survey');
 		await expect(page.locator('.facts')).toContainText(
-			/2023–2024 survey\s*[\d,]+ respondents\s*All data/
+			/2023–2024 survey\s*[\d,]+ respondents\s*All respondents/
 		);
 		await arrowsReady(page);
 		const firstRow = rows(page).first();
@@ -194,13 +194,13 @@ test.describe('FR-53: a society without 2000–2003 data', () => {
 		page
 	}) => {
 		await page.goto(url('change/kor/?sample=paper'));
-		await expect(page.getByRole('status').filter({ hasText: 'not in this sample' })).toContainText(
-			"Respondents in South Korea are not in this sample (Paper's sample). The chart shows the 22 societies in both surveys instead."
+		await expect(page.getByRole('status').filter({ hasText: 'are not in the' })).toContainText(
+			"Respondents in South Korea are not in the paper's sample. The chart shows the 22 societies in both surveys instead."
 		);
 		await expect(page.locator('#arrows-title')).toHaveText(
 			'Averaged over the 22 societies in both surveys, pair by pair'
 		);
-		await page.getByRole('button', { name: 'Show All data' }).click();
+		await page.getByRole('button', { name: 'Show all respondents' }).click();
 		await expect(page).toHaveURL(/\/change\/kor\/$/);
 		await expect(page.locator('.lede')).toHaveText(
 			/^Of the 120 pairs both surveys asked, respondents in South Korea/
@@ -276,21 +276,21 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	);
 	await expect(page.locator('#arrows-summary')).toContainText('for respondents in Japan');
 
-	await page.getByRole('radio', { name: 'Attention check' }).check();
+	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
-	await expect(page.locator('.badge')).toHaveText(/Attention check: 80 societies/);
+	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(page.locator('.lede')).toHaveText(
 		/judged 24 clearly more appropriate .* and 38 clearly less/
 	);
 
 	// Raw scores whatever the scale, and the page says so (decision 72).
-	await page.getByRole('radio', { name: 'Centered' }).check();
+	await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention&scale=centered$/);
-	await expect(page.locator('.scale-note')).toContainText('has no centered scores');
+	await expect(page.locator('.scale-note')).toContainText('has no scores relative to each society');
 
 	await page.goBack();
 	await expect(page).toHaveURL(/\?sample=attention$/);
-	await expect(page.locator('.scale-note')).toContainText('Raw scores in both surveys');
+	await expect(page.locator('.scale-note')).toContainText('Scores as answered in both surveys');
 	await page.goBack();
 	await expect(page).toHaveURL(/\/change\/jpn\/$/);
 	await expect(page.locator('.lede')).toHaveText(/judged 22 clearly more appropriate/);
@@ -301,7 +301,7 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await page.goForward();
 	await page.goForward();
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Attention check' })).toBeChecked();
+	await expect(page.getByRole('radio', { name: 'Passed the attention check' })).toBeChecked();
 	await expect(box).toHaveValue('Japan');
 	await expect(page.locator('.lede')).toHaveText(/judged 24 clearly more appropriate/);
 });

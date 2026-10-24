@@ -7,11 +7,13 @@
      (decision 60); the scale stays in the URL so it follows the reader. -->
 <p class="scale-note">
 	{#if view.state.scale === 'centered'}
-		The 2000–2003 survey has no centered scores, so these charts show raw scores in both surveys. A
-		difference compares a society's respondents in the two surveys either way.
+		The 2000–2003 survey has no scores relative to each society's average, so these charts show
+		scores as answered in both surveys. A difference compares a society's respondents in the two
+		surveys either way.
 		<a href={resolve('method/#change')}>Why</a>
 	{:else}
-		Raw scores in both surveys, from −2.5 (extremely inappropriate) to +2.5 (extremely appropriate).
+		Scores as answered in both surveys, from −2.5 (extremely inappropriate) to +2.5 (extremely
+		appropriate).
 	{/if}
 </p>
 

@@ -9,6 +9,7 @@ import { count, signed } from './format';
 import {
 	REGIONS,
 	SAMPLE_LABEL,
+	SAMPLE_PHRASE,
 	SAMPLES,
 	type Region,
 	type SampleId,
@@ -144,8 +145,8 @@ export function indexSummary(societies: Societies, sample: SampleId): string {
 	const listed = "listed here by the GSN authors' four regions";
 	return sample === 'all'
 		? `Respondents in ${sizes.length} societies took part, from ${min} to ${max} in each, ${listed}.`
-		: `${sizes.length} of the ${societies.list.length} societies are in this sample ` +
-				`(${SAMPLE_LABEL[sample]}), with ${min} to ${max} respondents in each, ${listed}.`;
+		: `${sizes.length} of the ${societies.list.length} societies are in ${SAMPLE_PHRASE[sample]}, ` +
+				`with ${min} to ${max} respondents in each, ${listed}.`;
 }
 
 /** Societies by the authors' regions (§4.4), each sorted by name. */

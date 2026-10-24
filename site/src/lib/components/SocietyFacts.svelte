@@ -59,8 +59,9 @@
 	{:else if rows}
 		<table class="wide">
 			<caption>
-				Respondents in each sample, the share recorded as students under All data, the languages of
-				the survey and the months of fieldwork. A dash means the society is not in that sample.
+				Respondents in each sample, the share recorded as students among all respondents, the
+				languages of the survey and the months of fieldwork. A dash means the society is not in that
+				sample.
 			</caption>
 			<thead>
 				<tr>

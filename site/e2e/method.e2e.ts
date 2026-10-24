@@ -93,9 +93,9 @@ test('§4.8, AT-12: the method page says what the paper and the data support (fi
 	await expect(section('data')).toContainText('convenience samples');
 	await expect(section('data')).toContainText('never a score or a count of answers for a group');
 	for (const id of ['data', 'limits']) await expect(section(id)).not.toContainText('online panels');
-	// L-5, L-6: shrinkage is turned off by the Estimate toggle, and its interval is a formula.
+	// L-5, L-6: the adjustment is turned off by the estimate toggle, and its interval is a formula.
 	await expect(section('shrinkage')).toContainText(
-		'the Estimate toggle switches to the raw scores'
+		'the estimate toggle switches between "Adjusted for small samples"'
 	);
 	await expect(section('shrinkage')).toContainText('interval comes from a formula');
 	// L-8, L-9: the audiences' respondent counts from the aggregates, and 150 pairs.

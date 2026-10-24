@@ -2,19 +2,19 @@
 	import { setView } from '#lib/state/view.svelte.ts';
 
 	interface Props {
-		/** "Respondents in Kuwait are not in this sample (Paper's sample)." */
+		/** "Respondents in Kuwait are not in the paper's sample." */
 		text: string;
 	}
 
 	let { text }: Props = $props();
 </script>
 
-<!-- Decisions 53 and 63: a society outside the active sample, with a way back to All data, where
-     every society is. -->
+<!-- Decisions 53 and 63: a society outside the active sample, with a way back to all respondents,
+     where every society is. -->
 <div class="notice" role="status">
 	<p>{text}</p>
 	<button type="button" class="button" onclick={() => setView({ sample: 'all' })}>
-		Show All data
+		Show all respondents
 	</button>
 </div>
 

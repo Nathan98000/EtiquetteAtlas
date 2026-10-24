@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { FactsView } from '#lib/data/society.ts';
-	import { SAMPLE_LABEL } from '#lib/data/model.ts';
+	import { SAMPLE_PHRASE } from '#lib/data/model.ts';
 
 	interface Props {
 		/** Undefined while the file loads. */
@@ -17,7 +17,9 @@
 	<h2 id="facts-title">About these respondents</h2>
 	<dl>
 		<div>
-			<dt>Respondents{facts ? ` (${SAMPLE_LABEL[facts.sample]})` : ''}</dt>
+			<dt>
+				Respondents{facts && facts.sample !== 'all' ? ` (${SAMPLE_PHRASE[facts.sample]})` : ''}
+			</dt>
 			<dd class="num">{facts ? (facts.inSample?.respondents ?? 'not in this sample') : '…'}</dd>
 		</div>
 		{#if !facts || facts.inSample}

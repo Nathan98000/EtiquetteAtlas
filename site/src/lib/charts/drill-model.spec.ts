@@ -103,7 +103,7 @@ describe('D-1, D-15, FR-25: the society box and small samples in words', () => {
 			'Respondents in Alpha: extremely inappropriate (−2.2), clearly stricter than the global ' +
 				'average; 1st strictest of 3.'
 		);
-		expect(box.note).toMatch(/^95% interval .+ respondents.* · shrunken estimate$/);
+		expect(box.note).toMatch(/^95% interval .+ respondents.* · adjusted for small samples$/);
 	});
 
 	it('gives a centered score without a response label, which would not apply', () => {

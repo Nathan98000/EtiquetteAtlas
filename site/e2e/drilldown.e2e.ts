@@ -13,8 +13,8 @@ test('AT-2: a cell URL with society and sample opens in a fresh browser with tha
 	await swarmReady(page);
 
 	// FR-4: the sample is applied and its badge shows.
-	await expect(page.getByRole('radio', { name: "Paper's sample" })).toBeChecked();
-	await expect(page.locator('.badge')).toHaveText(/Paper's sample: 71 societies/);
+	await expect(page.getByRole('radio', { name: "The paper's sample" })).toBeChecked();
+	await expect(page.locator('.badge')).toHaveText(/The paper's sample: 71 societies/);
 
 	// FR-3, FR-20, FR-25: the society is highlighted and ranked.
 	const chile = page.locator('.beeswarm').getByRole('button', { name: /^Respondents in Chile:/ });
@@ -36,13 +36,13 @@ test('AT-2: a cell URL with society and sample opens in a fresh browser with tha
 test('FR-22: shrunken by default, raw on request, small samples flagged', async ({ page }) => {
 	await page.goto(cell);
 	await swarmReady(page);
-	await expect(
-		page.getByRole('heading', { name: "Every society's shrunken estimate" })
-	).toBeVisible();
+	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
 	await expect(page.locator('.beeswarm .dot.small').first()).toBeVisible();
-	await page.getByRole('radio', { name: 'Raw', exact: true }).check();
+	await page.getByRole('radio', { name: 'Unadjusted', exact: true }).check();
 	await expect(page).toHaveURL(/estimate=raw$/);
-	await expect(page.getByRole('heading', { name: "Every society's raw estimate" })).toBeVisible();
+	// Decision 5: the title stays; the toggle and the table say which estimate.
+	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
+	await expect(page.getByRole('radio', { name: 'Unadjusted', exact: true })).toBeChecked();
 });
 
 test('FR-20, FR-23: intervals on hover, as whiskers with Show uncertainty; mean line and band', async ({

@@ -74,7 +74,7 @@ describe('FR-15, FR-27: the society in words', () => {
 				estimate: { value: -1.2, lo: -1.6, hi: -0.8 },
 				notable: -1
 			})
-		).toBe('−1.2, stricter than the global mean, small sample');
+		).toBe('−1.2, clearly stricter than the global average, small sample');
 	});
 
 	it('names the cell, its mean, disagreement and the society in one accessible label', () => {
@@ -82,7 +82,7 @@ describe('FR-15, FR-27: the society in words', () => {
 		const [cell] = matrixCells(global, 'raw', cells, society);
 		expect(cellLabel(cell, society)).toBe(
 			'Arguing at a funeral ceremony: −2.0, very inappropriate; disagreement 0.20; the most ' +
-				'universal pair; respondents in the Philippines: −2.0, close to the global mean'
+				'universal pair; respondents in the Philippines: −2.0, too close to call against the global average'
 		);
 	});
 });

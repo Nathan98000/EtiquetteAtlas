@@ -14,7 +14,7 @@
 		loadSocieties,
 		preload
 	} from '#lib/data/load.ts';
-	import { SAMPLE_LABEL } from '#lib/data/model.ts';
+	import { SAMPLE_PHRASE } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { QUIZ_ITEMS } from '#lib/quiz/items.ts';
 	import {
@@ -183,7 +183,7 @@
 					onselect={(code) => setView({ society: code })}
 				/>
 				{#if vs.sample !== 'all'}
-					<p class="sample" role="status">Comparing with the {SAMPLE_LABEL[vs.sample]}.</p>
+					<p class="sample" role="status">Comparing with {SAMPLE_PHRASE[vs.sample]}.</p>
 				{/if}
 			</div>
 

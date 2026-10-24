@@ -18,7 +18,7 @@ import {
 	phrase,
 	type Cell
 } from '../data/grid';
-import { Status, type ResponseCounts, type SampleId, SAMPLE_LABEL } from '../data/model';
+import { Status, type ResponseCounts, type SampleId, SAMPLE_PHRASE } from '../data/model';
 import type { Drill } from '../charts/drill-model';
 import type { QuizItem } from './items';
 
@@ -96,9 +96,9 @@ export function placement(drill: Drill, response: Response): Placement {
 	return { ...p, tooFew: drill.tooFew.length, notAsked: drill.notAsked.length };
 }
 
-/** " in the Paper's sample" for a sample other than All data. */
+/** " in the paper's sample" for a sample other than all respondents. */
 function inSample(sample: SampleId): string {
-	return sample === 'all' ? '' : ` in the ${SAMPLE_LABEL[sample]}`;
+	return sample === 'all' ? '' : ` in ${SAMPLE_PHRASE[sample]}`;
 }
 
 /**
@@ -167,7 +167,7 @@ export function societyText(
 	const Who = who[0].toUpperCase() + who.slice(1);
 	switch (answer.kind) {
 		case 'not-in-sample':
-			return `${Who} are not in this sample (${SAMPLE_LABEL[sample]}).`;
+			return `${Who} are not in ${SAMPLE_PHRASE[sample]}.`;
 		case 'not-asked':
 			return `${Who} were not asked about ${phrase(cell)}.`;
 		case 'too-few':

@@ -25,14 +25,14 @@
 	     grid below does not shift. -->
 	<ul class="item marks">
 		<li>
-			<span class="glyph" aria-hidden="true">{MARK_GLYPH.looser}</span> notably looser (more
+			<span class="glyph" aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more
 			appropriate): <span class="num">{counts?.looser ?? '…'}</span>
 		</li>
 		<li>
-			<span class="glyph" aria-hidden="true">{MARK_GLYPH.stricter}</span> notably stricter (less
+			<span class="glyph" aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter (less
 			appropriate): <span class="num">{counts?.stricter ?? '…'}</span>
 		</li>
-		<li>no mark: not notably different: <span class="num">{counts?.close ?? '…'}</span></li>
+		<li>no mark: too close to call: <span class="num">{counts?.close ?? '…'}</span></li>
 		<li>
 			<span class="missing" aria-hidden="true">{MARK_GLYPH.missing}</span> too few responses or not
 			asked: <span class="num">{counts ? missing : '…'}</span>

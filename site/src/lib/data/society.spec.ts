@@ -47,9 +47,9 @@ describe('FR-34: society facts in words', () => {
 			},
 			region: 'Asia',
 			bySample: [
-				{ sample: 'all', label: 'All data', respondents: '120' },
-				{ sample: 'paper', label: "Paper's sample", respondents: '100' },
-				{ sample: 'attention', label: 'Attention check', respondents: null }
+				{ sample: 'all', label: 'All respondents', respondents: '120' },
+				{ sample: 'paper', label: "The paper's sample", respondents: '100' },
+				{ sample: 'attention', label: 'Passed the attention check', respondents: null }
 			]
 		});
 		expect(factsView(societies, 'AAA', 'all')?.inSample?.period).toBe('September 2023');
@@ -89,7 +89,7 @@ describe('decision 52: the index of societies', () => {
 				"authors' four regions."
 		);
 		expect(indexSummary(societies, 'paper')).toBe(
-			"2 of the 3 societies are in this sample (Paper's sample), with 100 to 280 respondents " +
+			"2 of the 3 societies are in the paper's sample, with 100 to 280 respondents " +
 				"in each, listed here by the GSN authors' four regions."
 		);
 	});

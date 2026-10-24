@@ -20,20 +20,20 @@
 	</p>
 	<p>
 		Both surveys are shown as raw averages on the −2.5 to +2.5 scale, whatever the scale toggle
-		says, as the older survey has no centered scores. The difference is the 2023–2024 average minus
-		the 2000–2003 average, with a 95% interval from resampling each survey's respondents within each
-		society. A difference counts as higher or lower in 2023–2024 only when its interval excludes 0;
-		an interval that ends exactly at 0 counts as within. In the older survey a pair rests on 107 to
-		312 ratings. In the newer one, pairs with 10 to 29 respondents are marked as small samples; they
-		occur only in the Attention check sample. Israel's 2000–2003 data have no value for laughing out
-		loud at a party.
+		says, as the older survey has no scores relative to each society's average. The difference is
+		the 2023–2024 average minus the 2000–2003 average, with a 95% interval from resampling each
+		survey's respondents within each society. A difference counts as higher or lower in 2023–2024
+		only when its interval excludes 0; an interval that ends exactly at 0 counts as within. In the
+		older survey a pair rests on 107 to 312 ratings. In the newer one, pairs with 10 to 29
+		respondents are marked as small samples; they occur only in the attention-check sample. Israel's
+		2000–2003 data have no value for laughing out loud at a party.
 	</p>
 	<p>
 		Without a society, the pages average the societies in both surveys: 26, or 22 in the Paper's
 		sample, which leaves out South Korea, the Netherlands, Portugal and Turkey. These are not the
 		averages of all 90 societies shown elsewhere. A society's mean difference averages its pairs. A
 		behavior's averages its 10 situations within each society, then the societies, as in Table 1 of
-		Eriksson et al. ({attribution.year}), which the Paper's sample reproduces; its count of
+		Eriksson et al. ({attribution.year}), which the paper's sample reproduces; its count of
 		societies "above 0" includes differences within their intervals.
 	</p>
 	<p>

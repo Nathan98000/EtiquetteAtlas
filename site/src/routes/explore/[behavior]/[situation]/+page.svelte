@@ -16,7 +16,15 @@
 	import StepLinks from '#lib/components/StepLinks.svelte';
 	import Toggle from '#lib/components/Toggle.svelte';
 	import { cellSummary, neighbours, societiesSummary, stripSummary } from '#lib/data/derive.ts';
-	import { interval, narrow, place, score, spread } from '#lib/data/format.ts';
+	import {
+		RELATIVE,
+		estimateWords,
+		interval,
+		narrow,
+		place,
+		score,
+		spread
+	} from '#lib/data/format.ts';
 	import {
 		BEHAVIOR_TEXT,
 		CELLS,
@@ -84,8 +92,11 @@
 	);
 	const behavior = $derived(CELLS[cell].behavior);
 	const { previous, next } = $derived(neighbours(cell));
-	const estimateLabel = $derived(vs.estimate === 'shrunk' ? 'shrunken' : 'raw');
-	const scaleLabel = $derived(vs.scale === 'centered' ? ', centered' : '');
+	// Decision 5 (D-8): the estimate and scale in plain words, for captions and labels; the title
+	// stays "Every society's average answer" and the toggle says which.
+	const which = $derived(
+		`${estimateWords(vs.estimate)}${vs.scale === 'centered' ? `, ${RELATIVE}` : ''}`
+	);
 
 	let hovered: string | null = $state(null);
 
@@ -99,8 +110,8 @@
 	}
 
 	const estimateOptions: { value: EstimateKind; label: string }[] = [
-		{ value: 'shrunk', label: 'Shrunken' },
-		{ value: 'raw', label: 'Raw' }
+		{ value: 'shrunk', label: 'Adjusted for small samples' },
+		{ value: 'raw', label: 'Unadjusted' }
 	];
 
 	// NFR-3: the map's code and outlines load only when the map nears the screen.
@@ -228,12 +239,12 @@
 					checked={vs.uncertainty}
 					onchange={(checked) => setView({ uncertainty: checked })}
 				/>
-				<a class="about" href={resolve('method/#shrinkage')}>About shrinkage</a>
+				<a class="about" href={resolve('method/#shrinkage')}>About the adjustment</a>
 			</div>
 
 			<ChartFrame
 				id="swarm"
-				title="Every society's {estimateLabel} estimate{scaleLabel}"
+				title="Every society's average answer"
 				summary={swarmSummary}
 				about={resolve('method/#intervals')}
 				centered={vs.scale === 'centered'}
@@ -250,7 +261,7 @@
 							{hovered}
 							onhover={(code) => (hovered = code)}
 							onselect={select}
-							label="Societies placed by their {estimateLabel} estimate for {data.title.toLowerCase()}"
+							label="Societies placed by their average answer ({which}) for {data.title.toLowerCase()}"
 							describedBy="swarm-summary"
 						/>
 					{:else}
@@ -261,7 +272,7 @@
 					{#if d}
 						<SocietyTable
 							drill={d}
-							caption="Each society's {estimateLabel} estimate{scaleLabel}, highest first"
+							caption="Each society's average answer ({which}), highest first"
 						/>
 					{/if}
 				{/snippet}
@@ -289,7 +300,7 @@
 									{hovered}
 									onhover={(code) => (hovered = code)}
 									onselect={select}
-									label="Map of societies coloured by their {estimateLabel} estimate"
+									label="Map of societies coloured by their average answer ({which})"
 									describedBy="map-summary"
 								/>
 							{:catch error}
@@ -305,7 +316,7 @@
 				{/snippet}
 				{#snippet table()}
 					{#if d}
-						<SocietyTable drill={d} caption="Each society's {estimateLabel} estimate{scaleLabel}" />
+						<SocietyTable drill={d} caption="Each society's average answer ({which})" />
 					{/if}
 				{/snippet}
 			</ChartFrame>

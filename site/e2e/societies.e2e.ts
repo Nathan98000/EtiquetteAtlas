@@ -15,7 +15,7 @@ const chile = url('societies/chl/');
 async function summaryCounts(page: Page) {
 	const text = await page.locator('.lede').textContent();
 	const match = text?.match(
-		/notably stricter than the global average in (\d+|none) of the \d+ pairs.* and notably looser in (\d+|none)/
+		/clearly stricter than the global average on (\d+|none) of the \d+ pairs.* and clearly looser on (\d+|none)/
 	);
 	expect(match, `counts in "${text}"`).not.toBeNull();
 	const n = (s: string) => (s === 'none' ? 0 : Number(s));
@@ -41,9 +41,9 @@ test.describe('the fingerprint from 640 px', () => {
 		await expect(grid.locator('.glyph', { hasText: '▲' })).toHaveCount(looser);
 		await expect(grid.locator('.glyph', { hasText: '▼' })).toHaveCount(stricter);
 		await expect(
-			grid.getByRole('link', { name: /notably looser than the global average/ })
+			grid.getByRole('link', { name: /clearly looser than the global average/ })
 		).toHaveCount(looser);
-		await expect(page.getByText(`notably looser (more appropriate): ${looser}`)).toBeVisible();
+		await expect(page.getByText(`clearly looser (more appropriate): ${looser}`)).toBeVisible();
 		expect(await page.evaluate(() => window.cspViolations)).toEqual([]);
 	});
 
@@ -51,9 +51,11 @@ test.describe('the fingerprint from 640 px', () => {
 		await page.goto(url('societies/jpn/'));
 		await matrixReady(page);
 		const raw = await summaryCounts(page);
-		await page.getByRole('radio', { name: 'Centered' }).check();
+		await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 		await expect(page).toHaveURL(/\/societies\/jpn\/\?scale=centered$/);
-		await expect(page.locator('.lede')).toHaveText(/^On the centered scale, respondents in Japan/);
+		await expect(page.locator('.lede')).toHaveText(
+			/^Relative to each society's average, respondents in Japan/
+		);
 		const centered = await summaryCounts(page);
 		expect(centered).not.toEqual(raw);
 		await expect(page.getByRole('grid').locator('.glyph', { hasText: '▼' })).toHaveCount(
@@ -134,7 +136,7 @@ test.describe('the fingerprint from 640 px', () => {
 		await page.goto(chile);
 		await matrixReady(page);
 		await expect(page.locator('#fingerprint-summary')).toHaveText(
-			/^Respondents in Chile were notably .*; the largest differences are for .*\.$/
+			/^Respondents in Chile were clearly .*; the largest differences are for .*\.$/
 		);
 		await page.getByRole('button', { name: 'Show as table' }).first().click();
 		const table = page.getByRole('table', { name: /^Respondents in Chile compared with/ });
@@ -203,9 +205,9 @@ test('FR-32, decision 53: societies without pairs or cells say so plainly', asyn
 	// Kuwait is outside the paper's sample (§4.4).
 	await page.goto(url('societies/kwt/?sample=paper'));
 	await expect(page.locator('.lede')).toHaveText(
-		"Respondents in Kuwait are not in this sample (Paper's sample)."
+		"Respondents in Kuwait are not in the paper's sample."
 	);
-	await page.getByRole('button', { name: 'Show All data' }).click();
+	await page.getByRole('button', { name: 'Show all respondents' }).click();
 	await expect(page).toHaveURL(/\/societies\/kwt\/$/);
 	await matrixReady(page);
 });
@@ -215,17 +217,19 @@ test('FR-34: the facts panel shows respondents, students, languages, fieldwork a
 }) => {
 	await page.goto(chile);
 	const facts = page.getByRole('region', { name: 'About these respondents' });
-	await expect(facts).toContainText('Respondents (All data)');
+	await expect(facts).toContainText('Respondents');
 	await expect(facts).toContainText('Spanish');
 	await expect(facts).toContainText(
 		/(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}/
 	);
 	await expect(facts).toContainText("Region (the GSN authors' grouping)");
 	await expect(facts).toContainText('Latin America');
-	await expect(facts).toContainText(/All data: \d+ · Paper's sample: \d+ · Attention check: \d+/);
+	await expect(facts).toContainText(
+		/All respondents: \d+ · The paper's sample: \d+ · Passed the attention check: \d+/
+	);
 	await expect(facts).toContainText('Collection sites are not shown');
-	await page.getByRole('radio', { name: "Paper's sample" }).check();
-	await expect(facts).toContainText("Respondents (Paper's sample)");
+	await page.getByRole('radio', { name: "The paper's sample" }).check();
+	await expect(facts).toContainText("Respondents (the paper's sample)");
 	// Decision 17: Mauritius has no month with 10 respondents starting in the paper's sample.
 	await page.goto(url('societies/mus/?sample=paper'));
 	await expect(page.getByRole('region', { name: 'About these respondents' })).toContainText(
@@ -288,10 +292,12 @@ test.describe('the index of societies', () => {
 		]);
 		await expect(regions.getByRole('link')).toHaveCount(90);
 		await expect(regions.getByText('not in this sample')).toHaveCount(0);
-		await page.getByRole('radio', { name: "Paper's sample" }).check();
+		await page.getByRole('radio', { name: "The paper's sample" }).check();
 		await expect(page).toHaveURL(/\/societies\/\?sample=paper$/);
 		await expect(regions.getByText('not in this sample')).toHaveCount(19);
-		await expect(page.locator('.lede')).toHaveText(/^71 of the 90 societies are in this sample/);
+		await expect(page.locator('.lede')).toHaveText(
+			/^71 of the 90 societies are in the paper's sample/
+		);
 		await regions.getByRole('link', { name: 'Chile' }).click();
 		await expect(page).toHaveURL(/\/societies\/chl\/\?sample=paper$/);
 	});
@@ -362,12 +368,12 @@ test.describe('FR-87: without JavaScript', () => {
 
 	test('a society route shows its summary, facts and similar societies', async ({ page }) => {
 		await page.goto(chile);
-		await expect(page.locator('.lede')).toHaveText(/^Respondents in Chile were notably stricter/);
+		await expect(page.locator('.lede')).toHaveText(/^Respondents in Chile were clearly stricter/);
 		await expect(page.locator('main noscript p').first()).toContainText(
 			'The fingerprint chart needs JavaScript.'
 		);
 		await expect(page.getByRole('region', { name: 'About these respondents' })).toContainText(
-			'Respondents (All data)'
+			'Respondents'
 		);
 		await expect(
 			page.getByRole('region', { name: 'Most similar answers' }).getByRole('listitem')
