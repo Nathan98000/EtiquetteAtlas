@@ -52,7 +52,7 @@ launch adds only fixes (SRS §10).
 - **Throughout:** one search for societies and behaviors in situations; sample (all respondents,
   the paper's sample, those who passed the attention check) and scale (as answered, or relative to
   each society's average) toggles that follow the reader; every view in the URL, with Back for
-  each page, society or comparison; a Share button by every title; chart titles that state their
+  each page, society or comparison; a Share button by every page's title; chart titles that state their
   finding; a share image for the home page, each module, every pair and every society (247); a
   text summary on every page for readers without JavaScript; light and dark themes.
 

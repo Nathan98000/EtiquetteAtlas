@@ -549,7 +549,7 @@ D-12), each said below.
 | D-25 | Done | Disagreement as a ring in the text ink with a halo, like ▲ ▼ and the FR-16 rings: at least 3.86:1 on every fill. | 135 | `154a3e7` |
 | D-26 | Done | Beeswarm dots filled by estimate, shaped by region, dashed for small samples, as on the map and the card. | 116; FR-21 | `154a3e7`, `58a58e9` |
 | D-27 | Done | "10th strictest of 88". | 113; FR-25 | `d991473` |
-| D-28 | Done | Share by every page's title: the share sheet, or the link copied. | 131; FR-81 | `c14c40e` |
+| D-28 | Done | Share by every page's title but the 404 page's: the share sheet, or the link copied. | 131; FR-81 | `c14c40e` |
 | D-29 | Done | Sorts and toggles replace the history entry; a page, society or comparison adds one. | 127; FR-84, AT-11 | `2182c4b` |
 | D-30 | Done | "How to read the atlas" in five lines under a rule, the contents in five groups. The page grew from 5,132 to 5,772 words with the guide and the paper's model, moved from the story. | 140 | `e2db91b`, `fef798e` |
 | D-31 | Done | A map of the 90 societies by region opens the index; each dot links to a fingerprint. Thumbnails were not made (design-changes decision 6). | 132; §6.1 | `beef91e` |
