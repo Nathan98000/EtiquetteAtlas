@@ -620,9 +620,10 @@ width is given; "–" where a page has no chart.
 - **Performance:** the largest first load is 109.4 KB of JS and CSS (the story; 99.5 KB before) of
   NFR-1's 200, and 144.7 KB of data (a pair's page, unchanged) of 300; the largest `__data.json` is
   1,990 bytes (`/societies/srb/`) of 2,048. Lighthouse CI, 12 routes × 3 on this machine, mobile
-  profile: LCP medians 1.67 to 2.30 s (`/societies/chl/` 2.30, the story 2.12; 1.66 to 1.97 s after
-  phase 3, with no run on this machine before the changes), CLS ≤ 0.006, TBT 0 ms, accessibility
-  1.00. The launch's deployed medians were 0.89 to 1.33 s.
+  profile, on the final build: LCP medians 1.67 to 2.12 s (the story 2.12, `/societies/chl/` 2.10;
+  1.66 to 1.97 s after phase 3 and up to 2.30 s after phase 6, with no run on this machine before
+  the changes), CLS ≤ 0.006, TBT ≤ 1 ms, accessibility 1.00, every assertion met. The launch's
+  deployed medians were 0.89 to 1.33 s.
 
 ### The reader tasks, again
 
