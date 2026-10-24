@@ -7,6 +7,8 @@
 	import { dodge, extent, type Placed } from './dodge';
 	import type { Drill, SocietyPoint } from './drill-model';
 	import SocietyTip from './SocietyTip.svelte';
+	import TipChoose from './TipChoose.svelte';
+	import { TouchPin } from './touch-pin.svelte';
 	import { symbolPath } from './symbols';
 
 	interface Props {
@@ -123,7 +125,11 @@
 			(selected && byCode.has(selected) && selected) ||
 			order[0]?.item.code
 	);
-	const tip = $derived(local ? byCode.get(local) : undefined);
+	const pin = new TouchPin(() => container);
+	const tip = $derived.by(() => {
+		const code = pin.code ?? local;
+		return code ? byCode.get(code) : undefined;
+	});
 	const ticks = [-2, -1, 0, 1, 2];
 
 	function ariaLabel(p: SocietyPoint): string {
@@ -177,6 +183,7 @@
 				break;
 			case 'Escape':
 				local = null;
+				pin.close();
 				break;
 			default:
 				return;
@@ -273,11 +280,14 @@
 							enter(p.code);
 						}}
 						onblur={leave}
-						onclick={() => onselect(p.code)}
+						onpointerdown={(event) => pin.down(event)}
+						onclick={() => {
+							if (pin.click(p.code)) onselect(p.code);
+						}}
 						onkeydown={(event) => keydown(event, p.code)}
 					>
 						<path d={shapes[p.region]} />
-						{#if p.code === selected || p.code === hovered}
+						{#if p.code === selected || p.code === hovered || p.code === pin.code}
 							<circle class="ring" class:selected={p.code === selected} r={layout.r + 4} />
 						{/if}
 					</g>
@@ -299,11 +309,23 @@
 		{#if tip}
 			<div
 				class="tooltip"
+				class:pinned={pin.code === tip.item.code}
 				class:below={tip.y + offset < 150}
 				style="--x: {tip.x}px; --y: {tip.y + offset}px"
 				role="presentation"
 			>
 				<SocietyTip point={tip.item} kind={drill.kind} />
+				{#if pin.code === tip.item.code && tip.item.code !== selected}
+					<TipChoose
+						code={tip.item.code}
+						name={tip.item.name}
+						onchoose={() => {
+							const code = tip.item.code;
+							pin.close();
+							onselect(code);
+						}}
+					/>
+				{/if}
 			</div>
 		{/if}
 	{/if}
@@ -446,6 +468,11 @@
 		background: var(--surface-raised);
 		box-shadow: var(--shadow);
 		pointer-events: none;
+	}
+
+	/* D-14: a tip pinned by a tap holds a button. */
+	.tooltip.pinned {
+		pointer-events: auto;
 	}
 
 	.tooltip.below {

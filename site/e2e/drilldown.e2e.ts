@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { expect, sampleRadio, swarmReady, test, url, watchCsp } from './helpers';
 
 const cell = url('explore/usemphone/funeral/');
@@ -167,4 +168,55 @@ test('D-15, D-34: a small sample says what it does to the estimate; point-like i
 		/^.*Only \d+ respondents: this estimate is pulled toward the global average, and the true average could be anywhere from −?\d\.\d to [−+]?\d\.\d\./
 	);
 	await expect(page.locator('.beeswarm .tooltip')).not.toContainText('95% interval');
+});
+
+test.describe('on touch', () => {
+	test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true });
+
+	/** The dot furthest right in a chart, which no neighbour covers. */
+	async function edgeDot(page: Page, chart: string) {
+		return page.locator(chart).evaluate((el) => {
+			const dots = [...el.querySelectorAll('[data-code]')].filter(
+				(d) => d.getAttribute('data-code') !== 'JPN'
+			);
+			const box = (d: Element) => d.getBoundingClientRect();
+			const dot = dots.reduce((a, b) => (box(b).right > box(a).right ? b : a));
+			const { x, y, width, height } = box(dot);
+			return { code: dot.getAttribute('data-code')!, x: x + width / 2, y: y + height / 2 };
+		});
+	}
+
+	for (const chart of ['.beeswarm', '.map']) {
+		test(`D-14: on ${chart.slice(1)}, a tap shows a society's tip with a button that chooses it`, async ({
+			page
+		}) => {
+			await page.goto(url('explore/sing/funeral/?society=jpn'));
+			await swarmReady(page);
+			await page
+				.locator(chart === '.map' ? '.map, .placeholder.map' : chart)
+				.first()
+				.scrollIntoViewIfNeeded();
+			await expect(page.locator(chart).locator('[data-code]').first()).toBeVisible();
+			const dot = await edgeDot(page, chart);
+			const choose = page.locator(chart).getByRole('button', { name: /^Show respondents in / });
+
+			// The first tap shows the tip only; the society stays.
+			await page.touchscreen.tap(dot.x, dot.y);
+			await expect(choose).toBeVisible();
+			await expect(page).toHaveURL(/\?society=jpn$/);
+			// A second tap closes it, and so does a tap elsewhere.
+			await page.touchscreen.tap(dot.x, dot.y);
+			await expect(choose).toBeHidden();
+			await page.touchscreen.tap(dot.x, dot.y);
+			await expect(choose).toBeVisible();
+			await page.touchscreen.tap(4, dot.y);
+			await expect(choose).toBeHidden();
+			await expect(page).toHaveURL(/\?society=jpn$/);
+
+			// The button chooses the society.
+			await page.touchscreen.tap(dot.x, dot.y);
+			await choose.tap();
+			await expect(page).toHaveURL(new RegExp(`\\?society=${dot.code.toLowerCase()}$`));
+		});
+	}
 });
