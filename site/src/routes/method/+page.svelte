@@ -610,11 +610,11 @@
 		font-size: var(--text-lg);
 	}
 
+	/* Direction A: under a rule, not in a box. */
 	.read {
 		margin-top: 1.5rem;
-		padding: 1rem 1.25rem;
-		border-left: 4px solid var(--border-strong);
-		background: var(--surface-muted);
+		padding: 0.75rem 0 0;
+		border-top: 2px solid var(--text);
 	}
 
 	.read h2 {
