@@ -1,5 +1,5 @@
 /**
- * "Change since the early 2000s" (FR-50 to FR-53): how respondents in the 2023–2024 survey (GSN)
+ * "Then and now" (FR-50 to FR-53; decision 7): how respondents in the 2023–2024 survey (GSN)
  * judged each pair against respondents in the 2000–2003 survey (Gelfand et al. 2011), for one
  * society or for the societies in both surveys together (FR-53). Both surveys' values are raw
  * means (decision 72). A difference is 2023–2024 minus 2000–2003: a difference between two surveys

@@ -38,7 +38,7 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		});
 		await page.goto(url('change/'));
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-			'Change since the early 2000s'
+			'Then and now: two surveys about 20 years apart'
 		);
 		// FR-51, D-4: how sure in words, as surveys judged them, never "became".
 		await expect(page.locator('.lede')).toHaveText(
@@ -233,12 +233,12 @@ test('decision 67: the header, fingerprints and drill-downs link to the change p
 	page
 }) => {
 	await page.goto(url('explore/?society=jpn&sample=attention&sort=mean'));
-	await expect(page.getByRole('link', { name: 'Change', exact: true })).toHaveAttribute(
+	await expect(page.getByRole('link', { name: 'Then and now', exact: true })).toHaveAttribute(
 		'href',
 		/\/change\/jpn\/\?sample=attention$/
 	);
 	await page.goto(url('explore/?society=chl'));
-	await expect(page.getByRole('link', { name: 'Change', exact: true })).toHaveAttribute(
+	await expect(page.getByRole('link', { name: 'Then and now', exact: true })).toHaveAttribute(
 		'href',
 		/\/change\/\?society=chl$/
 	);
@@ -345,7 +345,7 @@ test('FR-83, NFR-60: change routes have their own title, description and canonic
 	page
 }) => {
 	for (const [path, title] of [
-		['change/', 'Change since the early 2000s'],
+		['change/', 'Then and now'],
 		['change/jpn/', 'Respondents in Japan in 2000–2003 and 2023–2024']
 	]) {
 		await page.goto(url(path));
@@ -372,7 +372,7 @@ test('FR-7, FR-52: "About this chart" opens the method page’s change section',
 	await expect(page).toHaveURL(/\/method\/#change$/);
 	const section = page.locator('#change');
 	await expect(section.getByRole('heading', { level: 2 })).toHaveText(
-		'Change since the early 2000s'
+		'Then and now: the 2000–2003 survey'
 	);
 	await expect(section).toContainText('not a change in anyone');
 	// C-6, finding L-4: the provenance as the companion files give it, without calling the file

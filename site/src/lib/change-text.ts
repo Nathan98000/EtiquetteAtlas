@@ -1,7 +1,7 @@
 /**
- * The change module's words outside its own routes (R-6; decisions 75 and 95): the credit for the
- * 2000–2003 survey (NFR-41), the story's step title, the change card's alt text and the links into
- * the module from fingerprints and drill-downs. A build without the module swaps this file for
+ * The change module's words outside its own routes (R-6; decisions 75 and 95): its name in the
+ * header, the credit for the 2000–2003 survey (NFR-41), the story's step title, the change card's
+ * alt text and the links into the module from fingerprints and drill-downs. A build without the module swaps this file for
  * change-text.off.ts (vite.config.ts), so none of it reaches that build's JavaScript; the markup
  * around each use stays behind `CHANGE_MODULE`.
  */
@@ -12,6 +12,12 @@ export const comparison = {
 	text: 'Gelfand et al. (2011), Science 332:1100–1104',
 	url: 'https://doi.org/10.1126/science.1197754'
 };
+
+/**
+ * Decision 7 (D-32): the module's name, "Then and now", since a difference between two surveys is
+ * not change in anyone (FR-52). The paths stay /change/.
+ */
+export const CHANGE_NAME = 'Then and now';
 
 export const STORY_CHANGE_TITLE = 'Two surveys, 20 years apart';
 

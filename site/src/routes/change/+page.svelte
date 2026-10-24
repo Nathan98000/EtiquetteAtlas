@@ -88,13 +88,13 @@
 </script>
 
 <Seo
-	title="Change since the early 2000s"
+	title="Then and now"
 	description="How respondents in 26 societies judged 12 everyday behaviors in 10 situations in 2023–2024, against a survey from 2000–2003 that asked about the same behaviors and situations: differences between two surveys, not change in individuals."
 	imageAlt="{CHANGE_SHARE_ALT} {data.summary}"
 />
 
 <div class="change-page">
-	<h1>Change since the early 2000s</h1>
+	<h1>Then and now: two surveys about 20 years apart</h1>
 	<p class="lede">{summary}</p>
 	<noscript>
 		<p>The charts need JavaScript.</p>

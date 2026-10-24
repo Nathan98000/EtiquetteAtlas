@@ -6,7 +6,7 @@
 <!-- FR-52, FR-70, NFR-41, §4.7, §4.8; decisions 67 to 75. Compiled to nothing in a build without
      the change module, so none of its text reaches build/ (R-6, decisions 75 and 95). -->
 <section id="change">
-	<h2>Change since the early 2000s</h2>
+	<h2>Then and now: the 2000–2003 survey</h2>
 	<p>
 		For 26 societies, a survey from 2000–2003 by Gelfand and colleagues asked about 12 of the same
 		behaviors in the same 10 situations; resting, shouting in anger and using a mobile phone were

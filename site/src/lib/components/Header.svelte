@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { CHANGE_NAME } from '#lib/change-text.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import { changeHref, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import ThemeSwitch from './ThemeSwitch.svelte';
@@ -13,7 +14,7 @@
 		{ label: 'Explore', path: resolve('explore/'), section: '/explore' },
 		{ label: 'Societies', path: resolve('societies/'), section: '/societies' },
 		{ label: 'Audiences', path: resolve('audiences/'), section: '/audiences' },
-		{ label: 'Change', path: resolve('change/'), section: '/change' },
+		{ label: CHANGE_NAME, path: resolve('change/'), section: '/change' },
 		{ label: 'Story', path: resolve('story/'), section: '/story' },
 		{ label: 'Method', path: resolve('method/'), section: '/method' }
 	].filter((module) => CHANGE_MODULE || module.section !== '/change');
