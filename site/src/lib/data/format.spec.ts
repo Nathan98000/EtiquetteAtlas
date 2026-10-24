@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	count,
 	interval,
+	narrow,
 	ordinal,
 	percent,
 	place,
@@ -36,6 +37,13 @@ describe('§6.5: numbers', () => {
 		expect(percent(12.4)).toBe('12%');
 		expect(count(25422)).toBe('25,422');
 		expect(signed(-0.256, 2)).toBe('−0.26');
+	});
+
+	it('D-34: an interval whose ends round alike reads "narrower than 0.1", not "−0.1 to −0.1"', () => {
+		expect(interval(-0.12, -0.08)).toBe('narrower than 0.1');
+		expect(narrow(-0.12, -0.08)).toBe(true);
+		expect(narrow(-0.16, -0.08)).toBe(false);
+		expect(interval(0.021, 0.024, 2)).toBe('narrower than 0.01');
 	});
 
 	it.each([

@@ -22,7 +22,14 @@ export function score(x: number, digits = 1): string {
 	return x > 0 && Number(Math.abs(x).toFixed(digits)) !== 0 ? `+${text}` : text;
 }
 
+/** Whether an interval's two ends round to the same value, so it reads as a point (D-34). */
+export function narrow(lo: number, hi: number, digits = 1): boolean {
+	return score(lo, digits) === score(hi, digits);
+}
+
+/** "−1.3 to −1.1", or "narrower than 0.1" when both ends round alike (D-34). */
 export function interval(lo: number, hi: number, digits = 1): string {
+	if (narrow(lo, hi, digits)) return `narrower than ${(10 ** -digits).toFixed(digits)}`;
 	return `${score(lo, digits)} to ${score(hi, digits)}`;
 }
 

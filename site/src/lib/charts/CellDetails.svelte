@@ -2,6 +2,7 @@
 	import {
 		count,
 		interval,
+		narrow,
 		percent,
 		respondentsIn,
 		responseLabel,
@@ -33,9 +34,12 @@
 		<dt>Global mean{centered}</dt>
 		<dd>
 			<span class="num">{score(cell.mean)}</span>, {responseLabel(cell.mean)}
-			<span class="muted"
-				>(95% interval <span class="num">{interval(cell.meanLo, cell.meanHi)}</span>)</span
-			>
+			<!-- D-34: an interval that rounds to a point is left out for the global mean. -->
+			{#if !narrow(cell.meanLo, cell.meanHi)}
+				<span class="muted"
+					>(95% interval <span class="num">{interval(cell.meanLo, cell.meanHi)}</span>)</span
+				>
+			{/if}
 		</dd>
 	</div>
 	<div>

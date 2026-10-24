@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { count, interval, percent, responseLabel, score } from '#lib/data/format.ts';
+	import { count, interval, narrow, percent, responseLabel, score } from '#lib/data/format.ts';
 	import { Status, type Scale } from '#lib/data/model.ts';
 	import { markPhrase, type FingerprintCell } from './fingerprint-model';
 
@@ -71,9 +71,12 @@
 		<dt>Global mean{centered}</dt>
 		<dd>
 			<span class="num">{score(cell.global)}</span>
-			<span class="muted"
-				>(95% interval <span class="num">{interval(cell.globalLo, cell.globalHi)}</span>)</span
-			>
+			<!-- D-34: an interval that rounds to a point is left out for the global mean. -->
+			{#if !narrow(cell.globalLo, cell.globalHi)}
+				<span class="muted"
+					>(95% interval <span class="num">{interval(cell.globalLo, cell.globalHi)}</span>)</span
+				>
+			{/if}
 		</dd>
 	</div>
 </dl>
