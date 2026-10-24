@@ -1,6 +1,6 @@
 # The Etiquette Atlas: Software Requirements Specification
 
-Oct 23, 2026 · @Nathan Nguyen
+Oct 24, 2026 · @Nathan Nguyen
 
 ## Summary
 
@@ -8,7 +8,7 @@ The Etiquette Atlas v1 is a free, static Svelte and D3 website on GitHub Pages, 
 
 | Decision | v1 choice |
 | --- | --- |
-| Modules | Etiquette matrix, cell drill-down with a linked dot map, society fingerprint, "Who's watching?", change since the early 2000s, quiz and guided story |
+| Modules | Etiquette matrix, cell drill-down with a linked dot map, society fingerprint, "Who's watching?", "Then and now" (two surveys about 20 years apart), quiz and guided story |
 | Default data | All data: 25,422 respondents in 90 societies; the paper's sample (71 societies) and the attention-check sample (80) as toggles |
 | Statistics | Respondent-level bootstrap 95% intervals, empirical-Bayes shrinkage, nothing shown below 10 respondents |
 | Stack | SvelteKit (static) and D3; Python pipeline run by hand, committing only aggregates |
@@ -39,7 +39,7 @@ v1 is a static website: all data processing happens offline, and the site ships 
 - Linked dot map of societies
 - Society fingerprint with most-similar societies
 - "Who's watching?" audience view
-- "Change since the early 2000s" comparison, built from aggregates only
+- "Then and now", a comparison of two surveys about 20 years apart, built from aggregates only
 - Opening quiz and guided scroll story
 - Permalinks for every view and prebuilt share images
 - Cookie-less visitor analytics
@@ -322,10 +322,10 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-1 | The home route shall open the quiz entry, with a visible "Skip to the atlas" link that goes straight to the matrix. | Must |
-| FR-2 | A persistent header shall link to: Explore (matrix), Societies (fingerprint), Audiences, Change, Story and Method. | Must |
-| FR-3 | A global society picker shall support type-ahead search by society name and full keyboard use. The selected society shall be highlighted in every view and kept in the URL. | Must |
-| FR-4 | A global sample toggle shall switch every view, except the guided story, which always shows All data, between the default sample (All data, 90 societies) and the alternatives in §4. A badge shall show when a non-default sample is active. | Must |
-| FR-5 | A scale toggle shall switch between raw scores and within-society centered scores, so differences in how societies use the scale are not mistaken for culture. | Should |
+| FR-2 | A persistent header shall link, in this order, to Tour (the guided story), Situations (the matrix), Societies (fingerprints), Who's watching (audiences), Then and now (the 2000–2003 comparison) and Method, and shall name the current module at every width. | Must |
+| FR-3 | A global search shall find societies by name and pairs by their behavior or situation, with type-ahead and full keyboard use; choosing a society selects it, and choosing a pair opens its drill-down with the society kept. The selected society shall be highlighted in every view and kept in the URL. | Must |
+| FR-4 | A global sample toggle, under the control bar's Options at every width, shall switch every view, except the guided story, which always shows All data, between the default sample (All data, 90 societies, named "All respondents" on screen) and the alternatives in §4. A badge outside Options shall show whenever a non-default sample is active. | Must |
+| FR-5 | A scale toggle shall switch between raw scores and within-society centered scores, so differences in how societies use the scale are not mistaken for culture. While centered scores are shown, every chart shall say so under its title. | Should |
 | FR-6 | Every page shall show the attribution footer defined in NFR-40. | Must |
 | FR-7 | Every chart shall have an "About this chart" control that opens the matching method note. | Should |
 
@@ -340,18 +340,18 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | FR-14 | Click, tap or Enter on a cell shall open its drill-down (5.3). | Must |
 | FR-15 | With a society selected, each cell shall show whether that society is stricter, looser or close to the global mean. | Should |
 | FR-16 | The most universal and most culture-dependent cells shall be labelled on the matrix. | Should |
-| FR-17 | Below 640 px wide, the matrix shall become a sortable list of the 150 cells with an inline mean bar and disagreement mark. | Must |
+| FR-17 | Below 640 px wide, the matrix shall become a sortable list of the 150 cells with an inline mean bar and disagreement mark, a control to jump to a behavior in the paper's order and, with a society selected, that society's value in each row. | Must |
 
 ### 5.3 Cell drill-down and map
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-20 | A beeswarm shall place each society by its estimate for the cell, with its 95% interval shown on hover or focus, and as whiskers when "Show uncertainty" is on. | Must |
-| FR-21 | Society dots shall be coloured by region and their sample size shown in the tooltip. | Must |
-| FR-22 | A toggle shall switch between shrunken (default) and raw estimates; societies with small samples shall carry a visible flag. | Must |
+| FR-21 | Society dots shall be filled by their estimate, as on the map, and shaped by region; their sample size shall be shown in the tooltip. | Must |
+| FR-22 | A toggle shall switch between estimates adjusted for small samples (shrunken, the default) and unadjusted (raw) estimates, named in those plain words; societies with small samples shall carry a visible flag, whose tooltip says what few respondents do to an estimate. | Must |
 | FR-23 | The global mean shall be drawn as a reference line, with a band spanning the global mean ± τ, with τ's interval given in the text. | Must |
 | FR-24 | A dot map shall place each society at its GSN coordinates, coloured by the same estimate; hover and selection shall be linked both ways with the beeswarm. | Must |
-| FR-25 | The selected society shall be labelled with its rank, e.g., "12th most accepting of 90". | Must |
+| FR-25 | The selected society's result, with its rank counted from the nearer end ("12th most accepting of 90", "10th strictest of 88"), shall sit directly under the page's title, its space reserved. | Must |
 | FR-26 | A strip shall show the same behavior across all 10 situations, and next/previous controls shall move between cells. | Should |
 | FR-27 | A society–cell estimate below the minimum sample size (DR-9) shall be shown as "too few responses", not plotted. | Must |
 
@@ -360,7 +360,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-30 | For the selected society, a 15 × 10 matrix shall show each cell's deviation from the global mean on a diverging scale. | Must |
-| FR-31 | Cells where the society's interval excludes the global mean shall be marked as notably stricter or looser. | Must |
+| FR-31 | Cells where the society's interval excludes the global mean shall be marked as clearly stricter or looser (§6.5). | Must |
 | FR-32 | The five most similar societies (DR-14) shall be listed with a similarity score; selecting one switches the view. | Must |
 | FR-33 | A compare mode shall show two societies cell by cell as a dumbbell list. | Should |
 | FR-34 | A facts panel shall show the society's respondents, student share, interface languages and fieldwork period. | Must |
@@ -374,7 +374,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | FR-42 | Filters shall switch between the global view and one society. A toggle shall compare the behavior done by a man versus a woman, labelled as actor gender, not as an audience. A respondent-gender split shall be offered for the global view only (DR-12). | Should |
 | FR-43 | The module shall credit the 2026 *American Sociological Review* analysis of these audience effects. | Must |
 
-### 5.6 "Change since the early 2000s" (Change)
+### 5.6 "Then and now": two surveys about 20 years apart (Change)
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
@@ -391,7 +391,7 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | FR-61 | After each answer, the page shall show where it falls among the society estimates of the active sample and, if a society is chosen, among that society's response distribution. | Must |
 | FR-62 | The reader may pick their society before the quiz, or skip it. | Should |
 | FR-63 | Answers shall live only in page memory (and sessionStorage, to survive a reload). They shall never be sent, logged or included in analytics or URLs. | Must |
-| FR-64 | A guided story of four to six scroll steps shall open with the paper's main finding, that norms vary far more across situations than across societies, then annotate the most universal cell, the most culture-dependent cell, the audience effect and the largest difference between the 2000–2003 and 2023–2024 surveys, and hand over to the explorer. | Must |
+| FR-64 | A guided story of four to six scroll steps shall open with the paper's main finding, that norms vary far more across situations than across societies, pictured with the atlas's own All-data averages (the paper's model and its standard deviations on the method page), then annotate the most universal cell, the most culture-dependent cell, the audience effect and the largest difference between the 2000–2003 and 2023–2024 surveys, and hand over to the explorer. | Must |
 | FR-65 | The story shall be skippable at every step, fully keyboard operable, and shall respect reduced-motion settings. | Must |
 
 ### 5.8 Method and about
@@ -408,10 +408,10 @@ Requirements are grouped by module. Data definitions (behavior and situation lab
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-80 | Every view's state (module, cell, society, sample, scale, sort) shall be encoded in the URL, and opening that URL shall restore the view exactly. | Must |
-| FR-81 | A "Copy link" control shall copy the current permalink. | Must |
+| FR-81 | A "Copy link" control shall copy the current permalink. A "Share" control by each page's title shall open the browser's own share sheet where there is one, and copy the link otherwise. | Must |
 | FR-82 | Share images shall be prebuilt for the home page, each module, each of the 150 cells and each of the 90 societies; a behavior's audiences page and a society's change page use their module's image. | Must |
 | FR-83 | Each prerendered route shall carry its own title, description and share-image meta tags, readable without JavaScript. | Must |
-| FR-84 | Browser back and forward shall move between view states. | Must |
+| FR-84 | Browser back and forward shall move between pages, societies and comparisons. Changing a sort, sample, scale, estimate, uncertainty or audience filter shall replace the current history entry; the URL still holds the whole view (FR-80). | Must |
 | FR-85 | A custom 404 page shall link back to the atlas. | Must |
 | FR-86 | If a data file fails to load, the view shall show a plain message and a retry control. | Must |
 | FR-87 | Without JavaScript, each route shall show a prerendered text summary and a note that the charts need JavaScript. | Should |
@@ -432,31 +432,31 @@ Entities that need their own share image (cells, societies, behaviors) live in t
 
 | Route | Screen | Main content | Key controls |
 | --- | --- | --- | --- |
-| `/` | Home and quiz | Title, one-line promise, three quiz questions, one at a time, result reveal | Society picker, Skip to the atlas |
+| `/` | Home and quiz | The first question as the title, a one-line promise, three quiz questions one at a time, the result reveal and a summary, then the ways in: the tour, a search for a pair, the societies, the audiences, Then and now | Society picker, Skip to the atlas, Take the tour |
 | `/story` | Guided story | Four to six annotated scroll steps | Previous, Next, Skip, progress dots |
-| `/explore` | Etiquette matrix | 15 × 10 matrix (list on phones), cell summary panel | Sort, sample, scale, society |
-| `/explore/[behavior]/[situation]` | Cell drill-down | Beeswarm, dot map, behavior strip across situations | Raw/shrunken, uncertainty, previous/next |
-| `/societies` and `/societies/[society]` | Society fingerprint | Deviation matrix, most similar societies, facts panel | Compare with…, sample, scale |
-| `/audiences` and `/audiences/[behavior]` | Who's watching? | Small multiples, focused slopegraph | Society/global, gender, sort |
-| `/change` and `/change/[society]` | Change since the early 2000s | Arrow chart of overlapping cells, summary counts, provenance note | Society, sort |
+| `/explore` | Situations (the etiquette matrix) | 15 × 10 matrix (list on phones), cell summary panel | Sort, search, scale; sample in Options |
+| `/explore/[behavior]/[situation]` | Cell drill-down | Beeswarm, dot map, behavior strip across situations | Adjusted or unadjusted estimate, uncertainty, previous/next |
+| `/societies` and `/societies/[society]` | Society fingerprint | The index: a map of the 90 societies by the GSN authors' regions, then the list; a fingerprint: deviation matrix, most similar societies, facts | Compare with… by the title, search, scale; sample in Options |
+| `/audiences` and `/audiences/[behavior]` | Who's watching | Small multiples, focused slopegraph | Society/global, gender, sort |
+| `/change` and `/change/[society]` | Then and now | Arrow chart of overlapping cells, summary counts, provenance note | Society, sort |
 | `/method` | Method and about | Plain-language method, per-society table, versions, attribution, analytics note | Anchored sections |
 | `/404` | Not found | Message and link home | — |
 
-Query parameters: `society`, `sample`, `scale` (`raw` or `centered`), `sort`, `compare`. Unknown or invalid values fall back to defaults without an error.
+Query parameters: `society`, `sample`, `scale` (`raw` or `centered`), `sort`, `compare` and, on their routes, `estimate`, `uncertainty`, `scope`, `actor` and `split`. Unknown or invalid values fall back to defaults without an error.
 
 ### 6.2 Layout and breakpoints
 
 | Width | Layout |
 | --- | --- |
-| ≥ 1024 px | Header with module tabs; control bar under it; main chart left, detail panel right (about 320 px) |
-| 640–1023 px | Header collapses to a menu; detail panel moves below the chart |
-| < 640 px | Matrix becomes a list; details open in a bottom sheet, except the slopegraph and the change arrows, whose details sit below the chart or in each row; society picker stays reachable in a sticky bar; map shrinks to full width under the beeswarm |
+| ≥ 1024 px | Header with module tabs; control bar under it in one row (search, scale, Options holding the sample, Copy link); main chart left, detail panel right (about 320 px) |
+| 640–1023 px | Header collapses to a menu named after the current module; the control bar keeps the search, with the sample, scale and Copy link under Options; detail panel moves below the chart |
+| < 640 px | Matrix becomes a list; details open in a bottom sheet, except the slopegraph and the change arrows, whose details sit below the chart or in each row; the search stays reachable in a sticky bar; map shrinks to full width under the beeswarm |
 
 No view shall scroll horizontally at any width from 320 px.
 
 ### 6.3 Interaction rules
 
-- Hover or focus previews; click, tap or Enter selects or opens. On touch, the first tap shows the tooltip and the second opens.
+- Hover or focus previews; click, tap or Enter selects or opens. On touch, the first tap shows the tooltip and the second opens, except on a society's mark (the beeswarm, the maps, the quiz's reveal), whose tooltip carries the button that selects the society or the link that opens it; a second tap there closes the tooltip, so a tap on a mark never selects by itself.
 - Escape closes tooltips, sheets and the compare picker.
 - Every interactive mark is reachable by keyboard in a logical order, with a visible focus ring.
 - Selecting a society, sample or scale updates all linked views and the URL together.
@@ -468,8 +468,9 @@ No view shall scroll horizontally at any width from 320 px.
 - **Disagreement:** encoded by size or a ring, never by a second hue alone.
 - **Regions:** four categorical colours, also distinguishable in greyscale or by shape on the map.
 - **Themes:** light and dark, following the system setting, with a manual switch.
+- **Interface colour:** selected states and primary buttons in the text ink, never in the data's colours; links and focus rings in one blue.
 - **Type:** one self-hosted sans-serif family or the system font stack; body text at least 16 px.
-- **Share images:** 1200 × 630 px, with the view's headline finding, a simplified chart and the attribution line.
+- **Share images:** 1200 × 630 px, with the view's finding as the headline (an observation, §6.5), one short detail line, a simplified chart and the NFR-40 attribution in two lines.
 
 ### 6.5 Language and numbers
 
@@ -477,6 +478,8 @@ No view shall scroll horizontally at any width from 320 px.
 - Show scores on the −2.5 to +2.5 scale with one decimal, and alongside them the share of respondents choosing one of the three "appropriate" points.
 - Name societies as "respondents in Chile", not "Chileans", to reflect convenience samples.
 - Write headlines as observations ("Phones at funerals divide societies most"), never as causes.
+- Say how sure in words: "clearly higher" or "clearly lower" (or "clearly stricter", "clearly looser") when the 95% interval of a difference excludes 0, and "too close to call" when it includes 0, with one line per page on what "clearly" means; never "significant".
+- Chart titles state what the chart shows, as observations; the subtitle says what is drawn, and scores go in details, tables and axes rather than in the first sentence.
 
 ## 7. Non-functional requirements
 
@@ -495,7 +498,7 @@ No view shall scroll horizontally at any width from 320 px.
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | NFR-10 | The site shall conform to WCAG 2.2 level AA. | Must |
-| NFR-11 | Every chart shall have a one-sentence text summary and a "Show as table" control that renders its values as an accessible table. | Must |
+| NFR-11 | Every chart shall have a one-sentence text summary and a "Show as table" control that renders its values as an accessible table. In the guided story both may sit inside the step's "About this chart" disclosure. | Must |
 | NFR-12 | Text shall meet 4.5:1 contrast and chart marks 3:1 against their background; no information shall rely on colour alone. | Must |
 | NFR-13 | All functions shall work by keyboard alone, and core flows shall be checked with VoiceOver and NVDA. | Must |
 | NFR-14 | Pages shall stay usable at 200% zoom and respect reduced-motion and colour-scheme settings. | Must |
@@ -629,7 +632,7 @@ v1 is accepted when every Must requirement passes its test below and the launch 
 | AT-8 | Two pipeline runs on the same inputs give byte-identical outputs, and the sample counts match the paper. | NFR-50, NFR-51 |
 | AT-9 | The deployed site sets no cookie, and its only third-party requests go to the analytics beacon; checked against `build/` on every pull request and against the deployed site after each push. | C-11, NFR-30–NFR-32, FR-90 |
 | AT-10 | The deployed site is under 60 MB and its largest file under 5 MB; checked against `build/` on every pull request and against the deployed site after each push. | NFR-5, C-1 |
-| AT-11 | Selecting another society, sample or scale updates every visible view and the URL together; back and forward restore earlier states. | FR-3–FR-5, FR-84 |
+| AT-11 | Selecting another society, sample or scale updates every visible view and the URL together; back and forward restore earlier pages, societies and comparisons. | FR-3–FR-5, FR-84 |
 | AT-12 | A content review of every page finds no causal wording and the "respondents in X" phrasing throughout. | FR-73 |
 
 ### 9.3 Traceability
@@ -641,7 +644,7 @@ v1 is accepted when every Must requirement passes its test below and the launch 
 | Cell drill-down and map | FR-20–FR-27 | AT-2 |
 | Society fingerprint | FR-30–FR-34 | AT-11, visual regression |
 | Audiences | FR-40–FR-43 | End-to-end and visual regression |
-| Change since the early 2000s | FR-50–FR-53, C-6 | AT-4 |
+| Then and now | FR-50–FR-53, C-6 | AT-4 |
 | Quiz and story | FR-60–FR-65 | AT-3, AT-6 |
 | Method | FR-70–FR-73 | AT-12 |
 | URLs and sharing | FR-80–FR-87 | AT-2, AT-7, AT-11 |
