@@ -3,6 +3,7 @@
 export const comparison = { label: '', text: '', url: '' };
 export const CHANGE_NAME = '';
 export const STORY_CHANGE_TITLE = '';
+export const CHANGE_HUB = '';
 export const CHANGE_SHARE_ALT = '';
 export const societyChangeLink = (who: string) => (who ? '' : '');
 export const cellChangeLink = (where: string | null) => (where ? '' : '');

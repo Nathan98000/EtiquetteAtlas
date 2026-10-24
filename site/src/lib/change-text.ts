@@ -1,9 +1,10 @@
 /**
  * The change module's words outside its own routes (R-6; decisions 75 and 95): its name in the
- * header, the credit for the 2000–2003 survey (NFR-41), the story's step title, the change card's
- * alt text and the links into the module from fingerprints and drill-downs. A build without the module swaps this file for
- * change-text.off.ts (vite.config.ts), so none of it reaches that build's JavaScript; the markup
- * around each use stays behind `CHANGE_MODULE`.
+ * header, the credit for the 2000–2003 survey (NFR-41), the story's step title, the home page's
+ * entry card, the change card's alt text and the links into the module from fingerprints and
+ * drill-downs. A build without the module swaps this file for change-text.off.ts
+ * (vite.config.ts), so none of it reaches that build's JavaScript; the markup around each use
+ * stays behind `CHANGE_MODULE`.
  */
 
 /** NFR-41: Gelfand et al. (2011), whose survey the GSN authors compare against. */
@@ -20,6 +21,9 @@ export const comparison = {
 export const CHANGE_NAME = 'Then and now';
 
 export const STORY_CHANGE_TITLE = 'Two surveys, 20 years apart';
+
+/** The home page's entry card (decision 11). */
+export const CHANGE_HUB = 'The same questions in 26 societies, in 2000–2003 and in 2023–2024.';
 
 /** FR-83: what the change card shows (decision 89). */
 export const CHANGE_SHARE_ALT =

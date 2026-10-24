@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { CHANGE_MODULE } from '#lib/change-module.ts';
+	import { CHANGE_HUB, CHANGE_NAME } from '#lib/change-text.ts';
+	import { directionStyle, regionStyle, scoreStyle } from '#lib/charts/colors.ts';
 	import { drill } from '#lib/charts/drill-model.ts';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
@@ -14,7 +18,7 @@
 		loadSocieties,
 		preload
 	} from '#lib/data/load.ts';
-	import { SAMPLE_PHRASE } from '#lib/data/model.ts';
+	import { REGIONS, SAMPLE_PHRASE } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { QUIZ_ITEMS } from '#lib/quiz/items.ts';
 	import {
@@ -26,7 +30,15 @@
 	} from '#lib/quiz/quiz-model.ts';
 	import { readAnswers, sessionStore, writeAnswers, type Answers } from '#lib/quiz/quiz-store.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
-	import { setView, view, withView } from '#lib/state/view.svelte.ts';
+	import {
+		audiencesHref,
+		changeHref,
+		pairHref,
+		setView,
+		societyHref,
+		view,
+		withView
+	} from '#lib/state/view.svelte.ts';
 
 	// FR-60: the three items from the configuration file, asked in its order.
 	const questions = quizQuestions(QUIZ_ITEMS);
@@ -142,6 +154,14 @@
 		const { behavior, situation } = cellParams(questions.find((q) => q.index === cell)!);
 		return withView(resolve(`explore/${behavior}/${situation}/`), vs, GLOBAL_KEYS);
 	};
+
+	// Decision 11: the hub's small pictures, drawn from the palette's tokens; they hold no data.
+	const STRIP = [-2.1, -1.3, -0.6, 0.2, 0.9, 1.7];
+	const GRID = [-2, -1, 0.5, 1.5, -0.5, 1, 2, -1.5, 0, 0.8, -2.2, 1.2, -0.3, 0.6, 1.8];
+	const SWARM = REGIONS.flatMap((region, r) =>
+		[0, 1].map((k) => ({ region, k: r * 2 + k, y: [22, 58, 40, 64, 28, 50, 36, 60][r * 2 + k] }))
+	);
+	const BARS = [1.6, 0.6, -0.9];
 </script>
 
 <!-- FR-1: the home route opens the quiz entry, with "Skip to the atlas" in view (decision 78). -->
@@ -150,23 +170,17 @@
 />
 
 <div class="home">
-	<h1>The Etiquette Atlas</h1>
-	<p class="lede">
-		Is it fine to eat on a bus, or to use a phone at a funeral? See how respondents in 90 societies
-		judged 15 everyday behaviors in 10 situations.
-	</p>
-	<p>
-		<a class="button primary" href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>
-			Skip to the atlas
-		</a>
-	</p>
-
+	<!-- D-11: the first question is the page's hero, under a one-line promise; "Skip to the atlas"
+	     stays in view as a link (FR-1), with the tour beside it. -->
 	<section class="quiz" aria-labelledby="quiz-title">
-		<h2 id="quiz-title">How would you answer?</h2>
-		<p class="intro">
-			Rate three behaviors on the six answers the survey offered, and see how your answers compare
-			with the average answers of respondents in each society. Your answers stay in this browser
-			tab: they are never sent anywhere.
+		<h1 id="quiz-title">How would you answer?</h1>
+		<p class="lede">
+			Rate three everyday behaviors and see how respondents in 90 societies judged them; your
+			answers stay in this browser tab.
+		</p>
+		<p class="ways">
+			<a href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>Skip to the atlas</a>
+			or <a href={withView(resolve('story/'), vs, GLOBAL_KEYS)}>take the 2-minute tour</a>
 		</p>
 		<noscript>
 			<p>The quiz needs JavaScript. Skip to the atlas to explore the answers.</p>
@@ -197,10 +211,10 @@
 				<form class="question" onsubmit={reveal}>
 					<fieldset>
 						<legend>
-							<h3 id="question-title" tabindex="-1">
+							<h2 id="question-title" tabindex="-1">
 								<span class="count">Question {current + 1} of {questions.length}</span>
 								{question.question}
-							</h3>
+							</h2>
 						</legend>
 						<div class="responses">
 							{#each RESPONSE_VALUES as response (response)}
@@ -230,7 +244,7 @@
 
 				{#if revealed !== undefined}
 					<section class="answer" aria-labelledby="reveal-title">
-						<h3 id="reveal-title" tabindex="-1">Where your answer falls</h3>
+						<h2 id="reveal-title" tabindex="-1">Where your answer falls</h2>
 						{#await revealCode}
 							<p class="loading">Loading…</p>
 						{:then module}
@@ -260,7 +274,7 @@
 				{/if}
 			{:else}
 				<section class="summary" aria-labelledby="summary-title">
-					<h3 id="summary-title" tabindex="-1">Your answers</h3>
+					<h2 id="summary-title" tabindex="-1">Your answers</h2>
 					<ol>
 						{#each questions as q (q.key)}
 							{@const response = answers[q.key]}
@@ -291,21 +305,101 @@
 			{/if}
 		</div>
 	</section>
+
+	<!-- Decision 11: the ways into the atlas, each a question (the review's section 6). -->
+	<section class="hub" aria-labelledby="hub-title">
+		<h2 id="hub-title">Explore the atlas</h2>
+		<ul class="cards">
+			<li class="card">
+				<div class="preview strip" aria-hidden="true">
+					{#each STRIP as score, i (i)}
+						<span class="score" style="{scoreStyle(score)};--x:{8 + i * 16}%"></span>
+					{/each}
+				</div>
+				<h3>
+					<a class="stretch" href={withView(resolve('story/'), vs, GLOBAL_KEYS)}>
+						Take the 2-minute tour
+					</a>
+				</h3>
+				<p>What the survey found, one chart at a time.</p>
+			</li>
+			<li class="card">
+				<div class="preview grid" aria-hidden="true">
+					{#each GRID as score, i (i)}
+						<span class="score" style={scoreStyle(score)}></span>
+					{/each}
+				</div>
+				<h3>Look up a situation</h3>
+				<p>Any of 15 behaviors in 10 situations, in every society.</p>
+				<div class="needs-js">
+					<SocietyPicker
+						societies={undefined}
+						selected={null}
+						sample={vs.sample}
+						label="Behavior and situation"
+						onselect={() => {}}
+						onpair={(cell) => goto(pairHref(cell, vs))}
+						pairsOnly
+					/>
+				</div>
+				<p class="all">
+					<a href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>Or see all 150 pairs</a>
+				</p>
+			</li>
+			<li class="card">
+				<div class="preview swarm" aria-hidden="true">
+					{#each SWARM as dot (dot.k)}
+						<span class="region" style="{regionStyle(dot.region)};--k:{dot.k};--y:{dot.y}%"></span>
+					{/each}
+				</div>
+				<h3><a class="stretch" href={societyHref(null, vs)}>Look up a society</a></h3>
+				<p>How respondents in each of 90 societies answered, and who answered alike.</p>
+			</li>
+			<li class="card">
+				<div class="preview bars" aria-hidden="true">
+					{#each BARS as score, i (i)}
+						<span class="score" style="{scoreStyle(score)};--h:{70 - i * 22}%"></span>
+					{/each}
+				</div>
+				<h3>
+					<a class="stretch" href={audiencesHref(null, vs)}>Does it matter who's watching?</a>
+				</h3>
+				<p>The same behaviors alone and in front of colleagues or management.</p>
+			</li>
+			{#if CHANGE_MODULE}
+				<li class="card">
+					<div class="preview arrows direction" aria-hidden="true" style={directionStyle()}>
+						<span class="from"></span><span class="line"></span><span class="to"></span>
+					</div>
+					<h3>
+						<a class="stretch" href={changeHref(vs.society, vs, false)}>{CHANGE_NAME}</a>
+					</h3>
+					<p>{CHANGE_HUB}</p>
+				</li>
+			{/if}
+		</ul>
+	</section>
 </div>
 
 <style>
 	.home {
 		max-width: var(--measure);
 		margin: 0 auto;
-		padding: 2.5rem var(--gutter) 0;
+		padding: 1.5rem var(--gutter) 0;
 	}
 
 	h1 {
-		font-size: clamp(2rem, 1.2rem + 4vw, 3rem);
+		margin: 0 0 0.5rem;
+		font-size: var(--text-2xl);
 	}
 
 	.lede {
+		margin: 0;
 		font-size: var(--text-lg);
+	}
+
+	.ways {
+		margin: 0.5rem 0 0;
 	}
 
 	.primary {
@@ -328,18 +422,12 @@
 		cursor: not-allowed;
 	}
 
-	.quiz {
-		margin-top: 2.5rem;
-		padding-top: 1.5rem;
-		border-top: 1px solid var(--border);
-	}
-
 	.society-pick {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-end;
 		gap: 0.5rem 1.5rem;
-		margin: 1.25rem 0 1.5rem;
+		margin: 1rem 0 1.25rem;
 	}
 
 	.sample {
@@ -358,7 +446,7 @@
 		padding: 0;
 	}
 
-	h3 {
+	.quiz h2 {
 		font-size: var(--text-xl);
 		margin: 0 0 1rem;
 	}
@@ -430,5 +518,167 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.75rem;
+	}
+
+	/* Decision 11: the hub, one card per way in. */
+	.hub {
+		margin-top: 3rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.hub h2 {
+		margin: 0 0 1rem;
+		font-size: var(--text-xl);
+	}
+
+	.cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+		gap: 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.card {
+		position: relative;
+		padding: 1rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		background: var(--surface-raised);
+	}
+
+	.card:has(.stretch:hover) {
+		border-color: var(--border-strong);
+	}
+
+	.card:has(.stretch:focus-visible) {
+		outline: 3px solid var(--focus);
+		outline-offset: 2px;
+	}
+
+	.card h3 {
+		margin: 0 0 0.25rem;
+		font-size: var(--text-lg);
+	}
+
+	.card p {
+		margin: 0;
+	}
+
+	.card .all {
+		margin-top: 0.5rem;
+		font-size: var(--text-sm);
+	}
+
+	.card .needs-js {
+		margin-top: 0.75rem;
+	}
+
+	/* The whole card follows its link. */
+	.stretch::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+
+	.stretch:focus-visible {
+		outline: none;
+	}
+
+	.preview {
+		position: relative;
+		height: 3.5rem;
+		margin-bottom: 0.75rem;
+		border-radius: var(--radius);
+		background: var(--surface-muted);
+	}
+
+	.preview span {
+		position: absolute;
+	}
+
+	.strip::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 6%;
+		right: 6%;
+		border-top: 1px solid var(--border-strong);
+	}
+
+	.strip span {
+		top: calc(50% - 0.5rem);
+		left: var(--x);
+		width: 1rem;
+		height: 1rem;
+		border: 1px solid var(--border-strong);
+		border-radius: 50%;
+		background: var(--fill);
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(5, 1.125rem);
+		grid-auto-rows: 0.875rem;
+		gap: 0.125rem;
+		align-content: center;
+		padding-left: 1rem;
+	}
+
+	.grid span {
+		position: static;
+		border-radius: 0.125rem;
+		background: var(--fill);
+	}
+
+	.swarm span {
+		top: var(--y);
+		left: calc(10% + var(--k) * 10%);
+		width: 0.75rem;
+		height: 0.75rem;
+		border-radius: 50%;
+		background: var(--region);
+	}
+
+	.bars {
+		display: flex;
+		align-items: flex-end;
+		gap: 0.375rem;
+		padding: 0.5rem 1rem 0;
+	}
+
+	.bars span {
+		position: static;
+		width: 1.25rem;
+		height: var(--h);
+		border-radius: 0.125rem 0.125rem 0 0;
+		background: var(--fill);
+	}
+
+	.arrows .from,
+	.arrows .to {
+		top: calc(50% - 0.375rem);
+		width: 0.75rem;
+		height: 0.75rem;
+		border-radius: 50%;
+	}
+
+	.arrows .from {
+		left: 18%;
+		border: 2px solid var(--text-muted);
+	}
+
+	.arrows .to {
+		left: 62%;
+		background: var(--more);
+	}
+
+	.arrows .line {
+		top: 50%;
+		left: calc(18% + 0.75rem);
+		width: calc(44% - 0.75rem);
+		border-top: 2px solid var(--more);
 	}
 </style>

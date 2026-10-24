@@ -32,6 +32,17 @@ test.describe('FR-1, FR-60, FR-61: the quiz on the home page', () => {
 		});
 	}
 
+	test('D-11: on a phone the first answers are on the first screen, by the atlas and the tour', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 375, height: 812 });
+		await page.goto(url(''));
+		await expect(radio(page, 'extremely inappropriate')).toBeInViewport();
+		await expect(
+			page.getByRole('link', { name: 'take the 2-minute tour', exact: true })
+		).toHaveAttribute('href', /\/story\/$/);
+	});
+
 	test('asks the three configured questions and shows where each answer falls', async ({
 		page
 	}) => {
@@ -48,10 +59,11 @@ test.describe('FR-1, FR-60, FR-61: the quiz on the home page', () => {
 				'approving than that. (3 societies had too few responses or were not asked.)'
 		);
 		// D-9: the chart comes into view, its dots in one colour, its note without the model's words.
-		const top = await page.locator('.beeswarm').evaluate((el) => el.getBoundingClientRect().top);
-		expect(top, "the reveal's chart starts on the screen").toBeLessThan(
-			page.viewportSize()!.height
-		);
+		const top = () => page.locator('.beeswarm').evaluate((el) => el.getBoundingClientRect().top);
+		// The page scrolls smoothly, so wait for it to settle.
+		await expect
+			.poll(top, { message: "the reveal's chart starts on the screen" })
+			.toBeLessThan(page.viewportSize()!.height);
 		await expect(page.locator('.beeswarm .dot.plain').first()).toBeAttached();
 		await expect(page.locator('.beeswarm .mean-label')).toHaveCount(0);
 		await expect(page.locator('.reveal .note')).toContainText(
@@ -212,6 +224,45 @@ test('NFR-13, AT-6: by keyboard alone, answer the three questions and go on to t
 	await expect(page).toHaveURL(/\/story\/$/);
 });
 
+test('decision 11: under the quiz, five ways into the atlas, one a search for a pair', async ({
+	page
+}) => {
+	await page.goto(url('?society=jpn'));
+	await expect(page.getByRole('combobox', { name: 'Compare with a society' })).toHaveValue('Japan');
+	const hub = page.getByRole('region', { name: 'Explore the atlas' });
+	await expect(hub.getByRole('heading', { level: 3 })).toHaveText([
+		'Take the 2-minute tour',
+		'Look up a situation',
+		'Look up a society',
+		"Does it matter who's watching?",
+		'Then and now'
+	]);
+	await expect(hub.getByRole('link', { name: 'Look up a society' })).toHaveAttribute(
+		'href',
+		/\/societies\/$/
+	);
+	await expect(hub.getByRole('link', { name: "Does it matter who's watching?" })).toHaveAttribute(
+		'href',
+		/\/audiences\/\?society=jpn$/
+	);
+	await expect(hub.getByRole('link', { name: 'Then and now' })).toHaveAttribute(
+		'href',
+		/\/change\/jpn\/$/
+	);
+
+	const search = hub.getByRole('combobox', { name: 'Behavior and situation' });
+	await search.click();
+	await expect(page.getByRole('listbox', { name: 'Behaviors in situations' })).toHaveText(
+		'Type a behavior, a situation or both'
+	);
+	await search.fill('phone funeral');
+	await expect(
+		page.getByRole('listbox', { name: 'Behaviors in situations' }).getByRole('option')
+	).toHaveText(['Using a mobile phone at a funeral ceremony']);
+	await search.press('Enter');
+	await expect(page).toHaveURL(/\/explore\/usemphone\/funeral\/\?society=jpn$/);
+});
+
 test.describe('without JavaScript', () => {
 	test.use({ javaScriptEnabled: false });
 
@@ -219,11 +270,14 @@ test.describe('without JavaScript', () => {
 		page
 	}) => {
 		await page.goto(url(''));
-		await expect(page.getByRole('heading', { level: 1 })).toHaveText('The Etiquette Atlas');
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText('How would you answer?');
 		await expect(page.locator('main noscript p').first()).toHaveText(
 			'The quiz needs JavaScript. Skip to the atlas to explore the answers.'
 		);
 		await expect(page.getByRole('link', { name: 'Skip to the atlas' })).toBeVisible();
 		await expect(page.getByRole('radio').first()).toBeHidden();
+		// The hub's links work without it; its search gives way to the matrix.
+		await expect(page.getByRole('link', { name: 'Or see all 150 pairs' })).toBeVisible();
+		await expect(page.getByRole('combobox', { name: 'Behavior and situation' })).toBeHidden();
 	});
 });

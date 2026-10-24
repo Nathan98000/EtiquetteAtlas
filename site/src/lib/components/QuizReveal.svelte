@@ -107,7 +107,7 @@
 
 	{#if society}
 		<section class="society" aria-labelledby="society-answer-title">
-			<h4 id="society-answer-title">Respondents in {place(society.code, society.name)}</h4>
+			<h3 id="society-answer-title">Respondents in {place(society.code, society.name)}</h3>
 			{#if mine === undefined}
 				<p class="muted">Loading their answers…</p>
 			{:else}
@@ -163,7 +163,7 @@
 		color: var(--text-muted);
 	}
 
-	h4 {
+	h3 {
 		font-size: var(--text-md);
 		margin: 0 0 0.5rem;
 	}

@@ -26,7 +26,7 @@ test('HR-1, NFR-40: home page renders under the base path with the attribution f
 	const response = await page.goto(home);
 	expect(response?.status()).toBe(200);
 	await expect(page).toHaveTitle('The Etiquette Atlas');
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('The Etiquette Atlas');
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('How would you answer?');
 
 	const footer = page.getByRole('contentinfo');
 	await expect(footer).toContainText('Eriksson');
@@ -108,7 +108,7 @@ test('HR-2, FR-85: unknown URLs get the custom 404 page, styled, with a link hom
 
 	await page.getByRole('link', { name: 'Go to the atlas home page' }).click();
 	await expect(page).toHaveURL(new RegExp(`${basePath}/$`));
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('The Etiquette Atlas');
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('How would you answer?');
 });
 
 test('§6.4: system font stack with body text of at least 16 px', async ({ page }) => {

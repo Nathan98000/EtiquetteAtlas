@@ -18,6 +18,8 @@
 		only?: readonly string[] | null;
 		/** Decision 11: typing also finds behaviors in situations, and choosing one calls this. */
 		onpair?: ((cell: Cell) => void) | null;
+		/** Finds behaviors in situations only, as the home page's "Look up a situation" does. */
+		pairsOnly?: boolean;
 	}
 
 	let {
@@ -29,7 +31,8 @@
 		clearLabel = 'Clear the society',
 		exclude = null,
 		only = null,
-		onpair = null
+		onpair = null,
+		pairsOnly = false
 	}: Props = $props();
 
 	const id = $props.id();
@@ -86,7 +89,9 @@
 				.map((cell): Option => ({ kind: 'pair', key: `cell-${cell.index}`, cell })),
 			more: Math.max(0, cells.length - 8)
 		};
-		return [societyGroup, pairGroup].filter((group) => group.options.length);
+		return (pairsOnly ? [pairGroup] : [societyGroup, pairGroup]).filter(
+			(group) => group.options.length
+		);
 	});
 	const options = $derived(groups.flatMap((group) => group.options));
 
@@ -180,9 +185,11 @@
 			aria-activedescendant={activeOption ? optionId(activeOption) : undefined}
 			autocomplete="off"
 			spellcheck="false"
-			placeholder={onpair
-				? 'Search societies and situations'
-				: `Search ${societies?.list.length ?? 90} societies`}
+			placeholder={pairsOnly
+				? 'Try “eat bus” or “phone funeral”'
+				: onpair
+					? 'Search societies and situations'
+					: `Search ${societies?.list.length ?? 90} societies`}
 			value={editing ? query : (current?.name ?? '')}
 			oninput={(event) => {
 				query = event.currentTarget.value;
@@ -209,7 +216,11 @@
 		<ul
 			id={listId}
 			role="listbox"
-			aria-label={onpair ? 'Societies and behaviors in situations' : 'Societies'}
+			aria-label={pairsOnly
+				? 'Behaviors in situations'
+				: onpair
+					? 'Societies and behaviors in situations'
+					: 'Societies'}
 		>
 			{#if onpair}
 				{#each groups as group (group.key)}
@@ -266,7 +277,9 @@
 
 {#snippet empty()}
 	<li class="empty" role="presentation">
-		{#if !societies}Loading societies…{:else if onpair}Nothing matches{:else}No society matches{/if}
+		{#if pairsOnly}
+			{editing && query.trim() ? 'Nothing matches' : 'Type a behavior, a situation or both'}
+		{:else if !societies}Loading societies…{:else if onpair}Nothing matches{:else}No society matches{/if}
 	</li>
 {/snippet}
 
