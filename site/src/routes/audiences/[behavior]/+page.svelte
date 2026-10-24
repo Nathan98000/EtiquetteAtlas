@@ -20,6 +20,7 @@
 	import AudienceFilters from '#lib/components/AudienceFilters.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import StepLinks from '#lib/components/StepLinks.svelte';
 	import { neighbours } from '#lib/data/derive.ts';
 	import { BEHAVIOR_TEXT, BEHAVIORS } from '#lib/data/grid.ts';
@@ -101,9 +102,13 @@
 />
 
 <div class="audience-page">
-	<nav class="crumbs" aria-label="Breadcrumb">
-		<a href={audiencesHref(null, vs)}>All 15 behaviors</a>
-	</nav>
+	<!-- D-28: Share at the right of the way back, so the title keeps its width. -->
+	<div class="crumbs-row">
+		<nav class="crumbs" aria-label="Breadcrumb">
+			<a href={audiencesHref(null, vs)}>All 15 behaviors</a>
+		</nav>
+		<ShareButton />
+	</div>
 	<h1>{data.title}</h1>
 	<!-- NFR-2: on a `?society=` link (marked before the first paint, app.html) the prerendered lede
 	     stays as an invisible sizer, so a society's shorter sentence does not pull the chart up. -->

@@ -12,6 +12,8 @@ const ROUTES = [
 	'explore/?society=jpn',
 	'explore/eat/bus/?society=jpn',
 	'explore/sing/funeral/',
+	// The longest title, over three lines on a phone.
+	'explore/listen/job-interview/?society=jpn',
 	'societies/usa/',
 	'societies/usa/?compare=jpn',
 	'audiences/',

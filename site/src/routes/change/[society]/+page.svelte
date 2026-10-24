@@ -14,6 +14,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import SampleNotice from '#lib/components/SampleNotice.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import { CHANGE_SHARE_ALT } from '#lib/change-text.ts';
 	import { count, respondentsIn } from '#lib/data/format.ts';
 	import { CELLS, cellParams } from '#lib/data/grid.ts';
@@ -78,9 +79,13 @@
 />
 
 <div class="change-page">
-	<nav class="crumbs" aria-label="Breadcrumb">
-		<a href={changeHref(null, vs)}>All {n} societies in both surveys</a>
-	</nav>
+	<!-- D-28: Share at the right of the way back, so the title keeps its width. -->
+	<div class="crumbs-row">
+		<nav class="crumbs" aria-label="Breadcrumb">
+			<a href={changeHref(null, vs)}>All {n} societies in both surveys</a>
+		</nav>
+		<ShareButton />
+	</div>
 	<!-- D-23: the society first, the surveys' years a step smaller. -->
 	<h1>{data.who} <span class="sub">in 2000–2003 and 2023–2024</span></h1>
 	<p class="lede">{summary}</p>

@@ -29,6 +29,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import SampleNotice from '#lib/components/SampleNotice.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import SimilarList from '#lib/components/SimilarList.svelte';
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
@@ -212,9 +213,12 @@
 	<div class="title-row">
 		<h1>{title}</h1>
 		<!-- D-21: the comparison is at the foot of a long page; this opens its picker. -->
-		{#if !empty && !outside}
-			<a class="button needs-js" href="#compare" onclick={openCompare}>Compare with…</a>
-		{/if}
+		<div class="title-actions">
+			{#if !empty && !outside}
+				<a class="button needs-js" href="#compare" onclick={openCompare}>Compare with…</a>
+			{/if}
+			<ShareButton />
+		</div>
 	</div>
 	<p class="lede">{summary}</p>
 	<noscript>
@@ -461,6 +465,12 @@
 
 	.title-row h1 {
 		margin-bottom: 0.5rem;
+	}
+
+	.title-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
 	}
 
 	.cards {

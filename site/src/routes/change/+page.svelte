@@ -21,6 +21,7 @@
 	import ChangeScaleNote from '#lib/components/ChangeScaleNote.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
 	import { CHANGE_SHARE_ALT } from '#lib/change-text.ts';
 	import { attribution } from '#lib/attribution.ts';
@@ -93,10 +94,13 @@
 
 <div class="change-page">
 	<!-- The colon is for the title's text; the second half starts its own line. -->
-	<h1>
-		Then and now<span class="visually-hidden">:</span>
-		<span class="sub">two surveys about 20 years apart</span>
-	</h1>
+	<div class="page-title">
+		<h1>
+			Then and now<span class="visually-hidden">:</span>
+			<span class="sub">two surveys about 20 years apart</span>
+		</h1>
+		<ShareButton />
+	</div>
 	<!-- D-19: a society the older survey did not include gets the notice in the lede's place, with
 	     the societies it did include to pick from. A `?society=` link reserves the taller of the two
 	     from the first paint (app.html), so nothing moves when the society applies (NFR-2). -->

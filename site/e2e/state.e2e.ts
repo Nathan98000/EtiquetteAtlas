@@ -198,6 +198,41 @@ test('FR-81: Copy link copies the permalink', async ({ page, context }) => {
 	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(page.url());
 });
 
+test("D-28: Share hands the browser's share sheet the page's title and address, and nothing else", async ({
+	page
+}) => {
+	await page.addInitScript(() => {
+		const w = window as unknown as { shared: ShareData[] };
+		w.shared = [];
+		Object.defineProperty(navigator, 'share', {
+			value: async (data: ShareData) => void w.shared.push(data)
+		});
+	});
+	const shared = () => page.evaluate(() => (window as unknown as { shared: ShareData[] }).shared);
+	await page.goto(url('explore/eat/bus/?society=jpn'));
+	await swarmReady(page);
+	await page.getByRole('button', { name: 'Share' }).click();
+	expect(await shared()).toEqual([{ title: await page.title(), url: page.url() }]);
+
+	// C-12: on the quiz, the page only; the answers are never in its address.
+	await page.goto(url(''));
+	await page.getByRole('radio', { name: 'very appropriate', exact: true }).check();
+	await page.getByRole('button', { name: 'See where your answer falls' }).click();
+	await page.getByRole('button', { name: 'Share' }).click();
+	expect(await shared()).toEqual([
+		{ title: 'The Etiquette Atlas', url: new URL(url(''), page.url()).href }
+	]);
+});
+
+test('D-28: without a share sheet, Share copies the link', async ({ page, context }) => {
+	await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+	await page.addInitScript(() => Object.defineProperty(navigator, 'share', { value: undefined }));
+	await page.goto(url('societies/jpn/?sample=paper'));
+	await page.getByRole('button', { name: 'Share' }).click();
+	await expect(page.getByText('Link copied')).toBeVisible();
+	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(page.url());
+});
+
 test('FR-86: a failed data file shows a plain message and a retry control', async ({ page }) => {
 	let failures = 1;
 	await page.route(/global-all\.[^/]*\.json$/, async (route) => {

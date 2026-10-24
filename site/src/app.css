@@ -226,6 +226,33 @@ table {
 }
 
 /* A button inside a sentence that reads like a link, such as "Show as answered". */
+/* D-28: a page's title with Share at its top right. A float inside the title keeps the button's
+   room on the first line only, so a long title keeps its full width below it (D-23). */
+.page-title {
+	position: relative;
+}
+
+.page-title > h1::before {
+	content: '';
+	float: right;
+	width: 6.75rem;
+	height: 2.75rem;
+}
+
+.crumbs-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+@media (max-width: 639.98px) {
+	.page-title > h1::before {
+		width: 3.25rem;
+		height: 2rem;
+	}
+}
+
 .link-button {
 	display: inline;
 	min-height: 1.5rem;

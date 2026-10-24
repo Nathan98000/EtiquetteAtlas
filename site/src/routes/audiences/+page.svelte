@@ -21,6 +21,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import { SHARE_ALT } from '#lib/share.ts';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import { AUDIENCE_SORT_KEYS } from '#lib/data/derive.ts';
 	import { BEHAVIOR_TEXT, BEHAVIORS, CONTEXT_TEXT, CONTEXTS } from '#lib/data/grid.ts';
@@ -95,7 +96,10 @@
 />
 
 <div class="audiences-page">
-	<h1>Who's watching?</h1>
+	<div class="page-title">
+		<h1>Who's watching?</h1>
+		<ShareButton />
+	</div>
 	<!-- D-16: the module's finding is the lede; the chart's summary says what the panels show. -->
 	<p class="lede">{summary}</p>
 	<noscript>

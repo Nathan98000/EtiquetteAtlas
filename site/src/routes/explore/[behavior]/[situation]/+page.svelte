@@ -13,6 +13,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Segmented from '#lib/components/Segmented.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import StepLinks from '#lib/components/StepLinks.svelte';
 	import Toggle from '#lib/components/Toggle.svelte';
 	import { cellSummary, neighbours, societiesSummary, stripSummary } from '#lib/data/derive.ts';
@@ -138,9 +139,13 @@
 />
 
 <div class="drill">
-	<nav class="crumbs" aria-label="Breadcrumb">
-		<a href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>All 150 pairs</a>
-	</nav>
+	<!-- D-28: Share at the right of the way back, so the title keeps its width. -->
+	<div class="crumbs-row">
+		<nav class="crumbs" aria-label="Breadcrumb">
+			<a href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>All 150 pairs</a>
+		</nav>
+		<ShareButton />
+	</div>
 	<h1>{data.title}</h1>
 	<CellSociety text={box} />
 	<p class="lede">{summary}</p>
@@ -396,6 +401,13 @@
 
 	.crumbs a::before {
 		content: '← ';
+	}
+
+	/* Phones: a step smaller, so the longest pair's title takes two lines, not three (D-23). */
+	@media (max-width: 639.98px) {
+		h1 {
+			font-size: var(--text-xl);
+		}
 	}
 
 	.lede {

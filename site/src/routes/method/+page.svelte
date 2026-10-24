@@ -2,6 +2,7 @@
 	import Seo from '#lib/components/Seo.svelte';
 	import MethodChange from '#lib/components/MethodChange.svelte';
 	import MethodChangeLink from '#lib/components/MethodChangeLink.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import SocietyFacts from '#lib/components/SocietyFacts.svelte';
 	import { attribution, audienceCredit } from '#lib/attribution.ts';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
@@ -26,7 +27,10 @@
 />
 
 <article class="page">
-	<h1>Method</h1>
+	<div class="page-title">
+		<h1>Method</h1>
+		<ShareButton />
+	</div>
 	<p class="lede">
 		How the atlas turns the answers of {all.respondents} respondents into the scores and charts you see,
 		and what it cannot tell you. Each chart's "About this chart" link opens its section here.

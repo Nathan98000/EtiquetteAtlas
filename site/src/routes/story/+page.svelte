@@ -16,6 +16,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import { SHARE_ALT } from '#lib/share.ts';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import StoryChange from '#lib/components/StoryChange.svelte';
 	import StoryStep from '#lib/components/StoryStep.svelte';
 	import { percent, responseLabel, score, spread } from '#lib/data/format.ts';
@@ -125,7 +126,10 @@
 
 <div class="story">
 	<header class="intro">
-		<h1>A guided tour</h1>
+		<div class="page-title">
+			<h1>A guided tour</h1>
+			<ShareButton />
+		</div>
 		<p class="lede">
 			A few steps through the answers of 25,422 respondents in 90 societies, then on to the atlas.
 			The tour uses all respondents in every society, whatever sample you pick.

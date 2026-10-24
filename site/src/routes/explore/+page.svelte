@@ -11,6 +11,7 @@
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import { SHARE_ALT } from '#lib/share.ts';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import { spread } from '#lib/data/format.ts';
 	import { SORT_KEYS, listOrder, matrixOrder, matrixSummary } from '#lib/data/derive.ts';
@@ -95,7 +96,10 @@
 
 <div class="explore">
 	<div class="intro">
-		<h1>What is appropriate where?</h1>
+		<div class="page-title">
+			<h1>What is appropriate where?</h1>
+			<ShareButton />
+		</div>
 		<!-- D-6, D-23: one short line; the legend says what the colour and the circle mean. -->
 		<p class="lede">
 			How respondents in {global.current?.societies(0) ?? 90} societies judged each pair of a behavior

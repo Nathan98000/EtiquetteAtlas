@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import { SHARE_ALT } from '#lib/share.ts';
 	import { count } from '#lib/data/format.ts';
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
@@ -47,7 +48,10 @@
 
 <div class="page">
 	<div class="intro">
-		<h1>Societies</h1>
+		<div class="page-title">
+			<h1>Societies</h1>
+			<ShareButton />
+		</div>
 		<p class="lede">{summary}</p>
 		<p>
 			Pick a society, in the Society box above or the list below, to see where its respondents were

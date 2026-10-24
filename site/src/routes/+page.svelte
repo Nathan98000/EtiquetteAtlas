@@ -8,6 +8,7 @@
 	import { drill } from '#lib/charts/drill-model.ts';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import ShareButton from '#lib/components/ShareButton.svelte';
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
 	import { RESPONSES } from '#lib/data/format.ts';
 	import { cellParams } from '#lib/data/grid.ts';
@@ -173,7 +174,10 @@
 	<!-- D-11: the first question is the page's hero, under a one-line promise; "Skip to the atlas"
 	     stays in view as a link (FR-1), with the tour beside it. -->
 	<section class="quiz" aria-labelledby="quiz-title">
-		<h1 id="quiz-title">How would you answer?</h1>
+		<div class="page-title">
+			<h1 id="quiz-title">How would you answer?</h1>
+			<ShareButton />
+		</div>
 		<p class="lede">
 			Rate three everyday behaviors and see how respondents in 90 societies judged them; your
 			answers stay in this browser tab.
