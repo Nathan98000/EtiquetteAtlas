@@ -17,7 +17,7 @@ import {
 } from '../data/model';
 import { scoreStyle } from './colors';
 
-/** τ at which the disagreement circle reaches its full size; published τ stay below 0.9. */
+/** τ at which the disagreement ring reaches its full size; published τ stay below 0.9. */
 export const TAU_MAX = 1;
 
 /**

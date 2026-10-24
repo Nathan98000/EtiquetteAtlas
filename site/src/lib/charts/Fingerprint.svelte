@@ -48,11 +48,14 @@
 </Grid>
 
 <style>
-	/* Marks read without colour (NFR-12): in the ink that contrasts with the fill, or the text
-	   colour in an unfilled cell. */
+	/* Marks read without colour (NFR-12), D-25: in the text ink with a halo in the page colour,
+	   on any fill and in an unfilled cell. */
 	.glyph {
 		font-size: 0.875rem;
 		line-height: 1;
-		color: var(--ink, var(--text));
+		color: var(--text);
+		text-shadow:
+			0 0 2px var(--surface),
+			0 0 2px var(--surface);
 	}
 </style>

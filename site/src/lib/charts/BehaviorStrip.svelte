@@ -100,11 +100,15 @@
 		background: var(--surface-muted);
 	}
 
+	/* D-25: as in the matrix, rings and marks in the text ink with a halo in the page colour. */
 	.dot {
 		width: calc(var(--r) * 64%);
 		aspect-ratio: 1;
+		border: 2px solid var(--text);
 		border-radius: 50%;
-		background: var(--ink);
+		box-shadow:
+			0 0 0 1px var(--surface),
+			inset 0 0 0 1px var(--surface);
 	}
 
 	.mark {
@@ -113,7 +117,10 @@
 		right: 2px;
 		font-size: 0.625rem;
 		line-height: 1;
-		color: var(--ink);
+		color: var(--text);
+		text-shadow:
+			0 0 2px var(--surface),
+			0 0 2px var(--surface);
 	}
 
 	.label {

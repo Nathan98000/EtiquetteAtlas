@@ -50,12 +50,17 @@
 </Grid>
 
 <style>
-	/* FR-11: disagreement as the circle's area, in the ink that contrasts with the fill. */
+	/* FR-11, D-25: disagreement as a ring whose area grows with it; it, the FR-15 marks and the
+	   FR-16 rings are in the text ink with a halo in the page colour, so none changes colour with
+	   the fill and the fill reads first (colors.ts: MARK_INK). */
 	.dot {
 		width: calc(var(--r) * 64%);
 		aspect-ratio: 1;
+		border: 2px solid var(--text);
 		border-radius: 50%;
-		background: var(--ink);
+		box-shadow:
+			0 0 0 1px var(--surface),
+			inset 0 0 0 1px var(--surface);
 	}
 
 	.mark {
@@ -64,7 +69,10 @@
 		right: 3px;
 		font-size: 0.6875rem;
 		line-height: 1;
-		color: var(--ink);
+		color: var(--text);
+		text-shadow:
+			0 0 2px var(--surface),
+			0 0 2px var(--surface);
 	}
 
 	/* FR-16: a solid ring marks the most universal cell, a double ring the most culture-dependent. */
@@ -72,14 +80,17 @@
 		position: absolute;
 		inset: 0;
 		border-radius: 2px;
-		box-shadow: inset 0 0 0 3px var(--ink);
+		box-shadow:
+			inset 0 0 0 3px var(--text),
+			inset 0 0 0 4px var(--surface);
 		pointer-events: none;
 	}
 
 	.ring.dependent {
 		box-shadow:
-			inset 0 0 0 2px var(--ink),
-			inset 0 0 0 4px var(--fill),
-			inset 0 0 0 6px var(--ink);
+			inset 0 0 0 2px var(--text),
+			inset 0 0 0 3px var(--surface),
+			inset 0 0 0 5px var(--text),
+			inset 0 0 0 6px var(--surface);
 	}
 </style>

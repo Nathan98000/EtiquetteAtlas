@@ -137,7 +137,7 @@ export function versusGlobal(notable: Notable | null): string {
 }
 
 /**
- * D-15: a small sample (10 to 29 respondents) in words, in the tip of its hollow dot: "Only 18
+ * D-15: a small sample (10 to 29 respondents) in words, in the tip of its dashed dot: "Only 18
  * respondents: this estimate is pulled toward the global average, and the true average could be
  * anywhere from −1.6 to −0.8." The raw estimate is not pulled, so it says only the range.
  */

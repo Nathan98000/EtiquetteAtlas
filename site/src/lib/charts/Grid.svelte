@@ -262,7 +262,9 @@
 	}
 
 	a:hover {
-		box-shadow: inset 0 0 0 2px var(--ink);
+		box-shadow:
+			inset 0 0 0 2px var(--text),
+			inset 0 0 0 3px var(--surface);
 	}
 
 	a.empty:hover {

@@ -3,7 +3,7 @@
 	import { scaleLinear } from 'd3-scale';
 	import { count, interval, place, score, signed } from '#lib/data/format.ts';
 	import { REGIONS, Status } from '#lib/data/model.ts';
-	import { REGION_SHAPE, regionStyle, scoreStyle } from './colors';
+	import { REGION_SHAPE, scoreStyle } from './colors';
 	import { dodge, extent, type Placed } from './dodge';
 	import type { Drill, SocietyPoint } from './drill-model';
 	import SocietyTip from './SocietyTip.svelte';
@@ -249,9 +249,8 @@
 					{@const show = uncertainty || p.code === hovered || p.code === selected}
 					{#if show && p.estimate}
 						<line
-							class="whisker region"
+							class="whisker"
 							class:strong={p.code === hovered || p.code === selected}
-							style={regionStyle(p.region)}
 							x1={x(p.estimate.lo)}
 							x2={x(p.estimate.hi)}
 							y1={point.y}
@@ -262,12 +261,11 @@
 				{#each layout.points as point (point.item.code)}
 					{@const p = point.item}
 					<g
-						class="dot {plain ? 'score plain' : 'region'}"
+						class="dot score"
+						class:plain
 						class:small={p.status === Status.Small}
 						class:hovered={p.code === hovered}
-						style="{plain
-							? scoreStyle(p.estimate!.value)
-							: regionStyle(p.region)}; transform: translate({point.x}px, {point.y}px)"
+						style="{scoreStyle(p.estimate!.value)}; transform: translate({point.x}px, {point.y}px)"
 						role="button"
 						tabindex={p.code === tabStop ? 0 : -1}
 						aria-label={ariaLabel(p)}
@@ -393,28 +391,16 @@
 		transition: transform 250ms ease-out;
 	}
 
-	/* FR-21: dots coloured by region, with a shape per region. */
+	/* D-26: filled by the estimate and shaped by region, as on the map and the share card, and
+	   outlined in the text colour for 3:1 (the quiz's plain dots are all circles, D-9). */
 	.dot path {
-		fill: var(--region);
-		stroke: var(--region);
+		fill: var(--fill);
+		stroke: var(--text);
 		stroke-width: 1;
 	}
 
-	/* FR-22: small samples (10–29 respondents) are hollow. */
+	/* FR-22: small samples (10–29 respondents) get the map's dashed outline. */
 	.dot.small path {
-		fill: var(--surface);
-		stroke-width: 1.75;
-	}
-
-	/* D-9: filled by the estimate and ringed in the text colour for 3:1, as on the map; small
-	   samples get its dashed outline. */
-	.dot.plain path {
-		fill: var(--fill);
-		stroke: var(--text);
-	}
-
-	.dot.plain.small path {
-		fill: var(--fill);
 		stroke-width: 1.25;
 		stroke-dasharray: 2 1.5;
 	}
@@ -436,7 +422,7 @@
 	}
 
 	.whisker {
-		stroke: var(--region);
+		stroke: var(--text-muted);
 		stroke-width: 1;
 		opacity: 0.7;
 	}

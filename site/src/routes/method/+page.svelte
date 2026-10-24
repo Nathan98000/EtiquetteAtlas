@@ -66,8 +66,8 @@
 				"clearly" means a difference is bigger than that, and "too close to call" means it is not.
 			</li>
 			<li>
-				<strong>Small samples.</strong> 10 to 29 respondents get a hollow or dashed mark; with fewer than
-				10, a pair reads "too few responses".
+				<strong>Small samples.</strong> 10 to 29 respondents get a dashed outline; with fewer than 10,
+				a pair reads "too few responses".
 			</li>
 		</ul>
 	</section>
@@ -228,8 +228,9 @@
 		<p>
 			Where fewer than 10 respondents in a society rated a pair, we do not show a score: it reads
 			"too few responses". Scores from 10 to 29 respondents are flagged as small samples and drawn
-			as hollow marks. Some societies did not ask some questions: the surveys in Kuwait and Saudi
-			Arabia left out kissing, and Kuwait's also left out flirting. Those pairs read "not asked".
+			with a dashed outline. Some societies did not ask some questions: the surveys in Kuwait and
+			Saudi Arabia left out kissing, and Kuwait's also left out flirting. Those pairs read "not
+			asked".
 		</p>
 	</section>
 

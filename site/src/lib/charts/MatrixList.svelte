@@ -27,7 +27,7 @@
 </script>
 
 <!-- FR-17: the matrix as a list of the 150 cells, each with an inline mean bar and a
-     disagreement circle. -->
+     disagreement ring (D-25). -->
 <BarList
 	{cells}
 	{order}
@@ -74,11 +74,12 @@
 		height: var(--cell);
 	}
 
+	/* D-25: the disagreement ring, as in the matrix. */
 	.dot {
 		width: calc(var(--r) * 64%);
 		aspect-ratio: 1;
+		border: 2px solid var(--text);
 		border-radius: 50%;
-		background: var(--text);
 	}
 
 	.mark {
