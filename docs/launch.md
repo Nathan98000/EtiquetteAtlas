@@ -10,7 +10,7 @@ is sent or published from a coding session.
 | Item | Status | Automated | Left to the maintainer |
 | --- | --- | --- | --- |
 | All Must requirements pass their tests | Passing on `build/` (below) and, for AT-6's axe check, AT-9 and AT-10, on the deployed site. FR-34 (no collection sites, decision 9) and §2.4 (current browser versions tested automatically, the previous ones by hand, decision 98) pass as the SRS now words them (89993c7). Waived for v1.0 by the maintainer, not passed: the screen-reader checks (NFR-13), a real iPhone and the previous browser versions (NFR-20; decision 109) | CI on every pull request and deploy | Real devices: Chrome on Android and the current desktop browsers (NFR-20) |
-| Lighthouse, size and accessibility budgets met on the deployed URL | Met on all three deploys of 23 October 2026 (below); on the third (bad0529): median LCP 0.89–1.33 s, CLS ≤ 0.012, TBT ≤ 36 ms, Lighthouse accessibility 1.00 on 12 routes; 35.99 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 18 routes in both themes | The four commands below | — (they run again on the launch commit) |
+| Lighthouse, size and accessibility budgets met on the deployed URL | Met on every deploy (below); on the design changes' (6e9b27a, 24 October 2026): median LCP 0.86–1.09 s, CLS ≤ 0.006, TBT ≤ 18 ms, Lighthouse accessibility 1.00 on 12 routes; 33.66 MB of 60 MB, largest file 0.50 MB; axe finds no serious or critical issue on 20 routes in both themes | The four commands below | — (they run again on the launch commit) |
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105); reviewed by a fresh agent in place of a human reader, a departure from §9.4 (decision 110), its findings below | — | — |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026); the maintainer read the credit on the 10 sample images on the deployed site, all complete (23 October 2026) | Both, in CI | — |
 | Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107). Counting confirmed in the dashboard, 23 October 2026: 188 visits, 191 page views | `npm run test:deployed` | — |
@@ -118,6 +118,23 @@ site job as in progress after its last step, a stale status, as the deploy that 
 - axe on the deployed URL: 40 passed.
 - `LHCI_DEPLOYED=1 npm run lhci`, run alone: every assertion met. Medians: LCP 0.89–1.33 s, CLS ≤
   0.012, TBT ≤ 36 ms, accessibility 1.00.
+
+Results of the design changes' deploy (24 October 2026: decisions 111 to 140, the applied SRS
+lines, `docs/design-review.md` section 10). The first push (5396829) failed CI's Site job: five
+first-screen tests (decision 138, never run in CI before) found charts 10 to 89 px below a phone's
+fold, measured with the runner's default sans, which is wider than any phone's system font. Nothing
+was deployed. The fix (6e9b27a) gives the job's Playwright and Lighthouse steps `e2e/fonts.conf`, as
+the cards and visual baselines have; with it every CI job passed and the site deployed.
+
+- `npm run test:deployed`: 2 passed, with reports naming the page by its path and no query string.
+- `npm run check:deployed`: 954 files, 33.66 MB of 60 MB, largest 0.50 MB (`cells-all.json`), no
+  cookies. 288 HTML files and `_app/version.json` differed from a local build, by the version
+  marker (the commit's SHA in CI, a timestamp locally); every script, style, data file and share
+  image matched.
+- axe on the deployed URL: 42 passed (20 routes in both themes, no sideways scroll at 320, 640 and
+  1024 px, transitions off under reduced motion).
+- `LHCI_DEPLOYED=1 npm run lhci`, run alone: every assertion met. Medians: LCP 0.86–1.09 s (the
+  slowest `/societies/chl/`), CLS ≤ 0.006, TBT ≤ 18 ms, accessibility 1.00.
 
 Still to do:
 

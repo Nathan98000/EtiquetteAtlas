@@ -622,8 +622,8 @@ width is given; "–" where a page has no chart.
   1,990 bytes (`/societies/srb/`) of 2,048. Lighthouse CI, 12 routes × 3 on this machine, mobile
   profile, on the final build: LCP medians 1.67 to 2.12 s (the story 2.12, `/societies/chl/` 2.10;
   1.66 to 1.97 s after phase 3 and up to 2.30 s after phase 6, with no run on this machine before
-  the changes), CLS ≤ 0.006, TBT ≤ 1 ms, accessibility 1.00, every assertion met. The launch's
-  deployed medians were 0.89 to 1.33 s.
+  the changes), CLS ≤ 0.006, TBT ≤ 1 ms, accessibility 1.00, every assertion met. On the deployed
+  site (6e9b27a): LCP medians 0.86 to 1.09 s, against the launch's 0.89 to 1.33 s.
 
 ### The reader tasks, again
 
