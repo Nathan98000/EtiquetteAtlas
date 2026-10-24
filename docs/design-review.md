@@ -509,3 +509,138 @@ Keep these.
 10. **Share cards:** finding headlines for the 150 cell and 90 society cards (D-38; decision 91)?
 11. **How much before launch:** the "before launch" items are each S or M, but together they touch
     most routes and the visual baselines. Which do you want in v1.0?
+
+## 10. What happened to each finding
+
+Added after the review, when its changes were built (23 and 24 October 2026, on `main`, commits
+`d991473` to `58a58e9`, nothing pushed), following `docs/design-changes-kickoff.md`: the
+maintainer took everything in this review for v1.0 (its section 3), and the choices made on the way
+are decisions 111 to 140 in `docs/decisions.md`. The SRS lines they need wait in
+`docs/srs-changes.md` under "Proposed, not applied". Every finding was built; one part of one
+finding was dropped (D-4's band), and three were built differently from the proposal (D-2, D-3,
+D-12), each said below.
+
+| Finding | Outcome | What the site does now | Decision, SRS line | Commits |
+| --- | --- | --- | --- | --- |
+| D-1 | Done | A pair's page opens with the society's result under its title ("Respondents in Japan: somewhat inappropriate (−0.6), clearly stricter than the global average; 10th strictest of 88"), or "Pick a society to see where it stands"; its place is held on `?society=` links. | 115, 137; FR-25 | `0857253`, `130064b` |
+| D-2 | Changed | Step 1 draws the 150 pairs' averages and the 88 societies' averages on one scale from All data. The proposed example (one behavior's situations beside one pair's societies) was not used: the median behavior, flirting, has a pair whose societies spread wider than its situations, which would repeat the problem. The paper's standard deviations moved to `/method/#story`. | 133; FR-64 | `a5b8300` |
+| D-3 | Changed | No chip: while the scale is relative, every chart's subtitle has a second line ("Relative to each society's own average · Show as answered"), and the matrix's says the global averages move by 0.01 at most. Words change, the layout does not, and the line is held on `?scale=centered` links. | 119, 137; FR-5 | `639eb2a`, `b26ded7` |
+| D-4 | Done, band dropped | "Clearly higher in 2023–2024" ▲, "clearly lower" ▼, "too close to call", and one line per page on what "clearly" means. The faint interval band behind each arrow was not drawn: the arrows' axis holds the two averages, not their difference, so the band needs its own design, and the words already answer "how sure"; the interval stays in each row's details and the table. Left for v1.1. | 112; §6.5 | `89893f6` |
+| D-5 | Done | The beeswarm first, its controls under it, then the map and the strip; the lede is the finding. | 113, 115, 116 | `b092f3d`, `130064b` |
+| D-6 | Done | Ledes and summaries lead with the response label and the share choosing an appropriate answer; scores in brackets, details, tables and axes; the method page's guide gives the scale. | 113, 118; §6.5 | `b092f3d`, `bf0b31d`, `21c012d` |
+| D-7 | Done | Disagreement as a rank in words ("more than about any other pair"); the key reads less to more, without numbers. | 113 | `b092f3d` |
+| D-8 | Done | "As answered / Relative to each society's average", "Adjusted for small samples / Unadjusted", "All respondents / The paper's sample / Passed the attention check", "clearly", "Every society's average answer", "pair" defined where first used; URL values and anchors kept. | 111; FR-4, FR-22, FR-31 | `59e70ee`, `e5fb1f0` |
+| D-9 | Done | The reveal scrolls its chart into view and says "You said extremely appropriate. In all 87 societies, respondents' average answer was less approving than that."; one colour for the dots; no "shrinkage". | 124 | `8fa50b7` |
+| D-10 | Done | One takeaway line, a strip per question with the reader's answer, the chosen society's share, "Take the 2-minute tour" as the main button; nothing shares or encodes an answer. | 124 | `fa85f2b` |
+| D-11 | Done | h1 "How would you answer?", one sentence, the first answer at 506 px on a 375 × 812 screen (was 821), "Skip to the atlas or take the 2-minute tour" as links, and the hub under the quiz. | 123; §6.1 | `0322721` |
+| D-12 | Changed | "Jump to a behavior" on the matrix's and a fingerprint's phone lists in the paper's order (the other orders already start with the telling rows); fingerprints open on the largest differences and the audiences on the largest drop, at every width; the index has a map (D-31). | 126, 128, 132; FR-17 | `979a785`, `2182c4b`, `beef91e` |
+| D-13 | Done | With a society, each phone row's bar is that society's average, with the global average as a tick. | 128; FR-17 | `979a785` |
+| D-14 | Done | On touch the first tap on a society's dot pins its tip, whose button selects ("Show respondents in Somaliland"); a second tap or a tap elsewhere closes it; mouse and Enter unchanged. On the beeswarm, the reveal and both maps. | 125; §6.3 | `b5e877b`, `beef91e` |
+| D-15 | Done | A small sample's tip: "Only 23 respondents: this estimate is pulled toward the global average, and the true average could be anywhere from −2.8 to −1.8." | 112; FR-22 | `0857253` |
+| D-16 | Done | The finding as the lede; the audiences named once above the panels, the first panel's axis; the note one line, the filters and notes under the charts. | 130 | `bf0b31d`, `4f23b91` |
+| D-17 | Done | The phone slopegraph's axis ends in response labels. | 130 | `4f23b91` |
+| D-18 | Done | The lede one sentence; the provenance note 54 visible words (was 113), the rest under "About the 2000–2003 data"; the facts and scale note under the arrows; the story's step shows five rows. | 114 | `21c012d`, `3cae0d0`, `a5b8300` |
+| D-19 | Done | The notice in the lede's place, a picker limited to the 26, "Show all 26 societies". | 114 | `21c012d`, `3cae0d0` |
+| D-20 | Done | The fingerprint first, similar societies next, the facts under "About these 829 respondents"; similarity without "correlation". | 129 | `d7b5a80`, `0f1d2ba`, `e5fb1f0` |
+| D-21 | Done | "Compare with…" by the title. | 129; §6.1 | `0f1d2ba` |
+| D-22 | Done | About 50 words and one chart a step, one "About this chart" per step holding the summary and table, five rows in the change step: 1,104 words over 10.6 phone screens before, 889 over 7.8 now. | 133; NFR-11 | `a5b8300` |
+| D-23 | Done | Every module route starts its main chart on the first phone screen (17 routes in `e2e/first-screen.e2e.ts`), and the desktop bar is 95 px tall (was 151). Words before the chart: see below. | 117, 137, 138 | `f047957`, `130064b`, `0f1d2ba`, `4f23b91`, `3cae0d0`, `58e3f55`, `bdf1cfb`, `b26ded7` |
+| D-24 | Done | The phone menu button names the module ("Situations"). | 121; FR-2 | `4991ac3` |
+| D-25 | Done | Disagreement as a ring in the text ink with a halo, like ▲ ▼ and the FR-16 rings: at least 3.86:1 on every fill. | 135 | `154a3e7` |
+| D-26 | Done | Beeswarm dots filled by estimate, shaped by region, dashed for small samples, as on the map and the card. | 116; FR-21 | `154a3e7`, `58a58e9` |
+| D-27 | Done | "10th strictest of 88". | 113; FR-25 | `d991473` |
+| D-28 | Done | Share by every page's title: the share sheet, or the link copied. | 131; FR-81 | `c14c40e` |
+| D-29 | Done | Sorts and toggles replace the history entry; a page, society or comparison adds one. | 127; FR-84, AT-11 | `2182c4b` |
+| D-30 | Done | "How to read the atlas" in five lines under a rule, the contents in five groups. The page grew from 5,132 to 5,772 words with the guide and the paper's model, moved from the story. | 140 | `e2db91b`, `fef798e` |
+| D-31 | Done | A map of the 90 societies by region opens the index; each dot links to a fingerprint. Thumbnails were not made (design-changes decision 6). | 132; §6.1 | `beef91e` |
+| D-32 | Done | "Then and now: two surveys about 20 years apart"; the header says "Then and now"; paths unchanged. | 114; Summary, §1.2, §5.6, §6.1, §9.3 | `38aa088` |
+| D-33 | Done | One row from 1024 px (search, scale, Options with the sample, Copy link); Options below 1024 px; the sample as a list. The bar is 95 px at 1280 and 93 px at 768 (were 151 and 256). | 120; FR-4, §6.2 | `58e3f55` |
+| D-34 | Done | "(95% interval narrower than 0.1)"; the global average's is left out of prose. | 112 | `4f11c5a` |
+| D-35 | Done | One decimal for every score and difference, on the pages and the cards. | 114, 136 | `213b568`, `58a58e9` |
+| D-36 | Done | Mongolia and Namibia: one block with their region's other societies, no Sort, table or comparison. | 129 | `0f1d2ba` |
+| D-37 | Done | Selected states and primary buttons in ink; links and focus blue. | 134; §6.4 | `766740d` |
+| D-38 | Done | Finding headlines for the 150 pair and 90 society cards, one detail line, the credit in two lines with every element. | 136; §6.4 | `58a58e9` |
+| D-39 | Done | More chroma next to 0 in the dark ramp; `colors.spec.ts` keeps the midpoint at least 0.03 from every surface. | 134 | `766740d` |
+
+**The ten changes (section 2)** are all in v1.0, including the parts timed for v1.1: the society's
+value in phone rows (1), the wording sweep (2), the tour's new chart (3), the quiz's summary (4),
+the renames (6), the default orders and jump (8) and the colour work (10). **Section 5's
+rewrites:** the provenance note (113 → 54 visible words), the change lede (66 → 39), step 1 (60 →
+about 50 under its heading), the audiences' note (63 words → one line of 11) and a behavior's lede
+(55 → 41), as rewritten there or close to it; the cell lede and the quiz's sentence as proposed.
+**Section 6's structure** is built as proposed: the hub, one search, the header order and the
+history rule. **Section 9's questions**, as the maintainer answered them: the system font
+(direction A); a concrete picture for step 1; "Then and now"; the sample in Options at every
+width; telling-first orders at every width; on touch only the tip's button selects, while a click
+and Enter still do; sorts and toggles replace the entry; the labels change, their URL values stay;
+"Tour" first and Method still in the header; finding headlines on the cards; all of it in v1.0.
+
+### Before and after
+
+The same method as section 5, run by the same script on the build before the changes (it
+reproduces section 5's figures within a few words) and on the final build. At 375 px unless a
+width is given; "–" where a page has no chart.
+
+| Route | Chart top, px | Words before the chart, 375 / 1280 | First phone screen, words | Phone screens | Grade | Chart on the first screen, 375 / 1280 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/` | – (first answer 821 → 506) | – | 102 → 71 | 1.9 → 2.8 | 8.7 → 7.1 | – |
+| `/story/` | 1,084 → 752 | 172 / 99 → 115 / 70 | 133 → 119 | 9.1 → 7.8 | 10.4 → 10.3 | no / yes → yes / yes |
+| `/explore/` | 988 → 676 | 135 / 179 → 72 / 119 | 109 → 80 | 12.7 → 12.7 | 5.4 → 5.2 | no / yes → yes / yes |
+| `/explore/?society=jpn` | 1,120 → 800 | 158 / 202 → 96 / 142 | 109 → 100 | 12.9 → 12.9 | 5.5 → 5.0 | no / yes → yes / yes |
+| `/explore/eat/bus/?society=jpn` | 631 → 690 | 76 / 96 → 99 / 152 | 93 → 103 | 3.8 → 4.0 | 10.8 → 10.6 | the strip → the beeswarm |
+| `/explore/sing/funeral/` | 694 → 614 | 76 / 96 → 91 / 147 | 87 → 94 | 3.7 → 3.9 | 11.5 → 10.2 | the strip → the beeswarm |
+| `/societies/` | none → 556 | – → 88 / 111 | 92 → 121 | 7.2 → 7.7 | 10.5 → 10.0 | no / no → yes / yes |
+| `/societies/usa/` | 2,011 → 735 | 288 / 343 → 97 / 121 | 116 → 105 | 13.5 → 4.6 | 7.0 → 9.1 | no / no → yes / yes |
+| `/societies/usa/?compare=jpn` | 2,011 → 735 | 288 / 343 → 97 / 121 | 116 → 105 | 15.7 → 6.8 | 7.1 → 8.2 | no / no → yes / yes |
+| `/societies/mng/` | 1,293 → – | 186 / 207 → – | 137 → 116 | 2.6 → 1.3 | 9.0 → 14.3 | an empty frame → one block |
+| `/audiences/` | 1,224 → 647 | 195 / 215 → 85 / 107 | 89 → 102 | 4.4 → 4.2 | 10.2 → 9.8 | no / no → yes / yes |
+| `/audiences/?society=jpn` | 1,245 → 648 | 204 / 224 → 86 / 108 | 91 → 103 | 4.4 → 4.3 | 10.3 → 9.9 | no / no → yes / yes |
+| `/audiences/usemphone/` | 1,147 → 626 | 162 / 210 → 85 / 108 | 108 → 88 | 3.0 → 2.8 | 11.1 → 9.8 | no / no → yes / yes |
+| `/audiences/usemphone/?society=jpn` | 1,217 → 626 | 175 / 223 → 84 / 107 | 102 → 87 | 3.2 → 2.9 | 11.6 → 10.2 | no / no → yes / yes |
+| `/audiences/usemphone/?split=gender` | 1,241 → 674 | 189 / 237 → 91 / 114 | 118 → 94 | 3.2 → 3.0 | 11.0 → 9.8 | no / no → yes / yes |
+| `/change/` | 1,548 → 758 | 260 / 308 → 137 / 215 | 137 → 202 | 8.9 → 9.1 | 10.3 → 9.3 | no / no → yes / yes |
+| `/change/jpn/` | 1,594 → 769 | 245 / 293 → 136 / 214 | 126 → 192 | 5.3 → 4.8 | 11.4 → 10.0 | no / no → yes / yes |
+| `/change/?society=chl` | 1,664 → 800 | 280 / 328 → 125 / 203 | 157 → 178 | 9.1 → 9.2 | 10.3 → 9.1 | no / no → yes / yes |
+| `/method/` | – | – | 90 → 161 | 40.0 → 44.6 | 11.2 → 11.5 | – |
+
+- **The brief's targets are met:** every module route starts its main chart on the first phone
+  screen, and no lede runs past 45 words (`e2e/first-screen.e2e.ts`, in Chromium, WebKit, the
+  iPhone and the Pixel). Query links shift the layout by at most 0.006 (they shifted 0.116 to 0.186
+  before; `e2e/layout-shift.e2e.ts`).
+- **Not met, and why:** words before the first chart fell from 76–288 to 72–137, still above the
+  60 or so that would let a reader see the picture before reading. What remains is the society box,
+  each chart's title and subtitle (which now say the finding, and count) and, on Then and now, the
+  shortened provenance note, which a rule keeps visible. Then and now's first screen has more words
+  than before because its arrows' labels are now on it. Module prose reads at grade 9 to 10.6 (was
+  10 to 11.6, the heuristic approximate), above the lay target of 8: the atlas's own terms
+  ("respondents", "appropriate", "situation") are long words. The Mongolia page's 14.3 is one
+  sentence listing the region's other societies by name. With a society chosen, a pair's first
+  chart starts 59 px lower than before, under the society's result (D-1); but it is now the
+  beeswarm, which used to start on the third screen.
+- **Performance:** the largest first load is 109.4 KB of JS and CSS (the story; 99.5 KB before) of
+  NFR-1's 200, and 144.7 KB of data (a pair's page, unchanged) of 300; the largest `__data.json` is
+  1,990 bytes (`/societies/srb/`) of 2,048. Lighthouse CI, 12 routes × 3 on this machine, mobile
+  profile: LCP medians 1.67 to 2.30 s (`/societies/chl/` 2.30, the story 2.12; 1.66 to 1.97 s after
+  phase 3, with no run on this machine before the changes), CLS ≤ 0.006, TBT 0 ms, accessibility
+  1.00. The launch's deployed medians were 0.89 to 1.33 s.
+
+### The reader tasks, again
+
+The same ten tasks (section 6), scripted on the final build at 375 × 812 with touch, the beacon
+stubbed, each step taken as a first-time reader would.
+
+| # | Steps now | Result before | Result now |
+| --- | --- | --- | --- |
+| 1 | Read the first screen: "How would you answer?", one sentence, "Skip to the atlas or take the 2-minute tour", the first answer at 506 px. | Yes, the answers below the fold | Yes, an answer on the first screen and the tour offered |
+| 2 | Three answers and reveals (the chart's top 137 px down the screen after the button), the summary; again with Japan. | Partly | Yes: "On 2 of 3 questions, most societies' average answers were more approving than yours"; with Japan, "90% of respondents in Japan chose extremely appropriate too" |
+| 3 | Home → "Look up a situation" → "eat bus" → Eating on a bus → Society: Japan. The answer sits under the title, 0.3 screens down. | Yes, slowly (ten screens down a list, then the end of the page) | Yes, on the first screen: "Respondents in Japan: somewhat inappropriate (−0.6), clearly stricter than the global average; 10th strictest of 88" |
+| 4 | Read the first screen: the lede, then the beeswarm titled "Societies' averages run from extremely inappropriate to very appropriate", its drawing at 614 px. | Partly, on screen 2 | Yes, on the first screen |
+| 5 | Menu → Societies → the search box → United States; the lede names Canada; "Compare with…" by the title → Canada. | Yes | Yes, without scrolling to the comparison: "The largest gap: reading the newspaper in a job interview", 0.2 apart on average |
+| 6 | Menu → Who's watching (panels by the largest drop; "Use a mobile phone" at 1.1 screens) → its page. | Yes (the fourth screen) | Yes: "Use a mobile phone: very appropriate alone, somewhat inappropriate in front of management or professors" |
+| 7 | Menu → Then and now → Japan; the pair's row at 1.2 screens, the line on "clearly" with the key. | Half: how sure could not be said | Yes: "clearly higher in 2023–2024" (+1.6), clearly meaning bigger than the surveys' margin of error |
+| 8 | The key's "Dashed: small sample (10–29)"; tap a dashed dot. | Partly; the tap replaced the society | Yes: "Only 23 respondents: this estimate is pulled toward the global average, and the true average could be anywhere from −2.8 to −1.8"; the society stays |
+| 9 | Options → "Relative to each society's average" → close Options. | No | Yes: the note under the title says so, that the matrix barely changes and that centering matters on a fingerprint, with "Show as answered" |
+| 10 | From the method page to the matrix with Chile; the relative scale and a sort; Share by the title (copied, as there is no share sheet); Back. | Yes, four Backs | Yes, one Back to the method page; the link holds society, scale and sort |
+
+Left for v1.1 from this review: D-4's interval band, and any further cut in the words before the
+first chart (`docs/v1.1.md`).
