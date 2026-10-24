@@ -5,6 +5,7 @@
 	import GridChart from '../../charts/GridChart.svelte';
 	import MapChart from '../../charts/MapChart.svelte';
 	import SlopeChart from '../../charts/SlopeChart.svelte';
+	import SpreadChart from '../../charts/SpreadChart.svelte';
 	import StripChart from '../../charts/StripChart.svelte';
 	import SwarmChart from '../../charts/SwarmChart.svelte';
 
@@ -35,6 +36,13 @@
 		<SlopeChart columns={chart.columns} lines={chart.lines} />
 	{:else if chart.kind === 'strip'}
 		<StripChart rows={chart.rows} caption={chart.caption} />
+	{:else if chart.kind === 'spread'}
+		<SpreadChart
+			pairs={chart.pairs}
+			societies={chart.societies}
+			labels={chart.labels}
+			caption={chart.caption}
+		/>
 	{:else if chart.kind === 'bars'}
 		<BarChart bars={chart.bars} max={chart.max} caption={chart.caption} />
 	{:else}

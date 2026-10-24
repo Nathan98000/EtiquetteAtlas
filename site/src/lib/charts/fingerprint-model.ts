@@ -194,6 +194,29 @@ function countsClause(
 	);
 }
 
+/**
+ * D-38, decision 12: a society's share-card headline, the larger of its two counts: "Respondents
+ * in Finland were clearly looser than the global average on 115 of the 150 pairs".
+ */
+export function fingerprintHeadline(who: string, counts: FingerprintCounts): string {
+	if (counts.shown === 0) return `No pair was rated by 10 or more ${who}`;
+	const looser = counts.looser >= counts.stricter;
+	const of =
+		counts.shown === CELL_COUNT
+			? `the ${CELL_COUNT} pairs`
+			: `the ${counts.shown} pairs with enough responses`;
+	return (
+		`${capital(who)} were clearly ${looser ? 'looser' : 'stricter'} than the global average on ` +
+		`${howMany(looser ? counts.looser : counts.stricter)} of ${of}`
+	);
+}
+
+/** The other count, for the card's one detail line. */
+export function fingerprintOther(counts: FingerprintCounts): string {
+	const looser = counts.looser >= counts.stricter;
+	return `Clearly ${looser ? 'stricter' : 'looser'} on ${howMany(looser ? counts.stricter : counts.looser)}`;
+}
+
 /** No pair can be shown (decision 53). */
 export function emptySummary(who: string): string {
 	return `No pair was rated by 10 or more ${who}, so none can be shown.`;

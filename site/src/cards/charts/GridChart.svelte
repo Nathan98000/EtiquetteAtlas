@@ -42,18 +42,17 @@
 				<rect class="cell" {x} {y} width={W} height={H} fill={cell.fill} />
 			{:else}
 				<rect class="cell missing" x={x + 1} y={y + 1} width={W - 2} height={H - 2} />
-				<text class="mark" x={x + W / 2} y={y + H / 2} fill={cell.ink}>–</text>
+				<text class="mark missing-mark" x={x + W / 2} y={y + H / 2}>–</text>
 			{/if}
+			<!-- D-25: a ring sized by disagreement and the ▲ ▼ marks, in the text ink with a halo
+			     in the page colour, as on the site. -->
 			{#if cell.dot !== null}
-				<circle
-					cx={x + W / 2}
-					cy={y + H / 2}
-					r={Math.max(1.2, cell.dot * (H / 2 - 2))}
-					fill={cell.ink}
-				/>
+				{@const r = Math.max(2.5, cell.dot * (H / 2 - 2))}
+				<circle class="halo" cx={x + W / 2} cy={y + H / 2} {r} />
+				<circle class="disagreement" cx={x + W / 2} cy={y + H / 2} {r} />
 			{/if}
 			{#if cell.mark}
-				<text class="mark" x={x + W / 2} y={y + H / 2} fill={cell.ink}>{cell.mark}</text>
+				<text class="mark" x={x + W / 2} y={y + H / 2}>{cell.mark}</text>
 			{/if}
 		{/each}
 		<!-- FR-16's rings go on top of every cell. -->
@@ -76,9 +75,9 @@
 			<span class="ends"><span>{ends[0]}</span><span>{ends[1]}</span></span>
 		</span>
 		{#if legend === 'matrix' && cells.some((c) => c.dot !== null)}
-			<span class="key"><span class="dot"></span> Larger dot: more disagreement</span>
+			<span class="key"><span class="dot"></span> Larger ring: more disagreement</span>
 		{:else if legend === 'fingerprint'}
-			<span class="key">▲ ▼ Notably looser or stricter</span>
+			<span class="key">▲ ▼ Clearly looser or stricter</span>
 		{/if}
 	</figcaption>
 </figure>
@@ -116,6 +115,28 @@
 	.mark {
 		font-size: 12px;
 		text-anchor: middle;
+		fill: var(--text);
+		paint-order: stroke;
+		stroke: var(--surface);
+		stroke-width: 3px;
+		stroke-linejoin: round;
+	}
+
+	.missing-mark {
+		fill: var(--text-muted);
+		stroke: none;
+	}
+
+	.halo {
+		fill: none;
+		stroke: var(--surface);
+		stroke-width: 3.75;
+	}
+
+	.disagreement {
+		fill: none;
+		stroke: var(--text);
+		stroke-width: 1.75;
 	}
 
 	.ring {
@@ -160,9 +181,9 @@
 
 	.dot {
 		display: inline-block;
-		width: 9px;
-		height: 9px;
+		width: 10px;
+		height: 10px;
+		border: 1.75px solid var(--text);
 		border-radius: 50%;
-		background: var(--text);
 	}
 </style>

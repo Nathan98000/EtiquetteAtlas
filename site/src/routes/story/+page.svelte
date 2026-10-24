@@ -21,12 +21,11 @@
 	import ShareButton from '#lib/components/ShareButton.svelte';
 	import StoryChange from '#lib/components/StoryChange.svelte';
 	import StoryStep from '#lib/components/StoryStep.svelte';
-	import { percent, responseLabel, score, spread } from '#lib/data/format.ts';
+	import { percent, responseLabel, score } from '#lib/data/format.ts';
 	import { BEHAVIOR_TEXT, BEHAVIORS, CELLS, cellParams, headline, phrase } from '#lib/data/grid.ts';
 	import { loadCells, loadContexts, loadGlobal, loadSocieties } from '#lib/data/load.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import {
-		PAPER_SD,
 		STEP_TITLE,
 		spreadSummary,
 		storySpread,
@@ -153,9 +152,7 @@
 <Seo
 	title="A guided tour"
 	description="A short guided tour of what the Global Study of Everyday Norms shows, from one of its conclusions, that norms vary more across situations than across societies, to where societies agree and disagree and who's watching."
-	imageAlt="{SHARE_ALT.story} Between situated behaviors {spread(
-		PAPER_SD.situations
-	)}; between societies {spread(PAPER_SD.societies)}."
+	imageAlt="{SHARE_ALT.story} {spreadSummary(n.spread, [])}"
 />
 
 <div class="story">

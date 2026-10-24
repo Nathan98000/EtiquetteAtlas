@@ -11,6 +11,8 @@ import {
 	fingerprintLabel,
 	fingerprintListOrder,
 	fingerprintOrder,
+	fingerprintHeadline,
+	fingerprintOther,
 	fingerprintSummary
 } from './fingerprint-model';
 
@@ -140,6 +142,27 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 				'most like those of respondents ' +
 				'in the Philippines.'
 		);
+	});
+
+	it('D-38, decision 12: heads a society’s share card with its larger count', () => {
+		expect(fingerprintHeadline('respondents in Alpha', fingerprintCounts(aaa))).toBe(
+			'Respondents in Alpha were clearly stricter than the global average on 150 of the 150 pairs'
+		);
+		expect(fingerprintOther(fingerprintCounts(aaa))).toBe('Clearly looser on none');
+		expect(fingerprintHeadline('respondents in Gamma', fingerprintCounts(ccc))).toBe(
+			'Respondents in Gamma were clearly looser than the global average on 148 of the 148 pairs ' +
+				'with enough responses'
+		);
+		expect(
+			fingerprintHeadline('respondents in Delta', {
+				shown: 0,
+				stricter: 0,
+				looser: 0,
+				close: 0,
+				tooFew: 150,
+				notAsked: 0
+			})
+		).toBe('No pair was rated by 10 or more respondents in Delta');
 	});
 
 	it('says when pairs are missing and when no similar society can be named', () => {

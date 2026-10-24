@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+	cellDetail,
+	cellHeadline,
 	cellSummary,
 	disagreementRank,
 	disagreementWords,
@@ -117,6 +119,22 @@ describe('NFR-11, FR-87, D-5 to D-7: one-sentence summaries, findings first in w
 		);
 		expect(cellSummary(global, 48, 'raw')).toMatch(
 			/^Societies disagree about .+ more than about almost any other pair of a behavior and a situation \(4th most of 150\)\./
+		);
+	});
+
+	it('D-38, decision 12: gives the share card the lede’s two sentences, the first in brief', () => {
+		expect(cellHeadline(global, 0, 'raw', true)).toBe(
+			'Societies disagree about arguing at a funeral ceremony less than about any other pair'
+		);
+		expect(cellHeadline(global, 48, 'raw', true)).toMatch(
+			/^Societies disagree about .+ more than about almost any other pair$/
+		);
+		expect(cellDetail(global, 0, 'raw')).toBe(
+			'Respondents in 3 societies judged it very inappropriate on average, and 0% chose an ' +
+				'appropriate answer.'
+		);
+		expect(cellSummary(global, 0, 'raw')).toBe(
+			`${cellHeadline(global, 0, 'raw')}. ${cellDetail(global, 0, 'raw')}`
 		);
 	});
 

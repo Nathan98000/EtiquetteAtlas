@@ -19,6 +19,9 @@
 	let { kicker, headline, detail, layout, comparisonCredit, children }: Props = $props();
 
 	const bare = (url: string) => url.replace(/^https:\/\//, '').replace(/\/$/, '');
+	// The first author and "et al.", and the note in the credit's short form (NFR-40).
+	const authors = `${a.authors.split(',')[0]} et al.`;
+	const note = 'aggregated and modelled by The Etiquette Atlas';
 	const site = bare(new URL(resolve('/'), page.url.origin).href);
 	// Long headlines take a smaller size so they stay within four lines.
 	const size = $derived(headline.length > 85 ? 'longer' : headline.length > 60 ? 'long' : '');
@@ -33,6 +36,7 @@
 	<header>
 		<span class="brand">The Etiquette Atlas</span>
 		<span class="kicker">{kicker}</span>
+		<span class="site">{site}</span>
 	</header>
 	<div class="body">
 		<div class="text">
@@ -41,12 +45,15 @@
 		</div>
 		<div class="chart">{@render children()}</div>
 	</div>
+	<!-- D-38, decision 12: NFR-40's credit in two lines, every element kept: the authors, year
+	     and title, then the data's link, the licence with its link and the note. The change
+	     module's card adds NFR-41's credit on a third. -->
 	<footer data-attribution>
-		Data: {a.authors} ({a.year}). {a.title}. {a.journal}
-		{a.volume}. {a.dataName}, {bare(a.dataUrl)}, licensed {a.license} ({bare(a.licenseUrl)}).
-		{#if comparisonCredit}{comparison.label}: {comparison.text}.{/if}
-		{a.note}
-		<strong>{site}</strong>
+		<span class="line">Data: {authors} ({a.year}), {a.title}, {a.journal} {a.volume}.</span>
+		<span class="line"
+			>GSN data, {bare(a.dataUrl)} · {a.license}, {bare(a.licenseUrl)} · {note}</span
+		>
+		{#if comparisonCredit}<span class="line">{comparison.label}: {comparison.text}.</span>{/if}
 	</footer>
 </div>
 
@@ -88,6 +95,14 @@
 	.kicker::before {
 		content: '·';
 		margin-right: 0.75rem;
+	}
+
+	.site {
+		margin-left: auto;
+		font-size: 17px;
+		font-weight: 700;
+		color: var(--text);
+		white-space: nowrap;
 	}
 
 	.body {
@@ -150,16 +165,16 @@
 
 	footer {
 		margin: 0 -56px;
-		padding: 11px 56px 14px;
+		padding: 10px 56px 12px;
 		border-top: 1px solid var(--border);
 		background: var(--surface-muted);
 		color: var(--text-muted);
 		font-size: 15px;
-		line-height: 1.38;
+		line-height: 1.4;
 	}
 
-	footer strong {
-		color: var(--text);
+	.line {
+		display: block;
 		white-space: nowrap;
 	}
 </style>

@@ -12,12 +12,11 @@ export type Layout = 'side' | 'stack';
 export interface GridCell {
 	/** Null for a pair with nothing to show: no fill, a dashed outline and a dash. */
 	fill: string | null;
-	ink: string;
-	/** Disagreement circle's size, 0 to 1 (FR-11); null for none. */
+	/** Disagreement ring's size, 0 to 1 (FR-11, D-25); null for none. */
 	dot: number | null;
 	/** FR-16: 1 the most universal pair, 2 the most culture-dependent. */
 	ring: 0 | 1 | 2;
-	/** ▲ notably looser, ▼ notably stricter (FR-31), or empty. */
+	/** ▲ clearly looser, ▼ clearly stricter (FR-31), or empty. */
 	mark: string;
 }
 
@@ -25,8 +24,15 @@ export interface SwarmDot {
 	code: string;
 	value: number;
 	fill: string;
-	/** 10 to 29 respondents: drawn hollow, as in the beeswarm (decision 32). */
+	/** 10 to 29 respondents: a dashed outline, as in the beeswarm and the map (D-26). */
 	small: boolean;
+}
+
+/** Decision 3: one dot of the story's first picture, a pair's or a society's average. */
+export interface SpreadDot {
+	key: string;
+	value: number;
+	fill: string;
 }
 
 export interface SlopeLine {
@@ -65,6 +71,13 @@ export type CardChart =
 	| { kind: 'slopes'; columns: string[]; lines: SlopeLine[] }
 	| { kind: 'strip'; rows: StripRow[]; caption: string }
 	| { kind: 'bars'; bars: Bar[]; max: number; caption: string }
+	| {
+			kind: 'spread';
+			pairs: SpreadDot[];
+			societies: SpreadDot[];
+			labels: [string, string];
+			caption: string;
+	  }
 	| { kind: 'map'; land: string; width: number; height: number; dots: MapDot[] };
 
 export interface CardData {

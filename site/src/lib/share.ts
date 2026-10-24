@@ -55,13 +55,13 @@ export function shareCard(
 export const SHARE_ALT: Record<string, string> = {
 	home: 'A grid of 15 everyday behaviors in 10 situations, each pair coloured from orange (inappropriate) to blue (appropriate) by its average judgment.',
 	explore:
-		'The grid of the 150 behavior–situation pairs, coloured from orange (inappropriate) to blue (appropriate) by average judgment, with dots sized by how much societies disagree; the pairs with the most and the least disagreement are ringed.',
+		'The grid of the 150 behavior–situation pairs, coloured from orange (inappropriate) to blue (appropriate) by average judgment, with rings sized by how much societies disagree; the pairs with the most and the least disagreement are framed.',
 	societies:
 		"A world map with a mark for each of the 90 societies, shaped and coloured by the GSN authors' four regions.",
 	audiences:
 		"Lines for the 15 behaviors' average judgments when alone, in front of colleagues or classmates and in front of management or professors, over all societies, with the largest and the smallest drop named.",
 	story:
-		"Bars comparing how much judgments vary between situated behaviors and between societies in the GSN paper's model.",
+		"Two rows of dots on one scale from inappropriate to appropriate: the 150 pairs' average answers spread across most of it, and each society's average over all the pairs stays near the middle.",
 	method:
-		"Bars of the respondents in the atlas's three samples: All data, the paper's sample and the attention check."
+		"Bars of the respondents in the atlas's three samples: all respondents, the paper's sample and those who passed the attention check."
 };

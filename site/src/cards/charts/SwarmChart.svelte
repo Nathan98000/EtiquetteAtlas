@@ -65,15 +65,9 @@
 
 <svg viewBox="0 0 {WIDTH} {height}" aria-hidden="true">
 	<line class="mean" x1={x(mean)} x2={x(mean)} y1={top - 8} y2={axis} />
-	<text class="mean-label" x={x(mean)} y={top - 14}>Global mean {score(mean)}</text>
+	<text class="mean-label" x={x(mean)} y={top - 14}>Global average {score(mean)}</text>
 	{#each placed as p (p.item.code)}
-		<circle
-			class:small={p.item.small}
-			cx={p.x}
-			cy={mid + p.y}
-			r={R}
-			fill={p.item.small ? 'var(--surface)' : p.item.fill}
-		/>
+		<circle class:small={p.item.small} cx={p.x} cy={mid + p.y} r={R} fill={p.item.fill} />
 	{/each}
 	{#if lowBeside}
 		<text class="end" x={first.x - R - 6} y={mid + first.y} text-anchor="end">{low}</text>
@@ -110,8 +104,9 @@
 		dominant-baseline: central;
 	}
 
+	/* D-26: filled by the estimate, outlined in the ink; a small sample's outline is dashed. */
 	circle {
-		stroke: var(--border-strong);
+		stroke: var(--text);
 		stroke-width: 1;
 	}
 

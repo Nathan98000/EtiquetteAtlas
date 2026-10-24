@@ -224,17 +224,26 @@ const PAIRS = 'pairs of a behavior and a situation';
  * the rest by thirds, counted from the most disagreement; τ itself stays in the details. It also
  * defines "pair" where a page first uses it (decision 5).
  */
-export function disagreementWords(r: { top: number; bottom: number; of: number }): string {
-	if (r.top === 1) return `more than about any other ${PAIR}`;
-	if (r.bottom === 1) return `less than about any other ${PAIR}`;
+export function disagreementWords(
+	r: { top: number; bottom: number; of: number },
+	/** D-38: a share card's short form, "pair" undefined and no rank in brackets. */
+	brief = false
+): string {
+	const [pair, pairs] = brief ? ['pair', 'pairs'] : [PAIR, PAIRS];
+	const rank = (text: string) => (brief ? '' : ` (${text})`);
+	if (r.top === 1) return `more than about any other ${pair}`;
+	if (r.bottom === 1) return `less than about any other ${pair}`;
 	if (r.top <= 10)
-		return `more than about almost any other ${PAIR} (${ordinal(r.top)} most of ${r.of})`;
+		return `more than about almost any other ${pair}${rank(`${ordinal(r.top)} most of ${r.of}`)}`;
 	if (r.bottom <= 10) {
-		return `less than about almost any other ${PAIR} (${ordinal(r.bottom)} least of ${r.of})`;
+		return `less than about almost any other ${pair}${rank(`${ordinal(r.bottom)} least of ${r.of}`)}`;
 	}
-	if (r.top <= r.of / 3) return `more than about most ${PAIRS} (${ordinal(r.top)} of ${r.of})`;
-	if (r.top > (2 * r.of) / 3) return `less than about most ${PAIRS} (${ordinal(r.top)} of ${r.of})`;
-	return `about as much as about a typical ${PAIR} (${ordinal(r.top)} of ${r.of})`;
+	if (r.top <= r.of / 3)
+		return `more than about most ${pairs}${rank(`${ordinal(r.top)} of ${r.of}`)}`;
+	if (r.top > (2 * r.of) / 3) {
+		return `less than about most ${pairs}${rank(`${ordinal(r.top)} of ${r.of}`)}`;
+	}
+	return `about as much as about a typical ${pair}${rank(`${ordinal(r.top)} of ${r.of}`)}`;
 }
 
 /**
@@ -245,11 +254,26 @@ export function disagreementWords(r: { top: number; bottom: number; of: number }
  * of the societies' shares (decision 5).
  */
 export function cellSummary(global: GlobalCells, cell: number, scale: Scale): string {
-	const words = disagreementWords(disagreementRank(global, cell, scale));
+	return `${cellHeadline(global, cell, scale)}. ${cellDetail(global, cell, scale)}`;
+}
+
+/** The lede's first sentence, without its full stop; `brief` for the share card (decision 12). */
+export function cellHeadline(
+	global: GlobalCells,
+	cell: number,
+	scale: Scale,
+	brief = false
+): string {
+	const words = disagreementWords(disagreementRank(global, cell, scale), brief);
+	return `Societies disagree about ${phrase(CELLS[cell])} ${words}`;
+}
+
+/** The lede's second sentence: the response label and the share first (D-6). */
+export function cellDetail(global: GlobalCells, cell: number, scale: Scale): string {
 	return (
-		`Societies disagree about ${phrase(CELLS[cell])} ${words}. Respondents in ` +
-		`${global.societies(cell)} societies judged it ${responseLabel(global.mean(cell, scale))} on ` +
-		`average, and ${percent(global.share(cell))} chose an appropriate answer.`
+		`Respondents in ${global.societies(cell)} societies judged it ` +
+		`${responseLabel(global.mean(cell, scale))} on average, and ${percent(global.share(cell))} ` +
+		`chose an appropriate answer.`
 	);
 }
 
