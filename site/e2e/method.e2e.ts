@@ -17,6 +17,13 @@ test('FR-70: the method page is no longer a draft, and every contents link has i
 	for (const id of ['#limits', '#versions', '#privacy', '#about', '#story']) {
 		expect(anchors).toContain(id);
 	}
+	// D-30: the contents in five groups, after a short "How to read the atlas".
+	await expect(
+		page.getByRole('navigation', { name: 'On this page' }).getByRole('heading', { level: 3 })
+	).toHaveText(['Start here', 'Scores and how sure', 'Comparing societies', 'Each view', 'About']);
+	const read = page.getByRole('region', { name: 'How to read the atlas' });
+	await expect(read.getByRole('listitem')).toHaveCount(5);
+	await expect(read).toContainText('too close to call');
 });
 
 test('FR-71: every society with its respondents in each sample, students and languages', async ({

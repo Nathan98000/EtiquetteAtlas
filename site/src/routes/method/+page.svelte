@@ -28,39 +28,94 @@
 <article class="page">
 	<h1>Method</h1>
 	<p class="lede">
-		How the atlas turns the answers of {all.respondents} respondents into the scores, ranges and charts
-		you see, what it cannot tell you, and where everything comes from. Each chart's "About this chart"
-		link opens its section here.
+		How the atlas turns the answers of {all.respondents} respondents into the scores and charts you see,
+		and what it cannot tell you. Each chart's "About this chart" link opens its section here.
 	</p>
-	<nav aria-label="On this page">
+
+	<!-- D-30: the 60-second version for a lay reader, before the reference. -->
+	<section class="read" aria-labelledby="read-title">
+		<h2 id="read-title">How to read the atlas</h2>
 		<ul>
-			<li><a href="#data">Where the numbers come from</a></li>
-			<li><a href="#samples">Samples</a></li>
-			<li><a href="#scale">The scale</a></li>
-			<li><a href="#scores">A society's score</a></li>
-			<li><a href="#intervals">Intervals</a></li>
-			<li><a href="#small-samples">Small samples</a></li>
-			<li><a href="#shrinkage">Adjusted for small samples</a></li>
-			<li><a href="#global">The global picture</a></li>
-			<li><a href="#disagreement">Disagreement</a></li>
-			<li><a href="#centered">Relative to each society's average</a></li>
-			<li><a href="#notable">Clearly stricter or looser</a></li>
-			<li><a href="#fingerprint">Society fingerprints</a></li>
-			<li><a href="#compare">Comparing two societies</a></li>
-			<li><a href="#similar">Similar societies</a></li>
-			<li><a href="#facts">Society facts</a></li>
-			<li><a href="#audiences">Who's watching?</a></li>
-			{#if CHANGE_MODULE}<MethodChangeLink />{/if}
-			<li><a href="#quiz">The quiz</a></li>
-			<li><a href="#story">The guided story</a></li>
-			<li><a href="#rank">Ranks</a></li>
-			<li><a href="#map">The map</a></li>
-			<li><a href="#limits">What the atlas cannot tell you</a></li>
-			<li><a href="#privacy">Privacy</a></li>
-			<li><a href="#versions">Versions and checksums</a></li>
-			<li><a href="#about">About the atlas</a></li>
-			<li><a href="#societies">Every society in the data</a></li>
+			<li>
+				<strong>The scale.</strong> Each behavior was rated from extremely inappropriate to extremely
+				appropriate; scores run from −2.5 to +2.5, with 0 between somewhat inappropriate and somewhat
+				appropriate.
+			</li>
+			<li>
+				<strong>The colours.</strong> Orange is inappropriate and blue appropriate; the paler, the nearer
+				the middle.
+			</li>
+			<li>
+				<strong>An average.</strong> A society's score is the average answer of the people who took the
+				survey there, not of everyone who lives there.
+			</li>
+			<li>
+				<strong>How sure.</strong> A 95% interval shows how far an average could move with other respondents;
+				"clearly" means a difference is bigger than that, and "too close to call" means it is not.
+			</li>
+			<li>
+				<strong>Small samples.</strong> 10 to 29 respondents get a hollow or dashed mark; with fewer than
+				10, a pair reads "too few responses".
+			</li>
 		</ul>
+	</section>
+
+	<!-- D-30: the contents in five groups. -->
+	<nav aria-labelledby="contents-title">
+		<h2 id="contents-title">On this page</h2>
+		<div class="groups">
+			<div>
+				<h3>Start here</h3>
+				<ul>
+					<li><a href="#data">Where the numbers come from</a></li>
+					<li><a href="#samples">Samples</a></li>
+					<li><a href="#limits">What the atlas cannot tell you</a></li>
+				</ul>
+			</div>
+			<div>
+				<h3>Scores and how sure</h3>
+				<ul>
+					<li><a href="#scale">The scale</a></li>
+					<li><a href="#scores">A society's score</a></li>
+					<li><a href="#intervals">Intervals</a></li>
+					<li><a href="#small-samples">Small samples</a></li>
+					<li><a href="#shrinkage">Adjusted for small samples</a></li>
+					<li><a href="#rank">Ranks</a></li>
+				</ul>
+			</div>
+			<div>
+				<h3>Comparing societies</h3>
+				<ul>
+					<li><a href="#global">The global picture</a></li>
+					<li><a href="#disagreement">Disagreement</a></li>
+					<li><a href="#centered">Relative to each society's average</a></li>
+					<li><a href="#notable">Clearly stricter or looser</a></li>
+					<li><a href="#fingerprint">Society fingerprints</a></li>
+					<li><a href="#compare">Comparing two societies</a></li>
+					<li><a href="#similar">Similar societies</a></li>
+					<li><a href="#facts">Society facts</a></li>
+				</ul>
+			</div>
+			<div>
+				<h3>Each view</h3>
+				<ul>
+					<li><a href="#audiences">Who's watching?</a></li>
+					{#if CHANGE_MODULE}<MethodChangeLink />{/if}
+					<li><a href="#quiz">The quiz</a></li>
+					<li><a href="#story">The guided story</a></li>
+					<li><a href="#map">The map</a></li>
+				</ul>
+			</div>
+			<div>
+				<h3>About</h3>
+				<ul>
+					<li><a href="#privacy">Privacy</a></li>
+					<li><a href="#versions">Versions and checksums</a></li>
+					<li><a href="#about">About the atlas</a></li>
+					<li><a href="#societies">Every society in the data</a></li>
+				</ul>
+			</div>
+		</div>
 	</nav>
 
 	<section id="data">
@@ -516,8 +571,45 @@
 		font-size: var(--text-lg);
 	}
 
+	.read {
+		margin-top: 1.5rem;
+		padding: 1rem 1.25rem;
+		border-left: 4px solid var(--border-strong);
+		background: var(--surface-muted);
+	}
+
+	.read h2 {
+		font-size: var(--text-lg);
+		margin-bottom: 0.5rem;
+	}
+
+	.read ul {
+		margin: 0;
+		padding-left: 1.25rem;
+	}
+
+	.read li + li {
+		margin-top: 0.375rem;
+	}
+
+	nav h2 {
+		font-size: var(--text-lg);
+		margin: 2rem 0 0.5rem;
+	}
+
+	.groups {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		gap: 0.5rem 1.5rem;
+	}
+
+	nav h3 {
+		font-size: var(--text-md);
+		margin: 0.5rem 0 0.25rem;
+	}
+
 	nav ul {
-		columns: 2 12rem;
+		margin: 0;
 		padding-left: 1.25rem;
 	}
 
