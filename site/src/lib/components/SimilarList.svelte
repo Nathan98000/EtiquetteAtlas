@@ -58,11 +58,10 @@
 </section>
 
 <style>
+	/* Direction A: a rule above, not a box. */
 	.card {
-		padding: 1rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		background: var(--surface-muted);
+		padding: 0.75rem 0 0;
+		border-top: 2px solid var(--text);
 	}
 
 	h2 {

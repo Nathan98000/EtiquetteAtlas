@@ -538,22 +538,21 @@
 	.cards {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-		gap: 1rem;
+		gap: 1.5rem;
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 
+	/* Direction A: each way in under a rule, not in a box. */
 	.card {
 		position: relative;
-		padding: 1rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		background: var(--surface-raised);
+		padding: 0.75rem 0 0;
+		border-top: 2px solid var(--text);
 	}
 
-	.card:has(.stretch:hover) {
-		border-color: var(--border-strong);
+	.card:has(.stretch:hover) h3 {
+		text-decoration: underline;
 	}
 
 	.card:has(.stretch:focus-visible) {

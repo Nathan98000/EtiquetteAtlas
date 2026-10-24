@@ -5,12 +5,14 @@ import {
 	DIRECTION_COLOR,
 	DIVERGING,
 	INK,
+	MARK_INK,
 	REGION_COLOR,
 	REGION_SHAPE,
 	SURFACES,
 	contrast,
 	deviationScore,
 	deviationStyle,
+	difference,
 	directionStyle,
 	fill,
 	ink,
@@ -33,6 +35,20 @@ describe('NFR-12: contrast of chart colours', () => {
 		);
 		expect(worst).toBeGreaterThanOrEqual(4);
 	});
+
+	it.each(THEMES)(
+		'%s: D-25: marks in the text ink with a page-coloured halo stand out on any fill (3:1)',
+		(theme) => {
+			const { ink: mark, halo } = MARK_INK[theme];
+			const worst = Math.min(
+				...scores.map((x) =>
+					Math.max(contrast(mark, fill(x, theme)), contrast(halo, fill(x, theme)))
+				)
+			);
+			expect(worst).toBeGreaterThanOrEqual(3);
+			expect(SURFACES[theme][0]).toBe(halo);
+		}
+	);
 
 	it.each(THEMES)('%s: region colours reach 3:1 against both page surfaces', (theme) => {
 		for (const region of REGIONS) {
@@ -62,6 +78,15 @@ describe('NFR-12: contrast of chart colours', () => {
 });
 
 describe('FR-10, §6.4: the diverging scale', () => {
+	it.each(THEMES)(
+		'%s: direction A: the neutral midpoint stays apart from every page surface',
+		(theme) => {
+			for (const surface of SURFACES[theme]) {
+				expect(difference(fill(0, theme), surface)).toBeGreaterThanOrEqual(0.03);
+			}
+		}
+	);
+
 	it.each(THEMES)('%s: hits its stops and is neutral at the midpoint', (theme) => {
 		expect(fill(-2.5, theme)).toBe(DIVERGING[theme][0]);
 		expect(fill(0, theme)).toBe(DIVERGING[theme][3]);
@@ -79,7 +104,7 @@ describe('FR-10, §6.4: the diverging scale', () => {
 
 	it('carries both themes in CSS custom properties', () => {
 		expect(scoreStyle(0)).toBe(
-			'--fill-light:#f1eeea;--fill-dark:#2e3238;--ink-light:#1d2329;--ink-dark:#f2f4f6'
+			'--fill-light:#e2e2e2;--fill-dark:#3a3d43;--ink-light:#22201c;--ink-dark:#ffffff'
 		);
 	});
 });

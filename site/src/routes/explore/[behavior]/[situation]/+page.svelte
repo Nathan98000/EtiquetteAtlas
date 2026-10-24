@@ -480,11 +480,10 @@
 		border-radius: var(--radius);
 	}
 
+	/* Direction A: a rule above, not a box. */
 	.panel {
-		padding: 1rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		background: var(--surface-muted);
+		padding: 0.75rem 0 0;
+		border-top: 2px solid var(--text);
 	}
 
 	.panel h2 {

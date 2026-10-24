@@ -261,14 +261,12 @@
 		margin: 1rem 0 0;
 		padding: 0.75rem 1rem;
 		border-left: 3px solid var(--border-strong);
-		background: var(--surface-muted);
 	}
 
+	/* Direction A: a rule above, not a box. */
 	.panel {
-		padding: 1rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		background: var(--surface-muted);
+		padding: 0.75rem 0 0;
+		border-top: 2px solid var(--text);
 	}
 
 	.panel h2 {

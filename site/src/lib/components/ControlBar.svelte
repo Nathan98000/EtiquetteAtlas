@@ -89,9 +89,10 @@
 </section>
 
 <style>
+	/* Direction A: the page's paper with a rule under it (opaque, as it sticks on phones). */
 	.control-bar {
 		border-bottom: 1px solid var(--border);
-		background: var(--surface-muted);
+		background: var(--surface);
 	}
 
 	.inner {

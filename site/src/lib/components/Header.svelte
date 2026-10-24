@@ -4,6 +4,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import { CHANGE_NAME } from '#lib/change-text.ts';
+	import { DIVERGING, scoreStyle } from '#lib/charts/colors.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import { changeHref, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import ThemeSwitch from './ThemeSwitch.svelte';
@@ -33,6 +34,18 @@
 				? changeHref(view.state.society, view.state, false)
 				: withView(module.path, view.state, GLOBAL_KEYS);
 
+	// Direction A (decision 6): the palette's seven stops as a band under the header, as on the
+	// share cards, and a 3 × 3 tile of the matrix beside the wordmark. Both are decoration.
+	const band = (stops: readonly string[]) =>
+		`linear-gradient(to right, ${stops
+			.map(
+				(c, i) =>
+					`${c} ${((i / stops.length) * 100).toFixed(2)}% ${(((i + 1) / stops.length) * 100).toFixed(2)}%`
+			)
+			.join(', ')})`;
+	const bandStyle = `--band-light: ${band(DIVERGING.light)}; --band-dark: ${band(DIVERGING.dark)}`;
+	const TILE = [-2.5, -1.67, 0, -1.67, 0, 1.67, 0, 1.67, 2.5];
+
 	// A followed link closes the menu.
 	$effect(() => {
 		void page.url;
@@ -43,6 +56,9 @@
 <header class="site-header">
 	<div class="bar">
 		<a class="wordmark" href={withView(resolve('/'), view.state, GLOBAL_KEYS)}>
+			<span class="tile" aria-hidden="true">
+				{#each TILE as value, i (i)}<span class="score" style={scoreStyle(value)}></span>{/each}
+			</span>
 			The Etiquette Atlas
 		</a>
 		<button
@@ -73,11 +89,11 @@
 			<ThemeSwitch />
 		</div>
 	</div>
+	<div class="band" style={bandStyle} aria-hidden="true"></div>
 </header>
 
 <style>
 	.site-header {
-		border-bottom: 1px solid var(--border);
 		background: var(--surface);
 	}
 
@@ -92,11 +108,40 @@
 	}
 
 	.wordmark {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
 		margin-right: auto;
 		color: var(--text);
 		font-weight: 700;
 		text-decoration: none;
 		padding: 0.5rem 0;
+	}
+
+	.tile {
+		display: grid;
+		grid-template-columns: repeat(3, 0.375rem);
+		gap: 1px;
+	}
+
+	.tile span {
+		height: 0.375rem;
+		background: var(--fill);
+	}
+
+	.band {
+		height: 4px;
+		background: var(--band-light);
+	}
+
+	:global(:root[data-theme='dark']) .band {
+		background: var(--band-dark);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme='light'])) .band {
+			background: var(--band-dark);
+		}
 	}
 
 	.menu {
@@ -178,6 +223,11 @@
 		@media (max-width: 359.98px) {
 			.wordmark {
 				font-size: var(--text-sm);
+			}
+
+			/* The wordmark and the module's name keep one row at 320 px. */
+			.tile {
+				display: none;
 			}
 		}
 

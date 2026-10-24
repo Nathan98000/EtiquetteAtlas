@@ -1,11 +1,13 @@
 /**
- * Chart colours for both themes (§6.4, NFR-12; decision 34).
+ * Chart colours for both themes (§6.4, NFR-12; decision 34, amended by the design review).
  *
  * - Appropriateness: a blue–orange diverging scale, neutral at 0 (the scale midpoint), orange for
  *   inappropriate and blue for appropriate, interpolated in OkLab between seven stops. The two
- *   ends stay apart under simulated deuteranopia, protanopia and tritanopia.
- * - Marks drawn on a fill (disagreement circles, FR-15 glyphs) use whichever ink contrasts more
- *   with it, which gives at least 4:1 on any fill (marks need 3:1).
+ *   ends stay apart under simulated deuteranopia, protanopia and tritanopia. The midpoint is a
+ *   neutral grey kept apart from the warm paper surfaces (direction A), and the dark ramp has
+ *   more chroma next to 0 (D-39).
+ * - Marks drawn on a fill (disagreement rings, FR-15 glyphs, FR-16 rings) are in one ink, the
+ *   text colour, with a halo in the page colour, so no mark changes colour with the fill (D-25).
  * - Regions: four colours that avoid orange and blue, so they never read as appropriateness, each
  *   with a shape as well, since colour alone separates them only weakly for some readers.
  */
@@ -16,19 +18,25 @@ export type Theme = 'light' | 'dark';
 
 /** Stops at −2.5, −1.67, −0.83, 0, +0.83, +1.67, +2.5. */
 export const DIVERGING: Record<Theme, readonly string[]> = {
-	light: ['#a3480b', '#d9813f', '#f2c79d', '#f1eeea', '#a9c8e6', '#5b95cc', '#1d5a99'],
-	dark: ['#f5a36a', '#c86d2c', '#7a4422', '#2e3238', '#2b4f74', '#3f7fbf', '#8fc1f0']
+	light: ['#a3480b', '#d9813f', '#f2c79d', '#e2e2e2', '#a9c8e6', '#5b95cc', '#1d5a99'],
+	dark: ['#f5a36a', '#d07432', '#8f4f24', '#3a3d43', '#2d5a87', '#4389cc', '#8fc1f0']
 };
 
 export const INK: Record<Theme, { dark: string; light: string }> = {
-	light: { dark: '#1d2329', light: '#ffffff' },
-	dark: { dark: '#14181c', light: '#f2f4f6' }
+	light: { dark: '#22201c', light: '#ffffff' },
+	dark: { dark: '#171613', light: '#ffffff' }
 };
 
-/** Page surfaces (app.css): chart marks need 3:1 against both. */
+/** D-25: marks on fills, in the text colour with a halo in the page colour (app.css). */
+export const MARK_INK: Record<Theme, { ink: string; halo: string }> = {
+	light: { ink: '#22201c', halo: '#faf7f2' },
+	dark: { ink: '#ede8df', halo: '#171613' }
+};
+
+/** Page surfaces (app.css: --surface, --surface-muted, --surface-raised): marks need 3:1. */
 export const SURFACES: Record<Theme, readonly string[]> = {
-	light: ['#ffffff', '#f3f5f7'],
-	dark: ['#14181c', '#1d2328']
+	light: ['#faf7f2', '#f2ede4', '#fffdf9'],
+	dark: ['#171613', '#211f1b', '#28251f']
 };
 
 export const REGION_COLOR: Record<Theme, Record<Region, string>> = {
@@ -123,9 +131,15 @@ export function deviationScore(difference: number): number {
  * arrow takes the 3:1 outline colour (--border-strong in app.css), copied here for the check.
  */
 export const DIRECTION_COLOR: Record<Theme, { more: string; less: string; within: string }> = {
-	light: { more: DIVERGING.light[6], less: DIVERGING.light[0], within: '#7d8792' },
-	dark: { more: DIVERGING.dark[6], less: DIVERGING.dark[0], within: '#6b7680' }
+	light: { more: DIVERGING.light[6], less: DIVERGING.light[0], within: '#8c8377' },
+	dark: { more: DIVERGING.dark[6], less: DIVERGING.dark[0], within: '#7a7266' }
 };
+
+/** The distance between two colours in OkLab: about 0.02 is the least that is easy to see. */
+export function difference(a: string, b: string): number {
+	const [x, y] = [rgbToOklab(hexToRgb(a)), rgbToOklab(hexToRgb(b))];
+	return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+}
 
 /** WCAG relative luminance. */
 export function luminance(hex: string): number {

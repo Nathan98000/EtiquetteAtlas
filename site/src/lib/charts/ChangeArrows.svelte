@@ -162,10 +162,8 @@
 	/* Below 1024 px each row lists its values, so the panel is not needed (decision 69). */
 	.panel {
 		display: none;
-		padding: 1rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		background: var(--surface-muted);
+		padding: 0.75rem 0 0;
+		border-top: 2px solid var(--text);
 	}
 
 	@media (min-width: 1024px) {

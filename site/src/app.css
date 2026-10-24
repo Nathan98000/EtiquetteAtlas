@@ -16,20 +16,23 @@
 	--gutter: 1rem;
 	--radius: 0.375rem;
 
-	--text: #1d2329;
-	--text-muted: #4d5864;
-	--surface: #ffffff;
-	--surface-muted: #f3f5f7;
-	--surface-raised: #ffffff;
-	--border: #d8dde3;
-	/* 3:1 against both surfaces: cell outlines and control borders (NFR-12). */
-	--border-strong: #7d8792;
+	/* Direction A (decision 6): a warm paper and ink in place of greys. The chart palette's
+	   copies of these (charts/colors.ts: SURFACES, MARK_INK) are checked for contrast there. */
+	--text: #22201c;
+	--text-muted: #5c564d;
+	--surface: #faf7f2;
+	--surface-muted: #f2ede4;
+	--surface-raised: #fffdf9;
+	--border: #e2dbcf;
+	/* 3:1 against every surface: cell outlines and control borders (NFR-12). */
+	--border-strong: #8c8377;
 	--link: #1f5fa8;
 	--focus: #1f5fa8;
-	--accent: #1f5fa8;
-	--on-accent: #ffffff;
-	--land: #e4e7ea;
-	--shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.15);
+	/* D-37: selected states and primary buttons in ink; blue is the data's "appropriate". */
+	--accent: #22201c;
+	--on-accent: #faf7f2;
+	--land: #e9e3d8;
+	--shadow: 0 0.25rem 1rem rgb(40 30 10 / 0.15);
 	color-scheme: light;
 }
 
@@ -43,36 +46,36 @@
 /* Dark theme: the system setting unless the reader picked light, or the reader's pick (§6.4).
    The two blocks must stay identical. */
 :root[data-theme='dark'] {
-	--text: #e6e9ec;
-	--text-muted: #aab4be;
-	--surface: #14181c;
-	--surface-muted: #1d2328;
-	--surface-raised: #222930;
-	--border: #333b43;
-	--border-strong: #6b7680;
+	--text: #ede8df;
+	--text-muted: #b4ac9f;
+	--surface: #171613;
+	--surface-muted: #211f1b;
+	--surface-raised: #28251f;
+	--border: #39352e;
+	--border-strong: #7a7266;
 	--link: #8cbcf2;
 	--focus: #8cbcf2;
-	--accent: #8cbcf2;
-	--on-accent: #14181c;
-	--land: #2a3138;
+	--accent: #ede8df;
+	--on-accent: #171613;
+	--land: #2c2924;
 	--shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.5);
 	color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) {
-		--text: #e6e9ec;
-		--text-muted: #aab4be;
-		--surface: #14181c;
-		--surface-muted: #1d2328;
-		--surface-raised: #222930;
-		--border: #333b43;
-		--border-strong: #6b7680;
+		--text: #ede8df;
+		--text-muted: #b4ac9f;
+		--surface: #171613;
+		--surface-muted: #211f1b;
+		--surface-raised: #28251f;
+		--border: #39352e;
+		--border-strong: #7a7266;
 		--link: #8cbcf2;
 		--focus: #8cbcf2;
-		--accent: #8cbcf2;
-		--on-accent: #14181c;
-		--land: #2a3138;
+		--accent: #ede8df;
+		--on-accent: #171613;
+		--land: #2c2924;
 		--shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.5);
 		color-scheme: dark;
 	}
@@ -225,7 +228,6 @@ table {
 	background: var(--surface-muted);
 }
 
-/* A button inside a sentence that reads like a link, such as "Show as answered". */
 /* D-28: a page's title with Share at its top right. A float inside the title keeps the button's
    room on the first line only, so a long title keeps its full width below it (D-23). */
 .page-title {
@@ -253,6 +255,7 @@ table {
 	}
 }
 
+/* A button inside a sentence that reads like a link, such as "Show as answered". */
 .link-button {
 	display: inline;
 	min-height: 1.5rem;

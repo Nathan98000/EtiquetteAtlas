@@ -34,7 +34,6 @@
 		padding: 0.75rem 1rem;
 		font-size: var(--text-sm);
 		border-left: 3px solid var(--border-strong);
-		background: var(--surface-muted);
 	}
 
 	p {

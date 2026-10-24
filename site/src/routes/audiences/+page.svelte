@@ -269,16 +269,15 @@
 		flex-direction: column;
 		gap: 0.125rem;
 		height: 100%;
-		padding: 0.5rem 0.5rem 0.25rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
+		/* Direction A: each panel under a rule, not in a box. */
+		padding: 0.5rem 0 0.25rem;
+		border-top: 1px solid var(--border-strong);
 		color: var(--text);
 		text-decoration: none;
 	}
 
 	a:hover {
-		border-color: var(--border-strong);
-		background: var(--surface-muted);
+		border-top-color: var(--text);
 	}
 
 	.name {

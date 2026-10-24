@@ -29,8 +29,7 @@
 		max-width: var(--measure);
 		margin: 0.75rem 0 1rem;
 		padding: 0.625rem 0.875rem;
-		border-left: 4px solid var(--border-strong);
-		background: var(--surface-muted);
+		border-left: 4px solid var(--text);
 	}
 
 	@media (min-width: 360px) {
