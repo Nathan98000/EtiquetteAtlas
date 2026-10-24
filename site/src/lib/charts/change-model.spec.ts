@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { ChangeCells, Societies } from '../data/model';
 import { changeDoc } from '../data/test-fixtures';
 import {
+	ARROWS_NOTE,
+	CLEARLY,
 	behaviorStrip,
 	behaviorStripSummary,
 	changeChartSummary,
@@ -11,6 +13,7 @@ import {
 	changeSummary,
 	changeTable,
 	direction,
+	directionText,
 	globalChange,
 	rowText,
 	societiesSummary,
@@ -18,6 +21,7 @@ import {
 	societyStrip,
 	societyArrows,
 	societyStripSummary,
+	valuesText,
 	type ChangeScope
 } from './change-model';
 
@@ -81,10 +85,23 @@ describe('FR-50: one society’s pairs', () => {
 
 	it('words a row for screen readers and the details', () => {
 		expect(rowText(jpn.rows.find((r) => r.index === 5)!)).toBe(
-			'2000–2003 −1.9, 2023–2024 −1.7, difference +0.2 (95% interval +0.1 to +0.3), judged ' +
-				'more appropriate in 2023–2024, beyond its 95% interval; small sample in 2023–2024'
+			'2000–2003 −1.9, 2023–2024 −1.7, difference +0.2 (95% interval +0.1 to +0.3), clearly ' +
+				'higher in 2023–2024; small sample in 2023–2024'
 		);
-		expect(rowText(gbr.rows[2])).toMatch(/within its 95% interval$/);
+		expect(rowText(gbr.rows[2])).toMatch(/too close to call$/);
+	});
+
+	it('D-4: says how sure in words, with what "clearly" means', () => {
+		expect([directionText(1), directionText(-1), directionText(0)]).toEqual([
+			'clearly higher in 2023–2024',
+			'clearly lower in 2023–2024',
+			'too close to call'
+		]);
+		expect(valuesText(jpn.rows.find((r) => r.index === 5)!)).toBe(
+			'clearly higher · 2000–2003 −1.9 · 2023–2024 −1.7 · small sample in 2023–2024'
+		);
+		expect(ARROWS_NOTE).toContain(CLEARLY);
+		expect(CLEARLY).toMatch(/margin of error \(a 95% interval\)/);
 	});
 });
 
@@ -118,18 +135,18 @@ describe('decision 67: orders', () => {
 describe('FR-51, FR-52, FR-73: summaries', () => {
 	it('counts one society’s pairs as differences between surveys', () => {
 		expect(changeSummary(japan, jpn, 2)).toBe(
-			'Of the 119 pairs both surveys asked, respondents in Japan in 2023–2024 judged 118 more ' +
-				'appropriate than respondents there in 2000–2003 and 1 less appropriate, beyond their 95% ' +
-				'intervals; 0 were within them.'
+			'Of the 119 pairs both surveys asked, respondents in Japan in 2023–2024 judged 118 clearly ' +
+				'more appropriate than respondents there in 2000–2003 and 1 clearly less; 0 were too ' +
+				'close to call.'
 		);
 	});
 
 	it('names the societies in both surveys, never all societies', () => {
 		const text = changeSummary({ kind: 'global' }, globalChange(file), 2);
 		expect(text).toBe(
-			'Averaged over the 2 societies in both surveys, 60 of the 120 pairs were judged more ' +
-				'appropriate in 2023–2024 than in 2000–2003 and 59 less appropriate, beyond their 95% ' +
-				'intervals; 1 was within them.'
+			'Averaged over the 2 societies in both surveys, 60 of the 120 pairs were judged clearly ' +
+				'more appropriate in 2023–2024 than in 2000–2003 and 59 clearly less; 1 was too close to ' +
+				'call.'
 		);
 		expect(text).not.toMatch(/all societies|became|because|changed/i);
 	});
@@ -150,9 +167,8 @@ describe('NFR-11: the strips and table', () => {
 		expect(strip[0]).toMatchObject({ direction: 1, note: '119 pairs' });
 		expect(strip[1]).toMatchObject({ direction: 0, note: '' });
 		expect(societiesSummary(strip)).toBe(
-			'On average over their pairs, respondents in 1 of the 2 societies judged the pairs more ' +
-				'appropriate in 2023–2024 and in 0 less appropriate, beyond their 95% intervals; 1 was ' +
-				'within them.'
+			'On average over their pairs, respondents in 1 of the 2 societies judged the pairs clearly ' +
+				'more appropriate in 2023–2024 and in 0 clearly less; 1 was too close to call.'
 		);
 		expect(societyStripSummary(strip)).toBe(
 			'Averaged over their pairs, differences run from +0.05 among respondents in the United ' +
@@ -180,7 +196,7 @@ describe('NFR-11: the strips and table', () => {
 			newer: '−1.7',
 			diff: '+0.2',
 			interval: '+0.1 to +0.3',
-			direction: 'Higher',
+			direction: 'Clearly higher',
 			n: '150 ratings; 12 respondents (small sample in 2023–2024)'
 		});
 		expect(changeTable(globalChange(file).rows)[19].n).toBe('1 societies');

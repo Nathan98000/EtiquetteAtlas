@@ -154,24 +154,24 @@ const capital = (text: string) => text[0].toUpperCase() + text.slice(1);
 const were = (n: number) => (n === 1 ? 'was' : 'were');
 
 /**
- * FR-51, FR-87: the counts in one sentence. For one society: "Of the 120 pairs both surveys asked,
- * respondents in Japan in 2023–2024 judged 22 more appropriate than respondents there in 2000–2003
- * and 38 less appropriate, beyond their 95% intervals; 60 were within them."
+ * FR-51, FR-87: the counts in one sentence, with how sure in words (D-4). For one society: "Of
+ * the 120 pairs both surveys asked, respondents in Japan in 2023–2024 judged 22 clearly more
+ * appropriate than respondents there in 2000–2003 and 38 clearly less; 60 were too close to call."
  */
 export function changeSummary(scope: ChangeScope, view: ChangeView, societies: number): string {
 	const c = changeCounts(view.rows);
-	const within = `${c.within} ${were(c.within)} within them`;
+	const close = `${c.within} ${were(c.within)} too close to call`;
 	if (scope.kind === 'society') {
 		return (
 			`Of the ${c.shown} pairs both surveys asked, ${subjectOf(scope, societies)} in 2023–2024 ` +
-			`judged ${c.higher} more appropriate than respondents there in 2000–2003 and ${c.lower} ` +
-			`less appropriate, beyond their 95% intervals; ${within}.`
+			`judged ${c.higher} clearly more appropriate than respondents there in 2000–2003 and ` +
+			`${c.lower} clearly less; ${close}.`
 		);
 	}
 	return (
 		`Averaged over ${subjectOf(scope, societies)}, ${c.higher} of the ${c.shown} pairs ` +
-		`${were(c.higher)} judged more appropriate in 2023–2024 than in 2000–2003 and ${c.lower} ` +
-		`less appropriate, beyond their 95% intervals; ${within}.`
+		`${were(c.higher)} judged clearly more appropriate in 2023–2024 than in 2000–2003 and ` +
+		`${c.lower} clearly less; ${close}.`
 	);
 }
 
@@ -191,13 +191,28 @@ export function changeChartSummary(
 	);
 }
 
-/** A row's difference and how it compares with 0, in words. */
+/**
+ * D-4, §6.5: how sure a difference is, in words beside ▲ and ▼ (decision 68): "clearly" when its
+ * 95% interval excludes 0, "too close to call" when it does not.
+ */
+export const VERDICT: Record<Direction, string> = {
+	1: 'clearly higher',
+	[-1]: 'clearly lower',
+	0: 'too close to call'
+};
+
+/** D-4: what "clearly" means, said once on each page that uses it. */
+export const CLEARLY =
+	"Clearly means the gap is bigger than the surveys' margin of error (a 95% interval).";
+
+/** The arrows' key in words: colour, glyph and how sure, then what "clearly" means. */
+export const ARROWS_NOTE =
+	`▲ Blue: clearly higher in 2023–2024. ▼ Orange: clearly lower. Grey: too close to call. ` +
+	CLEARLY;
+
+/** A row's difference and how sure it is, in words: "clearly higher in 2023–2024". */
 export function directionText(d: Direction): string {
-	return d === 1
-		? 'judged more appropriate in 2023–2024, beyond its 95% interval'
-		: d === -1
-			? 'judged less appropriate in 2023–2024, beyond its 95% interval'
-			: 'within its 95% interval';
+	return d === 0 ? VERDICT[0] : `${VERDICT[d]} in 2023–2024`;
 }
 
 /** "small sample in 2023–2024", or "" (DR-9). */
@@ -240,8 +255,7 @@ export function changeTable(rows: readonly ChangeRow[]): ChangeTableRow[] {
 		newer: score(row.newer),
 		diff: score(row.diff.value),
 		interval: interval(row.diff.lo, row.diff.hi),
-		direction:
-			row.direction === 1 ? 'Higher' : row.direction === -1 ? 'Lower' : 'Within its interval',
+		direction: capital(VERDICT[row.direction]),
 		n: row.n
 			? `${count(row.n.older)} ratings; ${count(row.n.newer)} respondents${
 					smallText(row) ? ` (${smallText(row)})` : ''
@@ -299,15 +313,15 @@ export function behaviorStrip(file: ChangeCells): StripRow[] {
 
 /**
  * FR-51, FR-87: the societies' mean differences counted. "On average over their pairs, respondents
- * in 13 of the 26 societies judged the pairs more appropriate in 2023–2024 and in 6 less
- * appropriate, beyond their 95% intervals; 7 were within them."
+ * in 13 of the 26 societies judged the pairs clearly more appropriate in 2023–2024 and in 6 clearly
+ * less; 7 were too close to call."
  */
 export function societiesSummary(strip: readonly StripRow[]): string {
 	const c = changeCounts(strip);
 	return (
 		`On average over their pairs, respondents in ${c.higher} of the ${c.shown} societies judged ` +
-		`the pairs more appropriate in 2023–2024 and in ${c.lower} less appropriate, beyond their ` +
-		`95% intervals; ${c.within} ${were(c.within)} within them.`
+		`the pairs clearly more appropriate in 2023–2024 and in ${c.lower} clearly less; ` +
+		`${c.within} ${were(c.within)} too close to call.`
 	);
 }
 
@@ -335,10 +349,16 @@ export function behaviorStripSummary(strip: readonly StripRow[], societies: numb
 	);
 }
 
-/** "2000–2003 −1.2 · 2023–2024 −0.4 · small sample in 2023–2024": a row's values in brief. */
+/**
+ * "clearly lower · 2000–2003 −1.2 · 2023–2024 −0.4 · small sample in 2023–2024": a row's values
+ * in brief, how sure first (D-4).
+ */
 export function valuesText(row: ChangeRow): string {
 	const small = smallText(row);
-	return `2000–2003 ${score(row.older)} · 2023–2024 ${score(row.newer)}${small ? ` · ${small}` : ''}`;
+	return (
+		`${VERDICT[row.direction]} · 2000–2003 ${score(row.older)} · 2023–2024 ${score(row.newer)}` +
+		`${small ? ` · ${small}` : ''}`
+	);
 }
 
 /** The arrow chart's rows (decision 69): ● the 2023–2024 survey, ○ the 2000–2003 survey. */

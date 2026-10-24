@@ -4,6 +4,7 @@
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import { CHANGE_SORT_KEYS, type SortKey } from '#lib/data/derive.ts';
 	import {
+		ARROWS_NOTE,
 		arrowRows,
 		changeOrder,
 		changeTable,
@@ -47,7 +48,7 @@
 		{ header: '2023–2024', text: (r) => r.newer },
 		{ header: 'Difference', text: (r) => r.diff },
 		{ header: '95% interval', text: (r) => r.interval },
-		{ header: 'Beyond the interval', text: (r) => r.direction },
+		{ header: 'How sure', text: (r) => r.direction },
 		{ header: 'Based on', text: (r) => r.n }
 	];
 </script>
@@ -83,7 +84,7 @@
 								: 'Show the first 25 pairs'}
 							showAll="Show all {view.rows.length} pairs"
 							unpairedLabel={view.missing.length === 1 ? 'pair not shown' : 'pairs not shown'}
-							note="Blue arrows and ▲: judged more appropriate in 2023–2024, beyond the 95% interval of the difference. Orange and ▼: less appropriate. Grey: within the interval. A dashed ring marks a small sample (10 to 29)."
+							note="{ARROWS_NOTE} A dashed ring marks a small sample (10 to 29)."
 							{href}
 							onpreview={(cell) => (preview = cell)}
 						/>

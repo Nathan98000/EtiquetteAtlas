@@ -40,13 +40,13 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText(
 			'Change since the early 2000s'
 		);
-		// FR-51: pairs and societies beyond their intervals, as surveys judged them, never "became".
+		// FR-51, D-4: how sure in words, as surveys judged them, never "became".
 		await expect(page.locator('.lede')).toHaveText(
-			'Averaged over the 26 societies in both surveys, 63 of the 120 pairs were judged more ' +
-				'appropriate in 2023–2024 than in 2000–2003 and 46 less appropriate, beyond their 95% ' +
-				'intervals; 11 were within them. On average over their pairs, respondents in 13 of the ' +
-				'26 societies judged the pairs more appropriate in 2023–2024 and in 6 less appropriate, ' +
-				'beyond their 95% intervals; 7 were within them.'
+			'Averaged over the 26 societies in both surveys, 63 of the 120 pairs were judged clearly ' +
+				'more appropriate in 2023–2024 than in 2000–2003 and 46 clearly less; 11 were too close ' +
+				'to call. On average over their pairs, respondents in 13 of the 26 societies judged the ' +
+				'pairs clearly more appropriate in 2023–2024 and in 6 clearly less; 7 were too close to ' +
+				'call.'
 		);
 		// FR-52, NFR-41.
 		const note = page.getByRole('complementary', { name: PROVENANCE });
@@ -64,6 +64,14 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		expect(first.map(Math.abs)).toEqual([...first.map(Math.abs)].sort((a, b) => b - a));
 		await expect(page.locator('#arrows-summary')).toHaveText(
 			/^Each arrow runs from the 2000–2003 average to the 2023–2024 average of the 26 societies in both surveys; the largest difference is for listening to music on headphones in the library/
+		);
+		// D-4: how sure in words, and what "clearly" means, once on the page.
+		await expect(page.locator('.dumbbell .note')).toContainText(
+			'▲ Blue: clearly higher in 2023–2024. ▼ Orange: clearly lower. Grey: too close to call. ' +
+				"Clearly means the gap is bigger than the surveys' margin of error (a 95% interval)."
+		);
+		await expect(rows(page).first().locator('.visually-hidden')).toContainText(
+			/clearly higher in 2023–2024|clearly lower in 2023–2024|too close to call/
 		);
 		await page.getByRole('button', { name: 'Show all 120 pairs' }).click();
 		await expect(rows(page)).toHaveCount(120);
@@ -99,7 +107,7 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		const cry = behaviors.getByRole('listitem').first();
 		await expect(cry.locator('.label')).toHaveText('Cry');
 		await expect(cry.locator('.value')).toHaveText('+0.60▲');
-		await expect(cry.locator('.note')).toHaveText('higher in 26 of 26 societies');
+		await expect(cry.locator('.note')).toHaveText('clearly higher · higher in 26 of 26 societies');
 		await societies.getByRole('link', { name: 'Japan' }).click();
 		await expect(page).toHaveURL(/\/change\/jpn\/$/);
 	});
@@ -122,9 +130,9 @@ test.describe('FR-50: a society’s page', () => {
 			'Respondents in Japan in 2000–2003 and 2023–2024'
 		);
 		await expect(page.locator('.lede')).toHaveText(
-			'Of the 120 pairs both surveys asked, respondents in Japan in 2023–2024 judged 22 more ' +
-				'appropriate than respondents there in 2000–2003 and 38 less appropriate, beyond their ' +
-				'95% intervals; 60 were within them.'
+			'Of the 120 pairs both surveys asked, respondents in Japan in 2023–2024 judged 22 clearly ' +
+				'more appropriate than respondents there in 2000–2003 and 38 clearly less; 60 were too ' +
+				'close to call.'
 		);
 		await expect(page.getByRole('complementary', { name: PROVENANCE })).toBeVisible();
 		await expect(page.locator('.facts')).toContainText('2000–2003 survey');
@@ -263,13 +271,17 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await expect(page.getByRole('option', { name: /^Japan/ })).toBeVisible();
 	await box.press('Enter');
 	await expect(page).toHaveURL(/\/change\/jpn\/$/);
-	await expect(page.locator('.lede')).toHaveText(/judged 22 more appropriate .* and 38 less/);
+	await expect(page.locator('.lede')).toHaveText(
+		/judged 22 clearly more appropriate .* and 38 clearly less/
+	);
 	await expect(page.locator('#arrows-summary')).toContainText('for respondents in Japan');
 
 	await page.getByRole('radio', { name: 'Attention check' }).check();
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
 	await expect(page.locator('.badge')).toHaveText(/Attention check: 80 societies/);
-	await expect(page.locator('.lede')).toHaveText(/judged 24 more appropriate .* and 38 less/);
+	await expect(page.locator('.lede')).toHaveText(
+		/judged 24 clearly more appropriate .* and 38 clearly less/
+	);
 
 	// Raw scores whatever the scale, and the page says so (decision 72).
 	await page.getByRole('radio', { name: 'Centered' }).check();
@@ -281,7 +293,7 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await expect(page.locator('.scale-note')).toContainText('Raw scores in both surveys');
 	await page.goBack();
 	await expect(page).toHaveURL(/\/change\/jpn\/$/);
-	await expect(page.locator('.lede')).toHaveText(/judged 22 more appropriate/);
+	await expect(page.locator('.lede')).toHaveText(/judged 22 clearly more appropriate/);
 	await page.goBack();
 	await expect(page).toHaveURL(/\/change\/$/);
 	await expect(box).toHaveValue('');
@@ -291,7 +303,7 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
 	await expect(page.getByRole('radio', { name: 'Attention check' })).toBeChecked();
 	await expect(box).toHaveValue('Japan');
-	await expect(page.locator('.lede')).toHaveText(/judged 24 more appropriate/);
+	await expect(page.locator('.lede')).toHaveText(/judged 24 clearly more appropriate/);
 });
 
 test('NFR-13: by keyboard alone, pick a society, read its differences, open a pair and switch to the societies in both surveys', async ({
@@ -382,7 +394,7 @@ test.describe('without JavaScript', () => {
 		await expect(page.getByRole('complementary', { name: PROVENANCE })).toBeVisible();
 		await expect(page.locator('main noscript p').first()).toHaveText('The charts need JavaScript.');
 		await page.goto(url('change/jpn/'));
-		await expect(page.locator('.lede')).toHaveText(/judged 22 more appropriate/);
+		await expect(page.locator('.lede')).toHaveText(/judged 22 clearly more appropriate/);
 		await expect(page.locator('#arrows-summary')).toHaveText(/^Each arrow runs/);
 		await expect(page.locator('main noscript p').first()).toHaveText('The chart needs JavaScript.');
 	});

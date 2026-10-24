@@ -12,6 +12,7 @@
 		societyStrip,
 		societyStripSummary,
 		subjectOf,
+		VERDICT,
 		type StripRow
 	} from '#lib/charts/change-model.ts';
 	import ChangeStrip from '#lib/charts/ChangeStrip.svelte';
@@ -79,8 +80,8 @@
 		{ header: 'Mean difference', text: (r) => score(r.diff.value, 2) },
 		{ header: '95% interval', text: (r) => interval(r.diff.lo, r.diff.hi, 2) },
 		{
-			header: 'Beyond the interval',
-			text: (r) => (r.direction === 1 ? 'Higher' : r.direction === -1 ? 'Lower' : 'Within')
+			header: 'How sure',
+			text: (r) => VERDICT[r.direction][0].toUpperCase() + VERDICT[r.direction].slice(1)
 		},
 		{ header: note, text: (r) => r.note }
 	];
@@ -189,8 +190,8 @@
 			{/snippet}
 		</ChartFrame>
 		<p class="aside">
-			A behavior's societies "above 0" count every society whose difference is above 0, beyond its
-			interval or not. With the Paper's sample, these rows reproduce Table 1 of
+			A behavior's societies "above 0" count every society whose difference is above 0, clearly or
+			not. With the Paper's sample, these rows reproduce Table 1 of
 			<a href={attribution.articleUrl} rel="external">Eriksson et al. ({attribution.year})</a>.
 		</p>
 	</section>

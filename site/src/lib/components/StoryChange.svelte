@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { societyArrows } from '#lib/charts/change-model.ts';
+	import { ARROWS_NOTE, societyArrows } from '#lib/charts/change-model.ts';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
 	import DataTable, { type Column } from '#lib/charts/DataTable.svelte';
 	import Dumbbell from '#lib/charts/Dumbbell.svelte';
@@ -99,7 +99,7 @@
 							showFirst="Show the 25 largest differences"
 							showAll="Show all {rows.length} societies"
 							unpairedLabel="societies not shown"
-							note="Blue arrows and ▲: judged more appropriate in 2023–2024, beyond the 95% interval of the difference. Orange and ▼: less appropriate. Grey: within the interval."
+							note={ARROWS_NOTE}
 							{href}
 						/>
 					{/if}

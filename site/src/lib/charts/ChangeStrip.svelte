@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ResolvedPathname } from '$app/types';
 	import { interval, score } from '#lib/data/format.ts';
-	import { DIRECTION_GLYPH, directionText, type StripRow } from './change-model';
+	import { DIRECTION_GLYPH, VERDICT, directionText, type StripRow } from './change-model';
 	import { directionStyle } from './colors';
 
 	interface Props {
@@ -50,7 +50,10 @@
 					>{score(row.diff.value, 2)}<span class="glyph">{DIRECTION_GLYPH[row.direction]}</span
 					></span
 				>
-				{#if row.note}<span class="note" aria-hidden="true">{row.note}</span>{/if}
+				<!-- D-4: how sure, in words beside ▲ and ▼. -->
+				<span class="note" aria-hidden="true"
+					>{[VERDICT[row.direction], row.note].filter(Boolean).join(' · ')}</span
+				>
 			</li>
 		{/each}
 	</ol>
