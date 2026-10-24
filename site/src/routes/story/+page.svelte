@@ -496,7 +496,7 @@
 	}
 
 	.reserve.swarm {
-		min-height: 14rem;
+		min-height: 18.375rem;
 	}
 
 	.links li {

@@ -151,7 +151,7 @@
 
 	/* The beeswarm's height, kept while the files load (NFR-2). */
 	.reserve {
-		min-height: 14rem;
+		min-height: 18.375rem;
 	}
 
 	.note,

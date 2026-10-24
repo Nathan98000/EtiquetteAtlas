@@ -44,6 +44,8 @@
 	}: Props = $props();
 
 	const M = { left: 16, right: 16, top: 30, bottom: 56 };
+	/** Half the swarm's band: 294 px in all with the margins (18.375rem, the reserved height). */
+	const HALF = 104;
 	let width = $state(0);
 	let container: HTMLDivElement | undefined = $state();
 	/** The society that holds the chart's one tab stop (roving tabindex). */
@@ -64,8 +66,10 @@
 		axis: number;
 	}
 
-	// A fixed scale (−2.5 to +2.5) keeps cells comparable. Dots shrink, then the chart grows,
-	// when many societies crowd one place.
+	// A fixed scale (−2.5 to +2.5) keeps cells comparable. The chart keeps one height, so the space
+	// reserved for it before the data arrive is the space it takes (NFR-2) and it can open a pair's
+	// page (D-5): dots shrink where societies crowd one place, down to a 2 px radius, and only past
+	// that does the chart grow (no pair at 375 px or wider; decision 35 amended).
 	const layout: Layout = $derived.by(() => {
 		const value = (p: SocietyPoint) => p.estimate!.value;
 		if (uncertainty) {
@@ -84,8 +88,8 @@
 			(p) => p.code,
 			2 * r + 1
 		);
-		while (extent(points) + r > 100 && r > 3) {
-			r -= 0.5;
+		while (extent(points) + r > HALF - 4 && r > 2) {
+			r -= 0.25;
 			points = dodge(
 				drill.plotted,
 				(p) => x(value(p)),
@@ -93,7 +97,7 @@
 				2 * r + 1
 			);
 		}
-		const half = Math.max(56, extent(points) + r + 4);
+		const half = Math.max(HALF, extent(points) + r + 4);
 		const middle = M.top + half;
 		return {
 			points: points.map((p) => ({ ...p, y: middle + p.y })),
@@ -308,7 +312,8 @@
 <style>
 	.beeswarm {
 		position: relative;
-		min-height: 13.5rem;
+		/* The chart's one height (HALF above), kept while the data load. */
+		min-height: 18.375rem;
 	}
 
 	svg {
