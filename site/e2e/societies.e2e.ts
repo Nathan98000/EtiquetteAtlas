@@ -89,11 +89,14 @@ test.describe('the fingerprint from 640 px', () => {
 			'Difference from the global average',
 			'Respondents in Chile',
 			'95% interval',
-			'Global mean'
+			'Global average'
 		]) {
 			await expect(tip).toContainText(text);
 		}
 		await page.setViewportSize({ width: 1280, height: 900 });
+		// The panel follows hover as well as focus; after the resize the mouse may rest on another
+		// cell, so it moves off the grid first.
+		await page.mouse.move(0, 0);
 		await page.locator('[data-cell="140"]').focus();
 		const panel = page.getByRole('complementary');
 		await expect(panel).toContainText('Using a mobile phone at a funeral ceremony');
