@@ -28,7 +28,7 @@ export interface SwarmDot {
 	small: boolean;
 }
 
-/** Decision 3: one dot of the story's first picture, a pair's or a society's average. */
+/** Decision 133: one dot of the story's first picture, a pair's or a society's average. */
 export interface SpreadDot {
 	key: string;
 	value: number;

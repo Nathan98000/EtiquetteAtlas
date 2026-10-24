@@ -30,7 +30,7 @@ import { listText } from '../data/society';
 export const PAPER_SD = { situations: 0.31, societies: 0.19, residual: 1.11 } as const;
 
 /**
- * Decision 3 (D-2): step 1's picture, from All data on the raw scale. Each of the 150 pairs'
+ * Decision 133 (D-2): step 1's picture, from All data on the raw scale. Each of the 150 pairs'
  * global average, and each society's average over all the pairs: its offset (DR-10, its mean
  * deviation from the global averages over the pairs it has) added to the mean of the 150 global
  * averages. A society with no pair of 10 or more respondents has nothing to show (DR-9).

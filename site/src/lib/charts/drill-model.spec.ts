@@ -113,7 +113,7 @@ describe('D-1, D-15, FR-25: the society box and small samples in words', () => {
 		);
 	});
 
-	it('says "clearly" only when the interval decides (§6.5, decision 2)', () => {
+	it('says "clearly" only when the interval decides (§6.5, decision 112)', () => {
 		expect(versusGlobal(-1)).toBe('clearly stricter than the global average');
 		expect(versusGlobal(1)).toBe('clearly looser than the global average');
 		expect(versusGlobal(0)).toBe('too close to call against the global average');

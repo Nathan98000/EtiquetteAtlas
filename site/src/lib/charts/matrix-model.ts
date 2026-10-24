@@ -138,7 +138,7 @@ export function matrixCells(
 export function societyPhrase(value: SocietyValue): string {
 	if (value.status === Status.NotAsked) return 'not asked';
 	if (value.status === Status.TooFew || !value.estimate) return 'too few responses';
-	// §6.5, decision 2: "clearly" only when the interval decides (FR-31).
+	// §6.5, decision 112: "clearly" only when the interval decides (FR-31).
 	const comparison =
 		value.notable === 1
 			? 'clearly looser than the global average'

@@ -16,7 +16,7 @@ export const load: PageServerLoad = () => {
 	return {
 		summary: audiencesSummary(rows, subjectOf(scope, contextsAll.codes.length)),
 		title: audiencesTitle(rows.map((r) => r.effect)),
-		// Decision 8: the panels prerender in the default order, largest drop first (NFR-2).
+		// Decision 126: the panels prerender in the default order, largest drop first (NFR-2).
 		order: audienceOrder(rows, 'effect')
 	};
 };

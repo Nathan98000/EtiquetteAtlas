@@ -163,7 +163,7 @@
 		}))
 	);
 
-	// Decision 11: the hub's small pictures, drawn from the palette's tokens; they hold no data.
+	// Decision 123: the hub's small pictures, drawn from the palette's tokens; they hold no data.
 	const STRIP = [-2.1, -1.3, -0.6, 0.2, 0.9, 1.7];
 	const GRID = [-2, -1, 0.5, 1.5, -0.5, 1, 2, -1.5, 0, 0.8, -2.2, 1.2, -0.3, 0.6, 1.8];
 	const SWARM = REGIONS.flatMap((region, r) =>
@@ -313,7 +313,7 @@
 		</div>
 	</section>
 
-	<!-- Decision 11: the ways into the atlas, each a question (the review's section 6). -->
+	<!-- Decision 123: the ways into the atlas, each a question (the review's section 6). -->
 	<section class="hub" aria-labelledby="hub-title">
 		<h2 id="hub-title">Explore the atlas</h2>
 		<ul class="cards">
@@ -523,7 +523,7 @@
 		gap: 0.75rem;
 	}
 
-	/* Decision 11: the hub, one card per way in. */
+	/* Decision 123: the hub, one card per way in. */
 	.hub {
 		margin-top: 3rem;
 		padding-top: 1.5rem;

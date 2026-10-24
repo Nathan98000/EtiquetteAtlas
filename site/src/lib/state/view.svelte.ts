@@ -77,7 +77,7 @@ export function pairHref(cell: Cell, state: ViewState): ResolvedPathname {
 /**
  * A behavior's audiences, or the small multiples without one, keeping the audiences' filters
  * (decision 57). The index's sort stays on the index: a link to it from elsewhere opens on its
- * default order (decision 8).
+ * default order (decision 126).
  */
 export function audiencesHref(behavior: Behavior | null, state: ViewState): ResolvedPathname {
 	return behavior
@@ -111,14 +111,14 @@ export function fingerprintHref(state: ViewState): ResolvedPathname {
 	return withView(societyPath(state.society), state, FINGERPRINT_KEYS, FINGERPRINT_DEFAULTS);
 }
 
-/** Decision 9: a new society or comparison is a step that Back returns to; the rest is not. */
+/** Decision 127: a new society or comparison is a step that Back returns to; the rest is not. */
 const STEPS: readonly (keyof ViewState)[] = ['society', 'compare'];
 
 /**
  * Changes the view by navigating, so every linked view reads the same URL and they update
  * together (FR-80, AT-11). A new society or comparison adds a history entry, as a new page does;
  * a sort, sample, scale, estimate, uncertainty or audience filter replaces the current one, so
- * Back leaves the page instead of undoing toggles (FR-84, decision 9, amending decision 31). On
+ * Back leaves the page instead of undoing toggles (FR-84, decision 127, amending decision 31). On
  * society routes the society is the path: choosing one opens its fingerprint, and clearing it goes
  * to the index (decision 44). On the change routes a society in both surveys opens its change
  * page, and any other stays on the overview (decision 67).
@@ -129,7 +129,7 @@ export function setView(patch: Partial<ViewState>): Promise<void> {
 	const replaceState = !STEPS.some((key) => next[key] !== view.state[key]);
 	const route = page.route.id;
 	if (route === SOCIETIES_ROUTE || route === FINGERPRINT_ROUTE) {
-		// From the index, a fingerprint opens on its own default order (decision 8).
+		// From the index, a fingerprint opens on its own default order (decision 126).
 		if (route === SOCIETIES_ROUTE && !('sort' in patch)) next.sort = FINGERPRINT_DEFAULTS.sort;
 		const keys = next.society ? FINGERPRINT_KEYS : SOCIETIES_KEYS;
 		return goto(withView(societyPath(next.society), next, keys, FINGERPRINT_DEFAULTS), {

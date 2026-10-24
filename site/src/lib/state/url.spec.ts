@@ -91,7 +91,7 @@ describe('FR-80: view state round-trips through the URL', () => {
 		expect(viewSearch(state, GLOBAL_KEYS)).toBe('');
 		expect(parseView(new URLSearchParams('sort=effect'), AUDIENCES_ROUTE).sort).toBe('effect');
 		expect(parseView(new URLSearchParams('sort=effect'), '/explore').sort).toBe('paper');
-		// An order the route does not offer falls back to its own default (decision 8).
+		// An order the route does not offer falls back to its own default (decision 126).
 		expect(parseView(new URLSearchParams('sort=mean'), AUDIENCES_ROUTE).sort).toBe('effect');
 	});
 
@@ -124,7 +124,7 @@ describe('FR-80: view state round-trips through the URL', () => {
 		expect(viewSearch({ ...state, sort: 'paper' }, MATRIX_KEYS)).toBe('?society=chl&sample=paper');
 	});
 
-	it('decision 8: fingerprints open on their largest differences, the audiences on the largest effect', () => {
+	it('decision 126: fingerprints open on their largest differences, the audiences on the largest effect', () => {
 		expect(defaultsFor(FINGERPRINT_ROUTE)).toBe(FINGERPRINT_DEFAULTS);
 		expect(defaultsFor(AUDIENCES_ROUTE)).toBe(AUDIENCES_DEFAULTS);
 		expect(defaultsFor(AUDIENCE_ROUTE)).toBe(DEFAULT_VIEW);

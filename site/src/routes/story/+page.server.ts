@@ -9,7 +9,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async () => {
 	const change = CHANGE_MODULE ? (await import('#lib/server/change.ts')).changeAll : null;
 	const numbers = storyNumbers(globalAll, cellsAll, contextsAll, change);
-	// Decision 3: the societies step 1 leaves out, by name for the prerendered summary.
+	// Decision 133: the societies step 1 leaves out, by name for the prerendered summary.
 	const without = numbers.spread.without.map((code) => societies.get(code)?.name ?? code);
 	return { numbers, without };
 };

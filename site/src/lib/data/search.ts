@@ -1,5 +1,5 @@
 /**
- * The control bar's search (decision 11): societies by name or code, and the 150 behaviors in
+ * The control bar's search (decision 122): societies by name or code, and the 150 behaviors in
  * situations by any of their words ("bus", "eat", "phone funeral"). The pairs come from
  * `grid.ts`; nothing here loads data.
  */

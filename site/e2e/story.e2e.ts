@@ -20,7 +20,7 @@ test.describe('FR-64: the guided story', () => {
 		await expect(page.locator('.story-step > .text > h2')).toHaveText(
 			TITLES.map((title, i) => `Step ${i + 1} of 6 ${title}`)
 		);
-		// §4.8: the paper's finding, quoted and credited; decision 3 (D-2): pictured with the
+		// §4.8: the paper's finding, quoted and credited; decision 133 (D-2): pictured with the
 		// atlas's own averages, the paper's model left to the method page.
 		const finding = step(page, 'finding');
 		await expect(finding).toContainText('"far more across situations than across societies"');

@@ -15,7 +15,7 @@
 
 	const all = $derived(data.samples.find((s) => s.sample === 'all')!);
 	const others = $derived(data.samples.filter((s) => s.sample !== 'all'));
-	// The paper's model (§4.8), shown on the story's first step until decision 3.
+	// The paper's model (§4.8), shown on the story's first step until decision 133.
 	const SD_ROWS = [
 		{ label: 'Between situated behaviors', sd: PAPER_SD.situations },
 		{ label: 'Between societies', sd: PAPER_SD.societies },
@@ -415,7 +415,7 @@
 	<!-- FR-64, §4.8; decisions 81 to 83. -->
 	<section id="story">
 		<h2>The guided story</h2>
-		<!-- Decision 3 (D-2): step 1's picture, how it differs from the paper's model, and the
+		<!-- Decision 133 (D-2): step 1's picture, how it differs from the paper's model, and the
 		     model's standard deviations, which the story showed before. -->
 		<p>
 			The guided story opens with one of the GSN paper's conclusions: norms vary "far more across

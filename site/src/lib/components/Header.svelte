@@ -9,7 +9,7 @@
 	import { changeHref, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import ThemeSwitch from './ThemeSwitch.svelte';
 
-	// FR-2: every module. Decision 11: named for what a reader looks up, the tour first. A build
+	// FR-2: every module. Decision 121: named for what a reader looks up, the tour first. A build
 	// without the change module leaves its link out (R-6, decision 75).
 	const MODULES: { label: string; path: ResolvedPathname; section: string }[] = [
 		{ label: 'Tour', path: resolve('story/'), section: '/story' },
@@ -34,7 +34,7 @@
 				? changeHref(view.state.society, view.state, false)
 				: withView(module.path, view.state, GLOBAL_KEYS);
 
-	// Direction A (decision 6): the palette's seven stops as a band under the header, as on the
+	// Direction A (decision 134): the palette's seven stops as a band under the header, as on the
 	// share cards, and a 3 × 3 tile of the matrix beside the wordmark. Both are decoration.
 	const band = (stops: readonly string[]) =>
 		`linear-gradient(to right, ${stops

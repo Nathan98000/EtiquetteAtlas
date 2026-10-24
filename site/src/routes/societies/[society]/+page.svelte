@@ -136,7 +136,7 @@
 				: data.chartSummary
 	);
 
-	// Decision 8: largest differences first by default. Until the society's values arrive, that
+	// Decision 126: largest differences first by default. Until the society's values arrive, that
 	// order is the one prerendered from all respondents, so nothing moves when they do (NFR-2).
 	const byDifference = $derived(vs.sort === 'difference' && !model);
 	const order = $derived(

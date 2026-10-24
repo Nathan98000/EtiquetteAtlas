@@ -1,5 +1,5 @@
 /**
- * Direction A (decision 6): chart titles that state what the chart shows, FT-style, with the unit
+ * Direction A (decision 118): chart titles that state what the chart shows, FT-style, with the unit
  * and what is drawn in a subtitle. Each is an observation about the answers (§6.5): it names
  * respondents' averages, never a society's character or a cause. Pages build them at build time
  * from All data and again in the browser for the active sample and scale, as the summaries are

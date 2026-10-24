@@ -91,7 +91,7 @@
 	</div>
 	{#if centered || scaled}
 		<!-- D-3: nothing else on the chart may show that the scale changed, so the chart says so,
-		     as a second line of its subtitle (recommendation 12). -->
+		     as a second line of its subtitle (decision 119). -->
 		<p class="scale-chip" class:pending={!centered} aria-hidden={centered ? undefined : 'true'}>
 			<strong>Relative to each society's own average.</strong>
 			{#if typeof explain === 'string'}{explain}{:else}{@render explain?.()}{/if}

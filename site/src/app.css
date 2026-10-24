@@ -16,7 +16,7 @@
 	--gutter: 1rem;
 	--radius: 0.375rem;
 
-	/* Direction A (decision 6): a warm paper and ink in place of greys. The chart palette's
+	/* Direction A (decision 134): a warm paper and ink in place of greys. The chart palette's
 	   copies of these (charts/colors.ts: SURFACES, MARK_INK) are checked for contrast there. */
 	--text: #22201c;
 	--text-muted: #5c564d;

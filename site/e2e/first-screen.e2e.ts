@@ -1,6 +1,6 @@
 import { expect, test, url } from './helpers';
 
-// D-23 (design review, open decision 7): on a phone, every module route shows the top of its
+// D-23 (design review), decision 138: on a phone, every module route shows the top of its
 // main chart on the first screen, and no lede runs past 45 words. The chart's box is its reserved
 // space, so it counts before the data arrive.
 

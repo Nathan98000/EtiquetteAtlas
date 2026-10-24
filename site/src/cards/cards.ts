@@ -1,8 +1,7 @@
 /**
- * What each share image shows (FR-82, §6.4; decisions 88 to 92, amended by decision 12 of the
- * design changes, D-38): the view's finding as the headline, taken from the same functions as the
- * page's lede, one short detail line, a simplified chart and, in the frame, the attribution
- * (NFR-40). Every number
+ * What each share image shows (FR-82, §6.4; decisions 88 to 92, amended by decision 136, D-38):
+ * the view's finding as the headline, taken from the same functions as the page's lede, one short
+ * detail line, a simplified chart and, in the frame, the attribution (NFR-40). Every number
  * comes from data/derived/ through the decoders and the pages' own summary functions, from All data
  * on the raw scale, as the prerendered pages use. Wording follows §6.5: "respondents in Chile",
  * observations only (FR-73), and differences between two surveys, never change (FR-52).
@@ -144,7 +143,7 @@ function societyCard(code: string): CardData | null {
 	const like = closest
 		? `answers most like those of ${respondentsIn(closest.other, societies.get(closest.other)!.name)}`
 		: null;
-	// Decision 12: one short detail line.
+	// Decision 136: one short detail line.
 	const detail =
 		counts.shown === 0
 			? `${facts.respondents} respondents, too few for any one pair`
@@ -184,7 +183,7 @@ function societiesCard(): CardData {
 	const height = projection([0, SOUTH])![1];
 	const topology = land as unknown as Topology;
 	const outline = geoPath(projection).digits(1)(feature(topology, topology.objects.land)) ?? '';
-	// Decision 12: the societies whose respondents were clearly looser, and clearly stricter, than
+	// Decision 136: the societies whose respondents were clearly looser, and clearly stricter, than
 	// the global average on the most pairs.
 	const counts = societies.list.map((s) => ({
 		society: s,
@@ -282,7 +281,7 @@ function changeCard(change: ChangeCells): CardData {
 }
 
 function storyCard(): CardData {
-	// Decision 3, recommendation 15: step 1's picture, the pairs' and the societies' averages.
+	// Decisions 133 and 136: step 1's picture, the pairs' and the societies' averages.
 	const spread = storySpread(globalAll, cellsAll);
 	const dot = (key: string, value: number) => ({ key, value, fill: fill(value, 'light') });
 	return {

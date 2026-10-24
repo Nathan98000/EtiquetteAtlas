@@ -151,7 +151,7 @@
 		{#snippet chart()}
 			<ol class="multiples">
 				<!-- Keyed by place, not behavior: when the order changes, each panel keeps its box and
-				     takes another behavior's contents, so nothing shifts (decision 8, NFR-2). -->
+				     takes another behavior's contents, so nothing shifts (decision 126, NFR-2). -->
 				{#each order as i, n (n)}
 					{@const row = rows?.[i]}
 					<li>

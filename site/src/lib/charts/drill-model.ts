@@ -125,7 +125,7 @@ export function standing(d: Drill, code: string | null): Standing {
 }
 
 /**
- * How a society compares with the global average, in words (§6.5, decision 2): "clearly" when the
+ * How a society compares with the global average, in words (§6.5, decision 112): "clearly" when the
  * interval of its difference excludes 0 (FR-31), "too close to call" when it does not.
  */
 export function versusGlobal(notable: Notable | null): string {

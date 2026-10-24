@@ -39,7 +39,7 @@ test.describe('the matrix from 640 px', () => {
 		await page.getByLabel('Sort').selectOption('mean');
 		await expect(page).toHaveURL(/sort=mean$/);
 		await expect(firstRow).not.toHaveText('Argue');
-		// Decision 9: a sort replaces the history entry, so Back leaves the page at once.
+		// Decision 127: a sort replaces the history entry, so Back leaves the page at once.
 		await page.goBack();
 		await expect(page).toHaveURL(/\/method\/$/);
 		await page.goForward();

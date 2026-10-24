@@ -66,7 +66,7 @@
 		global.current && cells.current && societies.current
 			? drill(cells.current, societies.current, global.current, cell, 'shrunk', 'raw')
 			: undefined;
-	// Decision 3: step 1's two rows, drawn from the same files as steps 2 and 3.
+	// Decision 133: step 1's two rows, drawn from the same files as steps 2 and 3.
 	const spreadData = $derived(
 		global.current && cells.current ? storySpread(global.current, cells.current) : undefined
 	);
@@ -206,7 +206,7 @@
 		onnear={markNear}
 	>
 		{#snippet text()}
-			<!-- Decision 3 (D-2): the finding in the atlas's own averages; the paper's model and its
+			<!-- Decision 133 (D-2): the finding in the atlas's own averages; the paper's model and its
 			     standard deviations are on the method page. -->
 			<p>
 				The paper behind this atlas concludes that everyday norms vary "far more across situations

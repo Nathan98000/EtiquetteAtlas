@@ -41,7 +41,7 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 		"Relative to each society's own average. Each society's answers are shifted"
 	);
 
-	// FR-84, decision 9: the society was a step Back returns to; the sample and the scale replaced
+	// FR-84, decision 127: the society was a step Back returns to; the sample and the scale replaced
 	// the entry instead of adding to it.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/explore\/usemphone\/funeral\/$/);
@@ -81,7 +81,7 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 	await chip.getByRole('button', { name: 'Show as answered' }).click();
 	await expect(page).toHaveURL(/\?society=jpn$/);
 	await expect(chip).toBeHidden();
-	// Decision 9: the scale replaced the entry, so Back undoes the society.
+	// Decision 127: the scale replaced the entry, so Back undoes the society.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/explore\/$/);
 	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
@@ -129,7 +129,7 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 	await expect(lede).toHaveText(/^Relative to each society's average, respondents in Japan/);
 	expect(await fills()).not.toBe(rawFills);
 
-	// FR-84, decision 9: Back returns to the other society; the sample and scale replaced their
+	// FR-84, decision 127: Back returns to the other society; the sample and scale replaced their
 	// entry rather than adding to it.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/societies\/chl\/$/);
@@ -348,7 +348,7 @@ for (const [path, sample, prefixes] of SAMPLE_ROUTES) {
 	});
 }
 
-test('decision 11: the society box also finds behaviors in situations and opens one, keeping the society', async ({
+test('decision 122: the society box also finds behaviors in situations and opens one, keeping the society', async ({
 	page
 }) => {
 	await page.goto(url('explore/?society=jpn&sample=paper'));

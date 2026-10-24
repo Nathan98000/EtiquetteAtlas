@@ -47,7 +47,7 @@ test('FR-22: shrunken by default, raw on request, small samples flagged', async 
 	await expect(page.locator('.beeswarm .dot.small').first()).toBeVisible();
 	await page.getByRole('radio', { name: 'Unadjusted', exact: true }).check();
 	await expect(page).toHaveURL(/estimate=raw$/);
-	// Decision 5: the subtitle stays; the toggle and the table say which estimate.
+	// Decision 111: the subtitle stays; the toggle and the table say which estimate.
 	await expect(page.locator('#swarm .subtitle')).toHaveText(
 		"Each dot: one society's average answer"
 	);

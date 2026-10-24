@@ -181,7 +181,7 @@ function countsClause(
 	scale: Scale,
 	define = false
 ): string {
-	// "Pair" is defined where the page first uses it, the lede (decision 5).
+	// "Pair" is defined where the page first uses it, the lede (decision 111).
 	const kind = define ? 'pairs of a behavior and a situation' : 'pairs';
 	const pairs =
 		counts.shown === CELL_COUNT
@@ -195,7 +195,7 @@ function countsClause(
 }
 
 /**
- * D-38, decision 12: a society's share-card headline, the larger of its two counts: "Respondents
+ * D-38, decision 136: a society's share-card headline, the larger of its two counts: "Respondents
  * in Finland were clearly looser than the global average on 115 of the 150 pairs".
  */
 export function fingerprintHeadline(who: string, counts: FingerprintCounts): string {

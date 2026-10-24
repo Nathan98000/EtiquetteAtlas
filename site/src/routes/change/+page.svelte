@@ -235,7 +235,7 @@
 		padding: 1.25rem var(--gutter) 0;
 	}
 
-	/* Decision 7: "Then and now" first, the rest of the title a step smaller. */
+	/* Decision 114: "Then and now" first, the rest of the title a step smaller. */
 	h1 .sub {
 		display: block;
 		font-size: var(--text-lg);

@@ -38,7 +38,7 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	{ path: 'explore/?society=chl', ready: matrixReady },
 	{ path: 'explore/usemphone/funeral/?society=chl', ready: swarmReady },
 	{
-		// Decision 11: the search open with both groups.
+		// Decision 122: the search open with both groups.
 		path: 'explore/?sample=paper',
 		ready: async (page) => {
 			await matrixReady(page);

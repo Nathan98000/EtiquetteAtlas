@@ -222,7 +222,7 @@ const PAIRS = 'pairs of a behavior and a situation';
  * than about any other pair of a behavior and a situation", "about as much as about a typical
  * pair of a behavior and a situation (70th of 150)". The top and bottom ten are named as such and
  * the rest by thirds, counted from the most disagreement; τ itself stays in the details. It also
- * defines "pair" where a page first uses it (decision 5).
+ * defines "pair" where a page first uses it (decision 111).
  */
 export function disagreementWords(
 	r: { top: number; bottom: number; of: number },
@@ -257,7 +257,7 @@ export function cellSummary(global: GlobalCells, cell: number, scale: Scale): st
 	return `${cellHeadline(global, cell, scale)}. ${cellDetail(global, cell, scale)}`;
 }
 
-/** The lede's first sentence, without its full stop; `brief` for the share card (decision 12). */
+/** The lede's first sentence, without its full stop; `brief` for the share card (decision 136). */
 export function cellHeadline(
 	global: GlobalCells,
 	cell: number,

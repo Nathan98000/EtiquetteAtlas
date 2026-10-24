@@ -268,7 +268,7 @@ test('NFR-13, AT-6: by keyboard alone, answer the three questions and go on to t
 	await expect(page).toHaveURL(/\/story\/$/);
 });
 
-test('decision 11: under the quiz, five ways into the atlas, one a search for a pair', async ({
+test('decision 123: under the quiz, five ways into the atlas, one a search for a pair', async ({
 	page
 }) => {
 	await page.goto(url('?society=jpn'));

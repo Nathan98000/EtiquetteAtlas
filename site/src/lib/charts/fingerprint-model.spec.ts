@@ -144,7 +144,7 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 		);
 	});
 
-	it('D-38, decision 12: heads a society’s share card with its larger count', () => {
+	it('D-38, decision 136: heads a society’s share card with its larger count', () => {
 		expect(fingerprintHeadline('respondents in Alpha', fingerprintCounts(aaa))).toBe(
 			'Respondents in Alpha were clearly stricter than the global average on 150 of the 150 pairs'
 		);

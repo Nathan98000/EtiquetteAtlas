@@ -10,7 +10,7 @@ const SOCIETIES = [
 	{ code: 'NZL', name: 'New Zealand' }
 ];
 
-describe('decision 11: one search for societies and behaviors in situations', () => {
+describe('decision 122: one search for societies and behaviors in situations', () => {
 	it('folds accents and case', () => {
 		expect(fold("Côte d'Ivoire")).toBe("cote d'ivoire");
 	});

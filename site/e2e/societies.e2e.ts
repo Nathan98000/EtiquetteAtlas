@@ -123,7 +123,7 @@ test.describe('the fingerprint from 640 px', () => {
 		await expect(page).toHaveURL(/\/explore\/laugh\/sidewalk\/\?society=chl&sample=paper$/);
 	});
 
-	test("decision 45, decision 8: largest differences first by default, or the matrix's orders", async ({
+	test("decisions 45 and 126: largest differences first by default, or the matrix's orders", async ({
 		page
 	}) => {
 		await page.goto(chile);

@@ -110,7 +110,7 @@
 			: data.stripTitle
 	});
 	const { previous, next } = $derived(neighbours(cell));
-	// Decision 5 (D-8): the estimate and scale in plain words, for captions and labels; the title
+	// Decision 111 (D-8): the estimate and scale in plain words, for captions and labels; the title
 	// stays "Every society's average answer" and the toggle says which.
 	const which = $derived(
 		`${estimateWords(vs.estimate)}${vs.scale === 'centered' ? `, ${RELATIVE}` : ''}`

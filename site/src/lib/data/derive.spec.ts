@@ -122,7 +122,7 @@ describe('NFR-11, FR-87, D-5 to D-7: one-sentence summaries, findings first in w
 		);
 	});
 
-	it('D-38, decision 12: gives the share card the lede’s two sentences, the first in brief', () => {
+	it('D-38, decision 136: gives the share card the lede’s two sentences, the first in brief', () => {
 		expect(cellHeadline(global, 0, 'raw', true)).toBe(
 			'Societies disagree about arguing at a funeral ceremony less than about any other pair'
 		);

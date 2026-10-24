@@ -129,7 +129,7 @@ test.describe('FR-41: small multiples of all 15 behaviors', () => {
 		await expect(page.locator('.lede')).toHaveText(
 			/^On average across the 90 societies, respondents judged every one of the 15 behaviors less appropriate in front of management or professors than when alone/
 		);
-		// Decision 8: the largest audience effect first unless the URL says otherwise.
+		// Decision 126: the largest audience effect first unless the URL says otherwise.
 		await expect(page.getByLabel('Sort')).toHaveValue('effect');
 		await expect(panels.first()).toContainText('Music on headphones');
 		await expect(panels.first()).toContainText('3.0 lower with management');
@@ -266,7 +266,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention&scale=centered$/);
 	await expect(page.getByText(/applies to the situations only/)).toBeVisible();
 
-	// Decision 9: the sample and the scale replace the entry; only the society is a step back.
+	// Decision 127: the sample and the scale replace the entry; only the society is a step back.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/audiences\/listen\/$/);
 	await expect(box).toHaveValue('');

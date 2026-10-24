@@ -43,7 +43,7 @@ export const load: PageServerLoad = ({ params }) => {
 		region: society.region,
 		peers,
 		empty: counts.shown === 0,
-		// Decision 8: the default order, largest differences first, so the prerendered grid and the
+		// Decision 126: the default order, largest differences first, so the prerendered grid and the
 		// phone list's first rows are already in it and nothing moves when the data arrive (NFR-2).
 		order: {
 			...fingerprintOrder(globalAll, 'raw', 'difference', model),

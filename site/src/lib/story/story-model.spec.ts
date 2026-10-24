@@ -46,7 +46,7 @@ describe('FR-64: the story’s steps and their numbers', () => {
 		expect(Object.keys(STEP_TITLE)).toHaveLength(6);
 	});
 
-	it('decision 3: the 150 pairs’ averages and each society’s average over its pairs', () => {
+	it('decision 133: the 150 pairs’ averages and each society’s average over its pairs', () => {
 		const s = storySpread(global, cells);
 		expect(s.pairs).toHaveLength(150);
 		expect(s.pairs[0]).toEqual({ cell: 0, value: global.mean(0, 'raw') });
@@ -86,7 +86,7 @@ describe('§4.6: the story from the committed All data files', () => {
 		expect(n.audience.effect).toBe(2.97);
 		expect(CELLS[n.change!.cell]).toMatchObject({ behavior: 'listen', situation: 'library' });
 		expect(n.change).toMatchObject({ older: 0.03, newer: 1.36, diff: 1.33, societies: 26 });
-		// Decision 3: the pairs spread over most of the scale, the societies' averages much less;
+		// Decision 133: the pairs spread over most of the scale, the societies' averages much less;
 		// Mongolia and Namibia have no pair with 10 or more respondents.
 		expect(n.spread).toEqual({
 			pairs: [-1.99, 2.06],

@@ -81,10 +81,10 @@ export function place(code: string, name: string): string {
 	return WITH_THE.has(code) ? `the ${name}` : name;
 }
 
-/** The centered scale in words, for labels and captions (decision 5, FR-5). */
+/** The centered scale in words, for labels and captions (decision 111, FR-5). */
 export const RELATIVE = "relative to each society's average";
 
-/** Which estimate a chart shows, in words (decision 5, FR-22). */
+/** Which estimate a chart shows, in words (decision 111, FR-22). */
 export function estimateWords(kind: 'shrunk' | 'raw'): string {
 	return kind === 'shrunk' ? 'adjusted for small samples' : 'unadjusted';
 }

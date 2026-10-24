@@ -45,7 +45,7 @@
 		</div>
 		<div class="chart">{@render children()}</div>
 	</div>
-	<!-- D-38, decision 12: NFR-40's credit in two lines, every element kept: the authors, year
+	<!-- D-38, decision 136: NFR-40's credit in two lines, every element kept: the authors, year
 	     and title, then the data's link, the licence with its link and the note. The change
 	     module's card adds NFR-41's credit on a third. -->
 	<footer data-attribution>

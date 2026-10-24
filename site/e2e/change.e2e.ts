@@ -308,7 +308,7 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention&scale=centered$/);
 	await expect(page.locator('.scale-note')).toContainText('has no scores relative to each society');
 
-	// Decision 9: the sample and the scale replace the entry; only the society is a step back.
+	// Decision 127: the sample and the scale replace the entry; only the society is a step back.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/change\/$/);
 	await expect(box).toHaveValue('');

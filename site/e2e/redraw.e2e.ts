@@ -35,7 +35,7 @@ async function redraw(page: Page, chart: string, click: string): Promise<number>
 }
 
 async function warm(page: Page) {
-	// Decision 10: the sample waits under Options.
+	// Decision 120: the sample waits under Options.
 	if (!(await page.locator('input[name="sample"]').first().isVisible())) {
 		await page.getByRole('button', { name: 'Options' }).click();
 	}

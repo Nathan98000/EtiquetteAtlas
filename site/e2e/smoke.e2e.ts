@@ -127,7 +127,7 @@ test('C-11, NFR-30: the site sets no cookies', async ({ page, context }) => {
 	expect(await context.cookies()).toEqual([]);
 });
 
-test('FR-2, decision 11, D-24: the header links every module in order; a phone names the current one', async ({
+test('FR-2, decision 121, D-24: the header links every module in order; a phone names the current one', async ({
 	page
 }) => {
 	await page.goto(`${basePath}/explore/eat/bus/`);

@@ -16,7 +16,7 @@
 		exclude?: string | null;
 		/** The only societies offered, such as the 26 in both surveys (D-19). */
 		only?: readonly string[] | null;
-		/** Decision 11: typing also finds behaviors in situations, and choosing one calls this. */
+		/** Decision 122: typing also finds behaviors in situations, and choosing one calls this. */
 		onpair?: ((cell: Cell) => void) | null;
 		/** Finds behaviors in situations only, as the home page's "Look up a situation" does. */
 		pairsOnly?: boolean;
@@ -66,7 +66,7 @@
 	}
 
 	// FR-3: type-ahead by name (or code); names that start with the text come first. With pairs,
-	// typing shows up to 6 societies and 8 pairs, each in its own group (decision 11).
+	// typing shows up to 6 societies and 8 pairs, each in its own group (decision 122).
 	const groups: Group[] = $derived.by(() => {
 		const typed = editing ? query : '';
 		const found = matchSocieties(sorted, typed);
@@ -316,7 +316,7 @@
 		padding-right: 2.75rem;
 	}
 
-	/* The search's prompt fits a phone's bar (decision 11). */
+	/* The search's prompt fits a phone's bar (decision 122). */
 	@media (max-width: 479.98px) {
 		input::placeholder {
 			font-size: var(--text-sm);

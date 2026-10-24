@@ -15,14 +15,14 @@ export const comparison = {
 };
 
 /**
- * Decision 7 (D-32): the module's name, "Then and now", since a difference between two surveys is
+ * Decision 114 (D-32): the module's name, "Then and now", since a difference between two surveys is
  * not change in anyone (FR-52). The paths stay /change/.
  */
 export const CHANGE_NAME = 'Then and now';
 
 export const STORY_CHANGE_TITLE = 'Two surveys, 20 years apart';
 
-/** The home page's entry card (decision 11). */
+/** The home page's entry card (decision 123). */
 export const CHANGE_HUB = 'The same questions in 26 societies, in 2000–2003 and in 2023–2024.';
 
 /** FR-83: what the change card shows (decision 89). */

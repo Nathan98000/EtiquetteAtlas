@@ -3,7 +3,7 @@
 	import { score } from '#lib/data/format.ts';
 	import type { SpreadDot } from '../model';
 
-	// Decision 3, recommendation 15: the story's first picture for its share card, the 150 pairs'
+	// Decisions 133 and 136: the story's first picture for its share card, the 150 pairs'
 	// averages and the societies' averages over all the pairs, as two rows on one scale.
 	interface Props {
 		pairs: SpreadDot[];

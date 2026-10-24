@@ -81,7 +81,7 @@
 	const ticks = [-2, -1, 0, 1, 2];
 </script>
 
-<!-- Decision 3 (D-2): the paper's finding in the atlas's own averages, two rows on one scale. -->
+<!-- Decision 133 (D-2): the paper's finding in the atlas's own averages, two rows on one scale. -->
 <div class="spread" bind:clientWidth={width}>
 	{#if width > 0}
 		<svg

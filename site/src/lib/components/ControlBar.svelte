@@ -16,7 +16,7 @@
 	const sample = $derived(view.state.sample);
 	const sampleOptions = SAMPLES.map((value) => ({ value, label: SAMPLE_LABEL[value] }));
 	const scaleOptions: { value: Scale; label: string }[] = [
-		// Decision 5 (D-8): the scales in plain words; the URL keeps `scale=centered`.
+		// Decision 111 (D-8): the scales in plain words; the URL keeps `scale=centered`.
 		{ value: 'raw', label: 'As answered' },
 		{ value: 'centered', label: RELATIVE[0].toUpperCase() + RELATIVE.slice(1) }
 	];
@@ -28,9 +28,9 @@
 </script>
 
 <!-- FR-3 to FR-5, FR-81: the global controls. Every change updates the URL, and every view
-     reads the URL, so all of them change together (§6.3, AT-11). D-33, decision 10: from 1024 px
+     reads the URL, so all of them change together (§6.3, AT-11). D-33, decision 120: from 1024 px
      one row, the society, the scale, Options and Copy link; the sample is under Options at every
-     width, and below 1024 px so are the scale and Copy link. Decision 11: the society box also
+     width, and below 1024 px so are the scale and Copy link. Decision 122: the society box also
      finds behaviors in situations and opens the pair, keeping the society. -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <section class="control-bar" aria-label="View controls" onkeydown={keydown}>
