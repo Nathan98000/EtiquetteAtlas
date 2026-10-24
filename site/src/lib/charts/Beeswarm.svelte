@@ -287,7 +287,7 @@
 				style="--x: {tip.x}px; --y: {tip.y + offset}px"
 				role="presentation"
 			>
-				<SocietyTip point={tip.item} />
+				<SocietyTip point={tip.item} kind={drill.kind} />
 			</div>
 		{/if}
 	{/if}

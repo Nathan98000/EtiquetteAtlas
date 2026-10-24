@@ -20,8 +20,8 @@ test('AT-2: a cell URL with society and sample opens in a fresh browser with tha
 	const chile = page.locator('.beeswarm').getByRole('button', { name: /^Respondents in Chile:/ });
 	await expect(chile).toHaveAttribute('aria-pressed', 'true');
 	const panel = page.getByRole('complementary');
-	await expect(panel.getByRole('heading', { name: 'Respondents in Chile' })).toBeVisible();
-	await expect(panel).toContainText(/most accepting of \d+/);
+	await expect(page.locator('.society-box')).toContainText(/^Respondents in Chile: /);
+	await expect(page.locator('.society-box')).toContainText(/(most accepting|strictest) of \d+/);
 
 	// FR-27: suppressed societies read "too few responses" and are not plotted.
 	await expect(panel.getByRole('heading', { name: 'Too few responses' })).toBeVisible();
@@ -98,9 +98,7 @@ test('FR-25, NFR-13: by keyboard, a society is reached, selected and ranked', as
 	const code = await page.locator(':focus').getAttribute('data-code');
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(new RegExp(`society=${code!.toLowerCase()}`));
-	await expect(page.getByRole('complementary')).toContainText(
-		/1st most accepting of \d+|tied 1st/i
-	);
+	await expect(page.locator('.society-box')).toContainText(/1st most accepting of \d+|tied 1st/i);
 });
 
 test('FR-26: the strip shows the behavior in every situation; previous and next move between cells', async ({
@@ -123,4 +121,41 @@ test('FR-26: the strip shows the behavior in every situation; previous and next 
 		.first()
 		.click();
 	await expect(page).toHaveURL(/\/explore\/usemphone\/funeral\//);
+});
+
+test("D-1, D-27, FR-25: the society's result comes first, ranked from the nearer end", async ({
+	page
+}) => {
+	await page.goto(url('explore/eat/bus/'));
+	await swarmReady(page);
+	const box = page.locator('.society-box');
+	await expect(box).toContainText('Pick a society to see where it stands.');
+	const empty = (await box.boundingBox())!.height;
+
+	await page.goto(url('explore/eat/bus/?society=jpn'));
+	await swarmReady(page);
+	// Directly under the title, before the global lede.
+	const order = await page.evaluate(() =>
+		['h1', '.society-box', '.lede'].map(
+			(s) => document.querySelector(s)!.getBoundingClientRect().top
+		)
+	);
+	expect(order).toEqual([...order].sort((a, b) => a - b));
+	await expect(box).toContainText(
+		/^Respondents in Japan: somewhat inappropriate \(−0\.\d\), clearly stricter than the global average; \d+(st|nd|rd|th) strictest of 88\./
+	);
+	// NFR-2: its height is reserved, so the society's arrival moves nothing.
+	expect((await box.boundingBox())!.height).toBe(empty);
+});
+
+test('D-15, D-34: a small sample says what it does to the estimate; point-like intervals are not shown', async ({
+	page
+}) => {
+	await page.goto(url('explore/kiss/party/'));
+	await swarmReady(page);
+	await page.locator('.beeswarm .dot.small').first().hover();
+	await expect(page.locator('.beeswarm .tooltip')).toContainText(
+		/^.*Only \d+ respondents: this estimate is pulled toward the global average, and the true average could be anywhere from −?\d\.\d to [−+]?\d\.\d\./
+	);
+	await expect(page.locator('.beeswarm .tooltip')).not.toContainText('95% interval');
 });

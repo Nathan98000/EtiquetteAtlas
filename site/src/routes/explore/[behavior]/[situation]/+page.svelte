@@ -5,17 +5,18 @@
 	import Beeswarm from '#lib/charts/Beeswarm.svelte';
 	import BehaviorStrip from '#lib/charts/BehaviorStrip.svelte';
 	import ChartFrame, { CENTERING } from '#lib/charts/ChartFrame.svelte';
-	import { drill, regionSummary, standing } from '#lib/charts/drill-model.ts';
+	import { drill, regionSummary, societyBox, standing } from '#lib/charts/drill-model.ts';
 	import { matrixCells, societyPhrase, type SelectedSociety } from '#lib/charts/matrix-model.ts';
 	import RegionLegend from '#lib/charts/RegionLegend.svelte';
 	import SocietyTable from '#lib/charts/SocietyTable.svelte';
+	import CellSociety from '#lib/components/CellSociety.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Segmented from '#lib/components/Segmented.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import StepLinks from '#lib/components/StepLinks.svelte';
 	import Toggle from '#lib/components/Toggle.svelte';
 	import { cellSummary, neighbours, societiesSummary, stripSummary } from '#lib/data/derive.ts';
-	import { count, interval, place, responseLabel, score, spread } from '#lib/data/format.ts';
+	import { interval, narrow, place, score, spread } from '#lib/data/format.ts';
 	import {
 		BEHAVIOR_TEXT,
 		CELLS,
@@ -26,7 +27,7 @@
 		slug
 	} from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSocieties } from '#lib/data/load.ts';
-	import { SAMPLE_LABEL, Status, inChangeSurvey, type EstimateKind } from '#lib/data/model.ts';
+	import { inChangeSurvey, type EstimateKind } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { CELL_KEYS, GLOBAL_KEYS } from '#lib/state/url.ts';
 	import { changeHref, setView, view, withView } from '#lib/state/view.svelte.ts';
@@ -55,6 +56,7 @@
 	);
 	const where = $derived(d ? standing(d, vs.society) : { kind: 'unknown' as const });
 	const selectedSociety = $derived(societies.current?.get(vs.society));
+	const box = $derived(societyBox(where, selectedSociety, d, vs.sample));
 	const society: SelectedSociety | undefined = $derived(
 		selectedSociety && files && societies.current
 			? {
@@ -129,6 +131,7 @@
 		<a href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>All 150 pairs</a>
 	</nav>
 	<h1>{data.title}</h1>
+	<CellSociety text={box} />
 	<p class="lede">{summary}</p>
 	<noscript>
 		<p>The charts for this pair need JavaScript.</p>
@@ -308,53 +311,18 @@
 			</ChartFrame>
 		</div>
 
-		<aside class="panel" aria-labelledby="society-title">
-			<h2 id="society-title">
-				{selectedSociety
-					? `Respondents in ${place(selectedSociety.code, selectedSociety.name)}`
-					: 'Pick a society'}
-			</h2>
-			<div class="society" aria-live="polite">
-				{#if !selectedSociety}
-					<p>Choose one in the Society box above, or select a dot, to see where it stands.</p>
-				{:else if where.kind === 'plotted'}
-					<!-- FR-25: the selected society's rank among the societies shown. -->
-					<p class="rank">{where.text[0].toUpperCase() + where.text.slice(1)}</p>
-					<p>
-						<span class="num big">{score(where.point.estimate!.value)}</span>
-						{responseLabel(where.point.estimate!.value)}
-					</p>
-					<p class="muted">
-						95% interval {interval(where.point.estimate!.lo, where.point.estimate!.hi)};
-						{where.point.notable === 1
-							? 'looser than'
-							: where.point.notable === -1
-								? 'stricter than'
-								: 'close to'} the global mean
-					</p>
-					<p class="muted">
-						{count(where.point.n ?? 0)} respondents{where.point.status === Status.Small
-							? ' (small sample)'
-							: ''}; {estimateLabel} estimate{scaleLabel}
-					</p>
-				{:else if where.kind === 'too-few'}
-					<p><strong>Too few responses</strong>: fewer than 10 respondents rated this pair.</p>
-				{:else if where.kind === 'not-asked'}
-					<p><strong>Not asked</strong>: this survey left the question out.</p>
-				{:else if where.kind === 'not-in-sample'}
-					<p><strong>Not in this sample</strong> ({SAMPLE_LABEL[vs.sample]}).</p>
-				{:else}
-					<p class="muted">Loading…</p>
-				{/if}
-			</div>
-
+		<aside class="panel" aria-labelledby="all-title">
+			<h2 id="all-title">All societies</h2>
 			{#if d}
-				<h2>All societies</h2>
 				<dl>
 					<div>
 						<dt>Global mean</dt>
 						<dd>
-							{score(d.mean)} <span class="muted">({interval(d.meanLo, d.meanHi)})</span>
+							{score(d.mean)}
+							<!-- D-34: an interval that rounds to a point is left out. -->
+							{#if !narrow(d.meanLo, d.meanHi)}
+								<span class="muted">({interval(d.meanLo, d.meanHi)})</span>
+							{/if}
 						</dd>
 					</div>
 					<div>
@@ -384,6 +352,8 @@
 						<p class="list">{d.notInSample.map((s) => s.name).join(', ')}</p>
 					</details>
 				{/if}
+			{:else}
+				<p class="muted">Loading…</p>
 			{/if}
 		</aside>
 	</div>
@@ -482,29 +452,10 @@
 		margin: 0 0 0.5rem;
 	}
 
-	.panel h2 + .society + h2,
-	.panel .society + h2 {
-		margin-top: 1.5rem;
-	}
-
 	.panel h3 {
 		font-size: var(--text-sm);
 		margin: 1rem 0 0.25rem;
 		color: var(--text-muted);
-	}
-
-	.society p {
-		margin: 0 0 0.375rem;
-	}
-
-	.rank {
-		font-weight: 700;
-		font-size: var(--text-lg);
-	}
-
-	.big {
-		font-size: var(--text-xl);
-		font-weight: 700;
 	}
 
 	.muted {

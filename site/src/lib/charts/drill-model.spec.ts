@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { GlobalCells, Societies, SocietyCells } from '../data/model';
 import { cellsDoc, globalDoc, societiesDoc } from '../data/test-fixtures';
-import { countByRegion, drill, regionSummary, standing } from './drill-model';
+import {
+	countByRegion,
+	drill,
+	regionSummary,
+	smallSampleText,
+	societyBox,
+	standing,
+	versusGlobal
+} from './drill-model';
 
 const global = new GlobalCells(globalDoc(), 'all');
 const cells = new SocietyCells(cellsDoc(), 'all');
@@ -75,5 +83,50 @@ describe('FR-25: the selected society', () => {
 				'the West −2.2 (1), with the number of societies in brackets.'
 		);
 		expect(regionSummary([])).toMatch(/^No society/);
+	});
+});
+
+describe('D-1, D-15, FR-25: the society box and small samples in words', () => {
+	const d = drill(cells, societies, global, 10, 'shrunk', 'raw');
+	const aaa = societies.get('AAA')!;
+
+	it('invites a pick without a society, and names it while the files load', () => {
+		expect(societyBox({ kind: 'unknown' }, undefined, d, 'all').lead).toBe(
+			'Pick a society to see where it stands.'
+		);
+		expect(societyBox({ kind: 'unknown' }, aaa, undefined, 'all').note).toBe('Loading…');
+	});
+
+	it('leads with the response label, how sure and the rank from the nearer end', () => {
+		const box = societyBox(standing(d, 'AAA'), aaa, d, 'all');
+		expect(box.lead).toBe(
+			'Respondents in Alpha: extremely inappropriate (−2.2), clearly stricter than the global ' +
+				'average; 1st strictest of 3.'
+		);
+		expect(box.note).toMatch(/^95% interval .+ respondents.* · shrunken estimate$/);
+	});
+
+	it('gives a centered score without a response label, which would not apply', () => {
+		const centered = drill(cells, societies, global, 10, 'shrunk', 'centered');
+		expect(societyBox(standing(centered, 'AAA'), aaa, centered, 'all').lead).toMatch(
+			/−\d\.\d \(relative to each society's average\)/
+		);
+	});
+
+	it('says "clearly" only when the interval decides (§6.5, decision 2)', () => {
+		expect(versusGlobal(-1)).toBe('clearly stricter than the global average');
+		expect(versusGlobal(1)).toBe('clearly looser than the global average');
+		expect(versusGlobal(0)).toBe('too close to call against the global average');
+	});
+
+	it('says what few respondents do to an estimate, adjusted or not', () => {
+		const point = { ...d.plotted[0], n: 18, estimate: { value: -1.2, lo: -1.6, hi: -0.8 } };
+		expect(smallSampleText(point, 'shrunk')).toBe(
+			'Only 18 respondents: this estimate is pulled toward the global average, and the true ' +
+				'average could be anywhere from −1.6 to −0.8.'
+		);
+		expect(smallSampleText(point, 'raw')).toBe(
+			'Only 18 respondents: the true average could be anywhere from −1.6 to −0.8.'
+		);
 	});
 });

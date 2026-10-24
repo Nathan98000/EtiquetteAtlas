@@ -5,15 +5,17 @@
  */
 
 import { rank, rankText, type Rank } from '../data/derive';
-import { score } from '../data/format';
+import { count, interval, place, responseLabel, score } from '../data/format';
 import {
 	REGIONS,
+	SAMPLE_LABEL,
 	Status,
 	type Estimate,
 	type EstimateKind,
 	type GlobalCells,
 	type Notable,
 	type Region,
+	type SampleId,
 	type Scale,
 	type Societies,
 	type Society,
@@ -43,6 +45,9 @@ export interface Drill {
 	tauHi: number;
 	/** FR-23: the band where societies typically fall, mean ± τ (decision 38). */
 	band: [number, number];
+	/** The estimate and scale the values are on (FR-5, FR-22). */
+	kind: EstimateKind;
+	scale: Scale;
 }
 
 export function drill(
@@ -74,7 +79,9 @@ export function drill(
 		tau,
 		tauLo,
 		tauHi,
-		band: [mean - tau, mean + tau]
+		band: [mean - tau, mean + tau],
+		kind,
+		scale
 	};
 }
 
@@ -107,6 +114,89 @@ export function standing(d: Drill, code: string | null): Standing {
 	const outside = d.notInSample.find((s) => s.code === code);
 	if (outside) return { kind: 'not-in-sample', society: outside };
 	return { kind: 'unknown' };
+}
+
+/**
+ * How a society compares with the global average, in words (§6.5, decision 2): "clearly" when the
+ * interval of its difference excludes 0 (FR-31), "too close to call" when it does not.
+ */
+export function versusGlobal(notable: Notable | null): string {
+	return notable === 1
+		? 'clearly looser than the global average'
+		: notable === -1
+			? 'clearly stricter than the global average'
+			: 'too close to call against the global average';
+}
+
+/**
+ * D-15: a small sample (10 to 29 respondents) in words, in the tip of its hollow dot: "Only 18
+ * respondents: this estimate is pulled toward the global average, and the true average could be
+ * anywhere from −1.6 to −0.8." The raw estimate is not pulled, so it says only the range.
+ */
+export function smallSampleText(point: SocietyPoint, kind: EstimateKind): string {
+	const e = point.estimate!;
+	const only = `Only ${count(point.n ?? 0)} respondents`;
+	const range = `the true average could be anywhere from ${score(e.lo)} to ${score(e.hi)}`;
+	return kind === 'shrunk'
+		? `${only}: this estimate is pulled toward the global average, and ${range}.`
+		: `${only}: ${range}.`;
+}
+
+/** The society box's two lines: what it says first, and the detail under it. */
+export interface BoxText {
+	lead: string;
+	note: string;
+}
+
+/**
+ * D-1, FR-25: the selected society's result for the pair, said first under the page's title:
+ * "Respondents in Japan: somewhat inappropriate (−0.6), clearly stricter than the global average;
+ * 10th strictest of 88." Without a society, an invitation to pick one; while the files load, the
+ * society's name alone.
+ */
+export function societyBox(
+	where: Standing,
+	society: Society | undefined,
+	d: Drill | undefined,
+	sample: SampleId
+): BoxText {
+	if (!society) {
+		return {
+			lead: 'Pick a society to see where it stands.',
+			note: 'Choose one in the Society box above, or select a dot in the chart.'
+		};
+	}
+	const who = `Respondents in ${place(society.code, society.name)}`;
+	if (where.kind === 'plotted' && d) {
+		const e = where.point.estimate!;
+		const value =
+			d.scale === 'centered'
+				? `${score(e.value)} (relative to each society's average)`
+				: `${responseLabel(e.value)} (${score(e.value)})`;
+		const small = where.point.status === Status.Small ? ' (small sample)' : '';
+		return {
+			lead: `${who}: ${value}, ${versusGlobal(where.point.notable)}; ${where.text}.`,
+			note:
+				`95% interval ${interval(e.lo, e.hi)} · ${count(where.point.n ?? 0)} respondents` +
+				`${small} · ${d.kind === 'shrunk' ? 'shrunken' : 'raw'} estimate`
+		};
+	}
+	if (where.kind === 'too-few') {
+		return {
+			lead: `${who}: too few responses.`,
+			note: 'Fewer than 10 respondents rated this pair, so it is not shown or ranked.'
+		};
+	}
+	if (where.kind === 'not-asked') {
+		return { lead: `${who}: not asked.`, note: 'The survey there left this question out.' };
+	}
+	if (where.kind === 'not-in-sample') {
+		return {
+			lead: `${who}: not in this sample.`,
+			note: `The sample shown (${SAMPLE_LABEL[sample]}) leaves this society out.`
+		};
+	}
+	return { lead: who, note: 'Loading…' };
 }
 
 /** NFR-11: the map in one sentence, as averages of the plotted estimates by region. */

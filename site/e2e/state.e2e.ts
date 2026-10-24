@@ -13,8 +13,7 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 	await box.press('Enter');
 	await expect(page).toHaveURL(/\?society=chl$/);
 	await expect(box).toHaveValue('Chile');
-	const panel = page.getByRole('complementary');
-	await expect(panel.getByRole('heading', { name: 'Respondents in Chile' })).toBeVisible();
+	await expect(page.locator('.society-box')).toContainText(/^Respondents in Chile: /);
 	await expect(page.locator('.beeswarm [aria-pressed="true"]')).toHaveAttribute('data-code', 'CHL');
 	await expect(page.locator('.strip .mark').first()).toBeVisible();
 	// Decision 44: the Societies link opens the selected society's fingerprint.
