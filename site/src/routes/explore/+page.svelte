@@ -7,18 +7,19 @@
 	import MatrixLegend from '#lib/charts/MatrixLegend.svelte';
 	import MatrixList from '#lib/charts/MatrixList.svelte';
 	import MatrixTable from '#lib/charts/MatrixTable.svelte';
-	import { matrixCells, type SelectedSociety } from '#lib/charts/matrix-model.ts';
+	import { centeringShift, matrixCells, type SelectedSociety } from '#lib/charts/matrix-model.ts';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import { SHARE_ALT } from '#lib/share.ts';
 	import SortSelect from '#lib/components/SortSelect.svelte';
+	import { spread } from '#lib/data/format.ts';
 	import { SORT_KEYS, listOrder, matrixOrder, matrixSummary } from '#lib/data/derive.ts';
 	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSocieties, preload } from '#lib/data/load.ts';
 	import { SAMPLES } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
-	import { setView, view, withView } from '#lib/state/view.svelte.ts';
+	import { setView, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -121,7 +122,17 @@
 			title="Average judgment and disagreement, {CELL_COUNT} pairs"
 			{summary}
 			about={resolve('method/#global')}
+			centered={vs.scale === 'centered'}
 		>
+			{#snippet explain()}
+				{#if global.current}
+					{@const shift = centeringShift(global.current)}
+					The global averages move by {shift < 0.005
+						? 'less than 0.01'
+						: `${spread(shift)} at most`}, so the matrix barely changes; centering matters on a
+					<a href={societyHref(vs.society, vs)}>society's fingerprint</a>.
+				{/if}
+			{/snippet}
 			{#snippet controls()}
 				<SortSelect keys={SORT_KEYS} value={vs.sort} onchange={(sort) => setView({ sort })} />
 			{/snippet}

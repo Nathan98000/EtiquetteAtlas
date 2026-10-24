@@ -3,7 +3,7 @@
  * FR-17), computed once per sample, scale and society so the views agree.
  */
 
-import { CELLS, headline, type Cell } from '../data/grid';
+import { CELLS, CELL_COUNT, headline, type Cell } from '../data/grid';
 import { extremes } from '../data/derive';
 import { respondentsIn, responseLabel, score, spread } from '../data/format';
 import {
@@ -19,6 +19,18 @@ import { scoreStyle } from './colors';
 
 /** τ at which the disagreement circle reaches its full size; published τ stay below 0.9. */
 export const TAU_MAX = 1;
+
+/**
+ * D-3, decision 37: the largest move of a global mean between the raw and centered scales, which
+ * is why centering leaves the matrix almost unchanged.
+ */
+export function centeringShift(global: GlobalCells): number {
+	let most = 0;
+	for (let c = 0; c < CELL_COUNT; c++) {
+		most = Math.max(most, Math.abs(global.mean(c, 'centered') - global.mean(c, 'raw')));
+	}
+	return most;
+}
 
 /** FR-11: the circle's area grows with τ, so its diameter grows with √τ (decision 34). */
 export function dotSize(tau: number): number {

@@ -34,6 +34,11 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 	await page.getByRole('radio', { name: 'Centered' }).check();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention&scale=centered$/);
 	await expect(page.getByRole('heading', { name: /shrunken estimate, centered/ })).toBeVisible();
+	// D-3: every centered chart says so beside its title, the first one with what centering does.
+	await expect(page.locator('.scale-chip')).toHaveCount(3);
+	await expect(page.locator('.scale-chip').first()).toContainText(
+		"Relative to each society's own average. Each society's answers are shifted"
+	);
 
 	// FR-84: back and forward step through the states.
 	await page.goBack();
@@ -70,6 +75,18 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 	await page.getByRole('radio', { name: 'Centered' }).check();
 	await expect(page).toHaveURL(/\?society=jpn&scale=centered$/);
 	await expect(page.locator('#matrix-summary')).toBeVisible();
+	// D-3: the matrix barely changes when centered, and says so.
+	const chip = page.locator('.scale-chip');
+	await expect(chip).toContainText(/The global averages move by (0\.01 at most|less than 0\.01)/);
+	await expect(chip.getByRole('link', { name: "society's fingerprint" })).toHaveAttribute(
+		'href',
+		/societies\/jpn\//
+	);
+	await chip.getByRole('button', { name: 'Show as answered' }).click();
+	await expect(page).toHaveURL(/\?society=jpn$/);
+	await expect(chip).toHaveCount(0);
+	await page.goBack();
+	await expect(page.getByRole('radio', { name: 'Centered' })).toBeChecked();
 	await page.goBack();
 	await expect(page.getByRole('radio', { name: 'Raw scores' })).toBeChecked();
 });

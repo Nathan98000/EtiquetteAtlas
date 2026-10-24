@@ -4,7 +4,7 @@
 	import { cellChangeLink } from '#lib/change-text.ts';
 	import Beeswarm from '#lib/charts/Beeswarm.svelte';
 	import BehaviorStrip from '#lib/charts/BehaviorStrip.svelte';
-	import ChartFrame from '#lib/charts/ChartFrame.svelte';
+	import ChartFrame, { CENTERING } from '#lib/charts/ChartFrame.svelte';
 	import { drill, regionSummary, standing } from '#lib/charts/drill-model.ts';
 	import { matrixCells, societyPhrase, type SelectedSociety } from '#lib/charts/matrix-model.ts';
 	import RegionLegend from '#lib/charts/RegionLegend.svelte';
@@ -146,6 +146,8 @@
 			title="{BEHAVIOR_TEXT[behavior].label} in each situation"
 			summary={files ? stripSummary(files.global, behavior, vs.scale) : data.stripSummary}
 			about={resolve('method/#global')}
+			centered={vs.scale === 'centered'}
+			explain={CENTERING}
 		>
 			{#snippet chart()}
 				<BehaviorStrip cells={model} {cell} {href} />
@@ -231,6 +233,7 @@
 				title="Every society's {estimateLabel} estimate{scaleLabel}"
 				summary={swarmSummary}
 				about={resolve('method/#intervals')}
+				centered={vs.scale === 'centered'}
 			>
 				{#snippet legend()}
 					<RegionLegend mode="region" />
@@ -266,6 +269,7 @@
 				title="Where the societies are"
 				summary={d ? regionSummary(d.plotted) : data.mapSummary}
 				about={resolve('method/#map')}
+				centered={vs.scale === 'centered'}
 			>
 				{#snippet legend()}
 					<RegionLegend mode="estimate" />

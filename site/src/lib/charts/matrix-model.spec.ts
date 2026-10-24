@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { GlobalCells, SocietyCells, Status } from '../data/model';
 import { cellsDoc, globalDoc } from '../data/test-fixtures';
-import { cellLabel, dotSize, markOf, matrixCells, societyPhrase } from './matrix-model';
+import {
+	cellLabel,
+	centeringShift,
+	dotSize,
+	markOf,
+	matrixCells,
+	societyPhrase
+} from './matrix-model';
 
 const global = new GlobalCells(globalDoc(), 'all');
 const cells = new SocietyCells(cellsDoc(), 'all');
@@ -77,5 +84,12 @@ describe('FR-15, FR-27: the society in words', () => {
 			'Arguing at a funeral ceremony: −2.0, very inappropriate; disagreement 0.20; the most ' +
 				'universal pair; respondents in the Philippines: −2.0, close to the global mean'
 		);
+	});
+});
+
+describe('D-3, decision 37: centering barely moves the global means', () => {
+	it('gives the largest move between the raw and centered means', () => {
+		// The fixture moves cell 0 alone, by 0.01.
+		expect(centeringShift(global)).toBeCloseTo(0.01);
 	});
 });

@@ -1,6 +1,13 @@
+<script lang="ts" module>
+	/** D-3: what centering does, said on the first centered chart of a page. */
+	export const CENTERING =
+		"Each society's answers are shifted so their overall average matches the global one.";
+</script>
+
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { ResolvedPathname } from '$app/types';
+	import { setView } from '#lib/state/view.svelte.ts';
 
 	interface Props {
 		id: string;
@@ -15,9 +22,24 @@
 		chart: Snippet;
 		/** NFR-11: the same values as an accessible table. */
 		table: Snippet;
+		/** D-3, FR-5: the chart shows centered scores, so it says so beside its title. */
+		centered?: boolean;
+		/** What centering does, said once per page on its first chart (CENTERING, or more). */
+		explain?: string | Snippet;
 	}
 
-	let { id, title, summary, about, controls, legend, chart, table }: Props = $props();
+	let {
+		id,
+		title,
+		summary,
+		about,
+		controls,
+		legend,
+		chart,
+		table,
+		centered = false,
+		explain
+	}: Props = $props();
 
 	let showTable = $state(false);
 </script>
@@ -39,6 +61,16 @@
 			<a class="about" href={about}>About this chart</a>
 		</div>
 	</div>
+	{#if centered}
+		<!-- D-3: nothing else on the chart may show that the scale changed, so the chart says so. -->
+		<p class="scale-chip">
+			<strong>Relative to each society's own average.</strong>
+			{#if typeof explain === 'string'}{explain}{:else}{@render explain?.()}{/if}
+			<button type="button" class="link-button" onclick={() => setView({ scale: 'raw' })}>
+				Show as answered
+			</button>
+		</p>
+	{/if}
 	<p class="summary" id="{id}-summary">{summary}</p>
 	{@render legend?.()}
 	<div class="body needs-js" hidden={showTable}>
@@ -79,6 +111,15 @@
 	}
 
 	.about {
+		font-size: var(--text-sm);
+	}
+
+	.scale-chip {
+		max-width: var(--measure);
+		margin: 0.5rem 0 0;
+		padding: 0.375rem 0.75rem;
+		border-left: 4px solid var(--border-strong);
+		background: var(--surface-muted);
 		font-size: var(--text-sm);
 	}
 

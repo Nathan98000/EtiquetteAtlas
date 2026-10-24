@@ -218,6 +218,18 @@ table {
 	background: var(--surface-muted);
 }
 
+/* A button inside a sentence that reads like a link, such as "Show as answered". */
+.link-button {
+	display: inline;
+	min-height: 1.5rem;
+	padding: 0.125rem 0;
+	border: 0;
+	background: none;
+	color: var(--link);
+	text-decoration: underline;
+	text-align: left;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,

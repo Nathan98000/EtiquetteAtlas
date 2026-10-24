@@ -4,7 +4,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import { societyChangeLink } from '#lib/change-text.ts';
-	import ChartFrame from '#lib/charts/ChartFrame.svelte';
+	import ChartFrame, { CENTERING } from '#lib/charts/ChartFrame.svelte';
 	import CompareTable from '#lib/charts/CompareTable.svelte';
 	import {
 		compareRows,
@@ -219,6 +219,8 @@
 			title="Compared with the global average, {CELL_COUNT} pairs"
 			summary={chartSummary}
 			about={resolve('method/#fingerprint')}
+			centered={vs.scale === 'centered'}
+			explain={CENTERING}
 		>
 			{#snippet controls()}
 				<SortSelect
@@ -326,6 +328,7 @@
 					title="Respondents in {names[0]} and in {names[1]}, pair by pair"
 					summary={result ? comparisonSummary(pair, result, vs.scale) : 'Loading the comparison…'}
 					about={resolve('method/#compare')}
+					centered={vs.scale === 'centered'}
 				>
 					{#snippet chart()}
 						{#if result && dumbbell}
