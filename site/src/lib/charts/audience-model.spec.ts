@@ -161,28 +161,28 @@ describe('NFR-11, FR-87: summaries say what respondents judged, never why (FR-73
 		const rows = audienceRows(file, { scope: GLOBAL, split: false });
 		expect(behaviorSummary(rows, 14, subjectOf(GLOBAL, 3))).toBe(
 			'On average across the 3 societies, respondents judged using a mobile phone somewhat ' +
-				'appropriate when alone (+1.0), somewhat appropriate in front of colleagues or classmates ' +
-				'(+0.3) and somewhat inappropriate in front of management or professors (−0.5): 1.5 lower ' +
-				'in front of management or professors than when alone, the largest drop of the 15 ' +
-				'behaviors.'
+				'appropriate when alone, somewhat appropriate in front of colleagues or classmates and ' +
+				'somewhat inappropriate in front of management or professors. No other behavior drops ' +
+				'more.'
 		);
+		// Section 5 of the design review: the drop's rank in words, from the nearer end.
 		expect(behaviorSummary(rows, 3, subjectOf(GLOBAL, 3))).toMatch(
-			/, tied 4th smallest drop of the 15 behaviors\.$/
+			/\. 3 of the 15 behaviors drop less\.$/
 		);
 		expect(behaviorSummary(rows, 0, subjectOf(GLOBAL, 3))).toMatch(
-			/, the smallest drop of the 15 behaviors\.$/
+			/\. No other behavior drops less\.$/
 		);
 		expect(behaviorSummary(rows, 12, subjectOf(GLOBAL, 3))).toMatch(
-			/, the 3rd largest drop of the 15 behaviors\.$/
+			/\. Only two of the 15 behaviors drop more\.$/
 		);
 	});
 
 	it('says what is missing and what was not asked', () => {
 		const rows = audienceRows(file, { scope: GAMMA, split: false });
 		expect(behaviorSummary(rows, 0, subjectOf(GAMMA, 3))).toBe(
-			'Respondents in Gamma judged arguing very appropriate when alone (+1.5) and very ' +
-				'appropriate in front of colleagues or classmates (+1.4), with too few responses in ' +
-				'front of management or professors.'
+			'Respondents in Gamma judged arguing very appropriate when alone and very appropriate in ' +
+				'front of colleagues or classmates, with too few responses in front of management or ' +
+				'professors.'
 		);
 		expect(behaviorSummary(rows, 3, subjectOf(GAMMA, 3))).toBe(
 			'Respondents in Gamma were not asked about kissing on the mouth.'

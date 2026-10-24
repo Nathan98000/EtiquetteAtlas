@@ -68,9 +68,6 @@
 			{/each}
 		</ul>
 	{/if}
-	<p class="muted">
-		Each difference is between two means; it has no interval of its own (see About this chart).
-	</p>
 {/if}
 
 <style>

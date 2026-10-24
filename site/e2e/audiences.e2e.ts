@@ -24,9 +24,12 @@ test.describe('FR-40: a behavior’s focused slopegraph', () => {
 			'When alone, in front of colleagues or classmates and in front of management or ' +
 				'professors: all societies +1.8, +0.5, −0.8.'
 		);
-		await expect(page.locator('.lede')).toContainText(
-			'2.6 lower in front of management or professors than when alone, the 3rd largest drop of ' +
-				'the 15 behaviors'
+		// Section 5 of the design review: response labels, then the drop's rank in words.
+		await expect(page.locator('.lede')).toHaveText(
+			'On average across the 90 societies, respondents judged using a mobile phone very ' +
+				'appropriate when alone, somewhat appropriate in front of colleagues or classmates and ' +
+				'somewhat inappropriate in front of management or professors. Only two of the 15 ' +
+				'behaviors drop more.'
 		);
 		// Pointing at a column shows its interval and its details.
 		await columns.nth(2).hover();
@@ -114,7 +117,7 @@ test.describe('FR-41: small multiples of all 15 behaviors', () => {
 		await audiencesReady(page);
 		const panels = page.locator('.multiples > li');
 		await expect(panels.first()).toContainText('Argue');
-		await expect(page.locator('#multiples-summary')).toHaveText(
+		await expect(page.locator('.lede')).toHaveText(
 			/^On average across the 90 societies, respondents judged every one of the 15 behaviors less appropriate in front of management or professors than when alone/
 		);
 		await page.getByLabel('Sort').selectOption('effect');
@@ -136,7 +139,7 @@ test.describe('FR-41: small multiples of all 15 behaviors', () => {
 	test('the panels follow the selected society; one not asked says so', async ({ page }) => {
 		await page.goto(url('audiences/?society=kwt'));
 		await audiencesReady(page);
-		await expect(page.locator('#multiples-summary')).toHaveText(
+		await expect(page.locator('.lede')).toHaveText(
 			/^Respondents in Kuwait judged .* of the 13 behaviors with enough responses/
 		);
 		await expect(page.getByRole('link', { name: /^Kiss on the mouth Not asked$/ })).toBeVisible();
@@ -150,12 +153,10 @@ test.describe('FR-42: filters', () => {
 	test('one society or all societies, keeping the society for other routes', async ({ page }) => {
 		await page.goto(url('audiences/?society=chl'));
 		await audiencesReady(page);
-		await expect(page.locator('#multiples-summary')).toHaveText(/^Respondents in Chile judged/);
+		await expect(page.locator('.lede')).toHaveText(/^Respondents in Chile judged/);
 		await page.getByRole('radio', { name: 'All societies' }).check();
 		await expect(page).toHaveURL(/\/audiences\/\?society=chl&scope=global$/);
-		await expect(page.locator('#multiples-summary')).toHaveText(
-			/^On average across the 90 societies/
-		);
+		await expect(page.locator('.lede')).toHaveText(/^On average across the 90 societies/);
 		// The society stays selected for the other routes, and the filters follow into a behavior.
 		await expect(page.getByRole('link', { name: 'Explore', exact: true })).toHaveAttribute(
 			'href',
@@ -223,9 +224,7 @@ test.describe('FR-42: filters', () => {
 		await expect(page.getByRole('status').filter({ hasText: 'are not in the' })).toContainText(
 			"Respondents in Kuwait are not in the paper's sample"
 		);
-		await expect(page.locator('#multiples-summary')).toHaveText(
-			/^On average across the 71 societies/
-		);
+		await expect(page.locator('.lede')).toHaveText(/^On average across the 71 societies/);
 		await page.getByRole('button', { name: 'Show all respondents' }).click();
 		await expect(page).toHaveURL(/\/audiences\/\?society=kwt$/);
 		await expect(page.getByRole('link', { name: /^Kiss on the mouth Not asked$/ })).toBeVisible();
@@ -279,7 +278,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await page.getByRole('link', { name: 'Audiences', exact: true }).click();
 	await expect(page).toHaveURL(/\/audiences\/\?society=jpn&sample=attention$/);
 	await audiencesReady(page);
-	await expect(page.locator('#multiples-summary')).toHaveText(/^Respondents in Japan judged/);
+	await expect(page.locator('.lede')).toHaveText(/^Respondents in Japan judged/);
 });
 
 test('NFR-13: by keyboard alone, open a behavior, read its slopegraph, switch to all societies and move on', async ({
@@ -351,15 +350,21 @@ test('FR-83, NFR-60: audiences routes have their own title, description and cano
 test('FR-43: the audiences routes and the method page credit the 2026 analysis of audience effects', async ({
 	request
 }) => {
+	// The routes carry a one-line credit (section 5 of the design review); the method page has the
+	// full citation.
 	for (const path of ['audiences/', 'audiences/usemphone/', 'audiences/kiss/', 'method/']) {
 		const html = await (await request.get(url(path))).text();
-		expect(html).toContain(
-			'How norms depend on the presence and status of observers: the relational contingency of ' +
-				'everyday behaviors in 90 societies'
-		);
+		if (path !== 'method/') {
+			expect(html).toContain('Simpson, Eriksson, Vartanova, Strimling et al. (2026)');
+		}
 		expect(html).toContain('<cite>American Sociological Review</cite>');
 		expect(html).toContain('href="https://doi.org/10.1177/00031224261464586" rel="external"');
 	}
+	const full = await (await request.get(url('method/'))).text();
+	expect(full).toContain(
+		'How norms depend on the presence and status of observers: the relational contingency of ' +
+			'everyday behaviors in 90 societies'
+	);
 	// Finding L-7: the last of the paper's 158 authors, as Crossref lists them.
 	const method = await (await request.get(url('method/'))).text();
 	expect(method).toMatch(/(&amp;|&) Van Lange, P\. A\. M\./);
@@ -372,7 +377,7 @@ test.describe('FR-87: without JavaScript', () => {
 		page
 	}) => {
 		await page.goto(url('audiences/'));
-		await expect(page.locator('#multiples-summary')).toHaveText(
+		await expect(page.locator('.lede')).toHaveText(
 			/^On average across the 90 societies, respondents judged every one of the 15 behaviors/
 		);
 		await expect(page.locator('main noscript p').first()).toContainText(
@@ -380,7 +385,7 @@ test.describe('FR-87: without JavaScript', () => {
 		);
 		await page.goto(url('audiences/listen/'));
 		await expect(page.locator('.lede')).toHaveText(
-			/^On average across the 90 societies, respondents judged listening to music on headphones very appropriate when alone \(\+1\.8\)/
+			/^On average across the 90 societies, respondents judged listening to music on headphones very appropriate when alone, .* No other behavior drops more\.$/
 		);
 		await expect(page.locator('#slope-summary')).toHaveText(
 			/^When alone, .*: all societies \+1\.8/

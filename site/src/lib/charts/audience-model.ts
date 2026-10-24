@@ -279,26 +279,32 @@ export function audiencesSummary(rows: readonly BehaviorAudiences[], subject: st
 }
 
 /**
- * "the 3rd largest drop of the 15 behaviors", "the smallest …", "tied 4th largest …": counted
- * from the nearer end, as cellSummary counts disagreement.
+ * Where a behavior's drop ranks, in words, counted from the nearer end (section 5 of the design
+ * review): "Only two of the 15 behaviors drop more.", "No other behavior drops less.", "6 of the 15
+ * behaviors drop more."
  */
 function dropRank(rows: readonly BehaviorAudiences[], row: BehaviorAudiences): string {
 	const effects = rows.filter((r) => r.effect !== null).map((r) => cents(r.effect!));
 	const mine = cents(row.effect!);
 	const above = effects.filter((e) => e > mine).length;
 	const below = effects.filter((e) => e < mine).length;
-	const tied = effects.filter((e) => e === mine).length > 1;
-	const [k, end] = above <= below ? [above + 1, 'largest'] : [below + 1, 'smallest'];
 	const of =
 		effects.length === BEHAVIORS.length
 			? `the ${BEHAVIORS.length} behaviors`
 			: `the ${effects.length} behaviors with enough responses`;
-	return `${tied ? 'tied ' : 'the '}${k === 1 ? '' : `${ordinal(k)} `}${end} drop of ${of}`;
+	const [n, more] = above <= below ? [above, 'more'] : [below, 'less'];
+	if (n === 0) return `No other behavior drops ${more}.`;
+	if (n === 1) return `Only one of ${of} drops ${more}.`;
+	if (n === 2) return `Only two of ${of} drop ${more}.`;
+	return `${n} of ${of} drop ${more}.`;
 }
 
 /**
- * NFR-11, FR-87: one behavior across the three audiences in one sentence, with its effect and
- * where that ranks among the behaviors.
+ * NFR-11, FR-87: one behavior across the three audiences, in response labels, then where its drop
+ * ranks (section 5 of the design review): "On average across the 90 societies, respondents judged
+ * using a mobile phone very appropriate when alone, somewhat appropriate in front of colleagues or
+ * classmates and somewhat inappropriate in front of management or professors. Only two of the 15
+ * behaviors drop more." The scores and the drop are on the chart and in the details.
  */
 export function behaviorSummary(
 	rows: readonly BehaviorAudiences[],
@@ -314,13 +320,8 @@ export function behaviorSummary(
 	const missing: string[] = [];
 	for (const k of AUDIENCES) {
 		const v = row.main.values[k];
-		if (v.estimate) {
-			shown.push(
-				`${responseLabel(v.estimate.value)} ${contextPhrase(k)} (${score(v.estimate.value)})`
-			);
-		} else {
-			missing.push(`${missingText(v.status)} ${contextPhrase(k)}`);
-		}
+		if (v.estimate) shown.push(`${responseLabel(v.estimate.value)} ${contextPhrase(k)}`);
+		else missing.push(`${missingText(v.status)} ${contextPhrase(k)}`);
 	}
 	if (!shown.length) {
 		const who = lower(subject.replace(/ judged$/, '').replace(/^On average across the/, 'In'));
@@ -328,11 +329,9 @@ export function behaviorSummary(
 	}
 	let text = `${subject} ${what} ${listText(shown)}`;
 	if (missing.length) text += `, with ${listText(missing)}`;
-	if (row.effect !== null) {
-		text += `: ${effectText(row.effect)}`;
-		if (cents(row.effect) > 0) text += `, ${dropRank(rows, row)}`;
-	}
-	return `${text}.`;
+	if (row.effect === null) return `${text}.`;
+	if (cents(row.effect) > 0) return `${text}. ${dropRank(rows, row)}`;
+	return `${text}: ${effectText(row.effect)}.`;
 }
 
 const valueList = (series: Series, contexts: readonly number[]) =>

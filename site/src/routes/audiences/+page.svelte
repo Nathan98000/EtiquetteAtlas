@@ -90,10 +90,8 @@
 
 <div class="audiences-page">
 	<h1>Who's watching?</h1>
-	<p class="lede">
-		The survey also asked about the same 15 behaviors without a situation, by who is around: no one
-		else, colleagues or classmates, or management or professors. Each panel opens its behavior.
-	</p>
+	<!-- D-16: the module's finding is the lede; the chart's summary says what the panels show. -->
+	<p class="lede">{summary}</p>
 	<noscript>
 		<p>The small multiples need JavaScript.</p>
 	</noscript>
@@ -109,7 +107,7 @@
 	<ChartFrame
 		id="multiples"
 		title="All {BEHAVIORS.length} behaviors, by audience"
-		{summary}
+		summary="The survey also asked about the {BEHAVIORS.length} behaviors without a situation, by who is watching. Each panel shows one behavior, from left to right alone, in front of colleagues or classmates and in front of management or professors, and opens its own page."
 		about={resolve('method/#audiences')}
 	>
 		{#snippet controls()}
@@ -121,13 +119,12 @@
 		{/snippet}
 		{#snippet legend()}
 			<SeriesKey items={key} />
+			<!-- Section 5 of the design review: the axis in one line. -->
 			<p class="axis-key">
-				In each panel, from left to right: alone, in front of colleagues or classmates, and in front
-				of management or professors{vs.actor
-					? ', then, after a dotted rule, done by a woman and done by a man'
-					: ''}. Scores run from −2.5 (extremely inappropriate) at the bottom to +2.5 (extremely
-				appropriate) at the top; the darker line is 0. Points are coloured by score, as on the
-				matrix, and a dashed outline marks a small sample (10 to 29 respondents).
+				Higher is more appropriate, from −2.5 (extremely inappropriate) to +2.5 (extremely
+				appropriate); the dark line is 0.{vs.actor
+					? ' After the dotted rule: done by a woman and done by a man.'
+					: ''} Colours as on the matrix; dashed outline: 10 to 29 respondents.
 			</p>
 		{/snippet}
 		{#snippet chart()}

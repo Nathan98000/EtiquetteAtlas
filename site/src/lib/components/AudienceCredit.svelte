@@ -5,12 +5,12 @@
 
 <!-- FR-43: the audiences module credits the analysis of these audience effects (decision 66). It is
      prerendered, so it reads without JavaScript. -->
+<!-- Section 5 of the design review: one line, with the full citation on the method page. -->
 <p class="credit">
-	The audiences and the actor's gender were analysed by {c.short}, “<a href={c.url} rel="external"
-		>{c.title}</a
-	>”, <cite>{c.journal}</cite>
-	{c.volume}. The values here are the atlas's own aggregates and can differ from the paper's
-	estimates (<a href={resolve('method/#audiences')}>method</a>).
+	Audiences analysed by <a href={c.url} rel="external">{c.short}</a>, <cite>{c.journal}</cite>;
+	these are the atlas's own aggregates, which can differ from the paper's (<a
+		href={resolve('method/#audiences')}>method</a
+	>).
 </p>
 
 <style>
