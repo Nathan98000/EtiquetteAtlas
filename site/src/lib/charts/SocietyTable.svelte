@@ -28,7 +28,7 @@
 			<th scope="col">Respondents in</th>
 			<th scope="col">Region</th>
 			<th scope="col">Estimate (95% interval)</th>
-			<th scope="col">Compared with the global mean</th>
+			<th scope="col">Compared with the global average</th>
 			<th scope="col">Respondents</th>
 		</tr>
 	</thead>

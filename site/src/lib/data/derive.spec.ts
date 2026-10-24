@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
 	cellSummary,
+	disagreementRank,
+	disagreementWords,
 	extremes,
 	listOrder,
 	matrixOrder,
@@ -97,39 +99,61 @@ describe('FR-25: rank among the societies shown (decision 33)', () => {
 	});
 });
 
-describe('NFR-11, FR-87: one-sentence summaries', () => {
-	it('summarises the matrix', () => {
+describe('NFR-11, FR-87, D-5 to D-7: one-sentence summaries, findings first in words', () => {
+	it('summarises the matrix in response labels', () => {
 		expect(matrixSummary(global, 'raw')).toBe(
-			'Average judgments run from −2.0 for arguing at a funeral ceremony to +1.0 for using a ' +
-				'mobile phone at a party, and societies disagree most about using a mobile phone at a ' +
-				'party and least about arguing at a funeral ceremony.'
+			'Using a mobile phone at a party is judged the most appropriate on average (somewhat ' +
+				'appropriate) and arguing at a funeral ceremony the least (very inappropriate); ' +
+				'societies disagree most about using a mobile phone at a party and least about arguing ' +
+				'at a funeral ceremony.'
 		);
 	});
 
-	it('summarises a cell with its response label, share and disagreement', () => {
+	it('leads a cell with its disagreement in words, then its response label and share', () => {
 		expect(cellSummary(global, 0, 'raw')).toBe(
-			'On average, respondents in 3 societies judged arguing at a funeral ceremony very ' +
-				'inappropriate (−2.0; 0% chose an appropriate answer), and disagreement between ' +
-				'societies is 0.20, the lowest of the 150 pairs.'
+			'Societies disagree about arguing at a funeral ceremony less than about any other pair ' +
+				'of a behavior and a situation. Respondents in 3 societies judged it very inappropriate ' +
+				'on average, and 0% chose an appropriate answer.'
 		);
-		expect(cellSummary(global, 48, 'raw')).toMatch(/is 0\.68, the 4th highest of the 150 pairs\.$/);
+		expect(cellSummary(global, 48, 'raw')).toMatch(
+			/^Societies disagree about .+ more than about almost any other pair of a behavior and a situation \(4th most of 150\)\./
+		);
 	});
 
-	it('summarises the beeswarm with respondents in each place, counting hidden societies', () => {
+	it('D-7: says disagreement as a rank in words, from the top and bottom ten and by thirds', () => {
+		const of = 150;
+		const words = (top: number, bottom: number) => disagreementWords({ top, bottom, of });
+		expect(words(1, 150)).toBe('more than about any other pair of a behavior and a situation');
+		expect(words(150, 1)).toBe('less than about any other pair of a behavior and a situation');
+		expect(words(3, 148)).toMatch(/almost any other .* \(3rd most of 150\)$/);
+		expect(words(147, 4)).toMatch(/almost any other .* \(4th least of 150\)$/);
+		expect(words(40, 111)).toBe(
+			'more than about most pairs of a behavior and a situation (40th of 150)'
+		);
+		expect(words(70, 81)).toBe(
+			'about as much as about a typical pair of a behavior and a situation (70th of 150)'
+		);
+		expect(words(120, 31)).toBe(
+			'less than about most pairs of a behavior and a situation (120th of 150)'
+		);
+		expect(disagreementRank(global, 0, 'raw')).toMatchObject({ bottom: 1, of: 150 });
+	});
+
+	it('summarises the beeswarm in response labels, counting hidden societies', () => {
 		const cells = new SocietyCells(cellsDoc(), 'all');
 		const societies = new Societies(societiesDoc());
 		const text = societiesSummary(cells.column(0, 'raw', 'raw'), (c) => societies.get(c), 0);
 		expect(text).toBe(
-			'Estimates for arguing at a funeral ceremony run from −2.5 among respondents in Alpha ' +
-				'to −2.0 among respondents in Philippines; 1 society has too few responses or was not ' +
-				'asked.'
+			'Average answers about arguing at a funeral ceremony run from extremely inappropriate ' +
+				'among respondents in Alpha to very inappropriate among respondents in Philippines; 1 ' +
+				'society has too few responses or was not asked.'
 		);
 	});
 
-	it('summarises the behavior strip', () => {
+	it('summarises the behavior strip in response labels', () => {
 		expect(stripSummary(global, 'argue', 'raw')).toBe(
-			'Across the 10 situations, arguing scores highest at a party (−1.8) and lowest at a ' +
-				'funeral ceremony (−2.0).'
+			'Judgments of arguing are very inappropriate in every situation, highest at a party and ' +
+				'lowest at a funeral ceremony.'
 		);
 	});
 });

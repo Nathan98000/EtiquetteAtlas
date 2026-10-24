@@ -134,7 +134,7 @@
 <Seo
 	title={data.title}
 	description={data.summary}
-	imageAlt="{data.title}: a dot for each society's estimate on the scale from inappropriate to appropriate, with the global mean. {data.swarmSummary}"
+	imageAlt="{data.title}: a dot for each society's estimate on the scale from inappropriate to appropriate, with the global average. {data.swarmSummary}"
 />
 
 <div class="drill">
@@ -175,7 +175,7 @@
 						<thead>
 							<tr>
 								<th scope="col">Situation</th>
-								<th scope="col">Global mean</th>
+								<th scope="col">Global average</th>
 								<th scope="col">Disagreement</th>
 								{#if society?.inSample}<th scope="col"
 										>Respondents in {place(society.code, society.name)}</th
@@ -327,7 +327,7 @@
 			{#if d}
 				<dl>
 					<div>
-						<dt>Global mean</dt>
+						<dt>Global average</dt>
 						<dd>
 							{score(d.mean)}
 							<!-- D-34: an interval that rounds to a point is left out. -->

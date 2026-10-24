@@ -40,7 +40,7 @@
 				shown(c, () => `${count(c.n ?? 0)}${c.status === Status.Small ? ' (small sample)' : ''}`)
 		},
 		{
-			header: 'Global mean (95% interval)',
+			header: 'Global average (95% interval)',
 			text: (c) => `${score(c.global)} (${interval(c.globalLo, c.globalHi)})`
 		}
 	];

@@ -28,7 +28,7 @@
 			{ header: 'Behavior', text: (c) => BEHAVIOR_TEXT[c.behavior].label, rowHeader: true },
 			{ header: 'Situation', text: (c) => SITUATION_TEXT[c.situation].label },
 			{
-				header: 'Global mean (95% interval)',
+				header: 'Global average (95% interval)',
 				text: (c) => `${score(c.mean)} (${interval(c.meanLo, c.meanHi)})`
 			},
 			{ header: 'Chose appropriate', text: (c) => percent(c.share) },

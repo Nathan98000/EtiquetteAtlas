@@ -38,7 +38,7 @@
 				</svg>
 				Hollow: small sample (10–29 respondents)
 			</li>
-			<li><span class="band" aria-hidden="true"></span> Global mean ± disagreement</li>
+			<li><span class="band" aria-hidden="true"></span> Where most societies fall</li>
 		{:else}
 			<li>
 				<span class="ramp" aria-hidden="true"></span>

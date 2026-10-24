@@ -21,7 +21,7 @@
 		{ header: `Respondents in ${names[0]} (95% interval)`, text: (p) => estimate(p.a) },
 		{ header: `Respondents in ${names[1]} (95% interval)`, text: (p) => estimate(p.b) },
 		{ header: 'Gap', text: (p) => score(p.gap) },
-		{ header: 'Global mean', text: (p) => score(p.global) }
+		{ header: 'Global average', text: (p) => score(p.global) }
 	]);
 </script>
 

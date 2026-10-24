@@ -52,7 +52,7 @@ test('FR-20, FR-23: intervals on hover, as whiskers with Show uncertainty; mean 
 	await swarmReady(page);
 	await expect(page.locator('.beeswarm .mean')).toHaveCount(1);
 	await expect(page.locator('.beeswarm .band')).toHaveCount(1);
-	await expect(page.locator('.beeswarm .mean-label')).toHaveText(/^Global mean/);
+	await expect(page.locator('.beeswarm .mean-label')).toHaveText(/^Global average/);
 	const dot = page.locator('.beeswarm [data-code]').first();
 	await dot.hover();
 	await expect(page.locator('.beeswarm .tooltip')).toContainText('95% interval');

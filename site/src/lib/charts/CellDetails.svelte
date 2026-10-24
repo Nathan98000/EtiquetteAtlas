@@ -32,7 +32,7 @@
 <p class="title">{cell.headline}</p>
 <dl>
 	<div>
-		<dt>Global mean{centered}</dt>
+		<dt>Global average{centered}</dt>
 		<dd>
 			<span class="num">{score(cell.mean)}</span>, {responseLabel(cell.mean)}
 			<!-- D-34: an interval that rounds to a point is left out for the global mean. -->

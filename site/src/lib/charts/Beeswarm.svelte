@@ -218,7 +218,7 @@
 					y={M.top - 14}
 					text-anchor={drill.mean < -1.2 ? 'start' : drill.mean > 1.2 ? 'end' : 'middle'}
 				>
-					Global mean {score(drill.mean)}
+					Global average {score(drill.mean)}
 				</text>
 			{/if}
 

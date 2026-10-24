@@ -95,11 +95,11 @@
 
 <div class="explore">
 	<div class="intro">
-		<h1>How appropriate is it?</h1>
+		<h1>How appropriate is each behavior in each situation?</h1>
+		<!-- D-6, D-23: one short line; the legend says what the colour and the circle mean. -->
 		<p class="lede">
-			For each behavior in each situation, the colour shows how appropriate respondents in
-			{global.current?.societies(0) ?? 90} societies judged it on average, and the circle shows how much
-			societies disagree. Select a pair to see every society.
+			How respondents in {global.current?.societies(0) ?? 90} societies judged each pair of a behavior
+			and a situation, and how much societies disagree. Select a pair to see every society.
 		</p>
 		<noscript>
 			<p>

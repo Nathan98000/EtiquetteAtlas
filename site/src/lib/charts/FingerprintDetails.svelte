@@ -76,7 +76,7 @@
 		</div>
 	{/if}
 	<div>
-		<dt>Global mean{centered}</dt>
+		<dt>Global average{centered}</dt>
 		<dd>
 			<span class="num">{score(cell.global)}</span>
 			<!-- D-34: an interval that rounds to a point is left out for the global mean. -->

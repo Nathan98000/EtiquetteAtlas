@@ -249,7 +249,9 @@ test.describe('FR-87: without JavaScript', () => {
 		page
 	}) => {
 		await page.goto(url('explore/'));
-		await expect(page.locator('#matrix-summary')).toHaveText(/^Average judgments run from/);
+		await expect(page.locator('#matrix-summary')).toHaveText(
+			/is judged the most appropriate on average/
+		);
 		// Playwright's text engine skips <noscript>, so the note is located by element.
 		await expect(page.locator('main noscript p')).toContainText(
 			'The interactive matrix needs JavaScript.'
@@ -258,7 +260,9 @@ test.describe('FR-87: without JavaScript', () => {
 		await page.goto(url('explore/eat/bus/'));
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Eating on a bus');
 		await expect(
-			page.getByText(/^On average, respondents in 90 societies judged eating on a bus/)
+			page.getByText(
+				/^Societies disagree about eating on a bus about as much as about a typical pair/
+			)
 		).toBeVisible();
 		await expect(page.locator('main noscript p')).toContainText(
 			'The charts for this pair need JavaScript.'

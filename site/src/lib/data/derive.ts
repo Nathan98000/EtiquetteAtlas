@@ -14,7 +14,7 @@ import {
 	phrase,
 	type Behavior
 } from './grid';
-import { ordinal, percent, place, responseLabel, score, spread } from './format';
+import { ordinal, percent, place, responseLabel } from './format';
 import type { GlobalCells, Scale, Society, SocietyCell } from './model';
 
 export type SortKey = 'paper' | 'mean' | 'disagreement' | 'name' | 'difference' | 'effect';
@@ -173,37 +173,91 @@ export function rankText(r: Rank): string {
 		: `${tied}${ordinal(r.rank)} most accepting of ${r.of}`;
 }
 
-/** NFR-11, FR-87: the matrix in one sentence. */
+const capital = (text: string) => text[0].toUpperCase() + text.slice(1);
+
+/**
+ * NFR-11, FR-87: the matrix in one sentence, as an observation in the response labels (D-6):
+ * "Eating in a restaurant is judged the most appropriate on average (extremely appropriate) and
+ * kissing on the mouth in a job interview the least (very inappropriate); societies disagree most
+ * about … and least about …". The values are in the details and the table.
+ */
 export function matrixSummary(global: GlobalCells, scale: Scale): string {
 	const byMean = orderBy(CELL_COUNT, (c) => cents(global.mean(c, scale)), false);
 	const low = byMean[0];
 	const high = byMean[byMean.length - 1];
 	const { universal, dependent } = extremes(global, scale);
 	return (
-		`Average judgments run from ${score(global.mean(low, scale))} for ${phrase(CELLS[low])} ` +
-		`to ${score(global.mean(high, scale))} for ${phrase(CELLS[high])}, and societies disagree ` +
-		`most about ${phrase(CELLS[dependent])} and least about ${phrase(CELLS[universal])}.`
+		`${capital(phrase(CELLS[high]))} is judged the most appropriate on average ` +
+		`(${responseLabel(global.mean(high, scale))}) and ${phrase(CELLS[low])} the least ` +
+		`(${responseLabel(global.mean(low, scale))}); societies disagree most about ` +
+		`${phrase(CELLS[dependent])} and least about ${phrase(CELLS[universal])}.`
 	);
 }
 
-/** NFR-11, FR-87: one cell's global picture in one sentence. */
+/**
+ * A pair's disagreement rank among the pairs, counted from both ends: `top` 1 is the most
+ * disagreement, `bottom` 1 the least; ties share a rank, compared in hundredths.
+ */
+export function disagreementRank(
+	global: GlobalCells,
+	cell: number,
+	scale: Scale
+): { top: number; bottom: number; of: number } {
+	const mine = cents(global.tau(cell, scale));
+	let higher = 0;
+	let lower = 0;
+	for (let c = 0; c < CELL_COUNT; c++) {
+		const t = cents(global.tau(c, scale));
+		if (t > mine) higher += 1;
+		else if (t < mine) lower += 1;
+	}
+	return { top: higher + 1, bottom: lower + 1, of: CELL_COUNT };
+}
+
+const PAIR = 'pair of a behavior and a situation';
+const PAIRS = 'pairs of a behavior and a situation';
+
+/**
+ * D-7: how much societies disagree about a pair, as a rank in words rather than a bare τ: "more
+ * than about any other pair of a behavior and a situation", "about as much as about a typical
+ * pair of a behavior and a situation (70th of 150)". The top and bottom ten are named as such and
+ * the rest by thirds, counted from the most disagreement; τ itself stays in the details. It also
+ * defines "pair" where a page first uses it (decision 5).
+ */
+export function disagreementWords(r: { top: number; bottom: number; of: number }): string {
+	if (r.top === 1) return `more than about any other ${PAIR}`;
+	if (r.bottom === 1) return `less than about any other ${PAIR}`;
+	if (r.top <= 10)
+		return `more than about almost any other ${PAIR} (${ordinal(r.top)} most of ${r.of})`;
+	if (r.bottom <= 10) {
+		return `less than about almost any other ${PAIR} (${ordinal(r.bottom)} least of ${r.of})`;
+	}
+	if (r.top <= r.of / 3) return `more than about most ${PAIRS} (${ordinal(r.top)} of ${r.of})`;
+	if (r.top > (2 * r.of) / 3) return `less than about most ${PAIRS} (${ordinal(r.top)} of ${r.of})`;
+	return `about as much as about a typical ${PAIR} (${ordinal(r.top)} of ${r.of})`;
+}
+
+/**
+ * NFR-11, FR-87: one cell's global picture, the finding first (D-5, D-7) and the response label
+ * and share before any number (D-6): "Societies disagree about singing at a funeral ceremony more
+ * than about any other pair of a behavior and a situation. Respondents in 90 societies judged it
+ * somewhat inappropriate on average, and 31% chose an appropriate answer." The share is the average
+ * of the societies' shares (decision 5).
+ */
 export function cellSummary(global: GlobalCells, cell: number, scale: Scale): string {
-	const m = global.mean(cell, scale);
-	const tau = global.tau(cell, scale);
-	const taus = Array.from({ length: CELL_COUNT }, (_, c) => cents(global.tau(c, scale)));
-	const higher = taus.filter((t) => t > cents(tau)).length;
-	const lower = taus.filter((t) => t < cents(tau)).length;
-	const [k, end] = higher <= lower ? [higher + 1, 'highest'] : [lower + 1, 'lowest'];
-	const position = k === 1 ? `the ${end}` : `the ${ordinal(k)} ${end}`;
+	const words = disagreementWords(disagreementRank(global, cell, scale));
 	return (
-		`On average, respondents in ${global.societies(cell)} societies judged ` +
-		`${phrase(CELLS[cell])} ${responseLabel(m)} (${score(m)}; ${percent(global.share(cell))} ` +
-		`chose an appropriate answer), and disagreement between societies is ${spread(tau)}, ` +
-		`${position} of the ${CELL_COUNT} pairs.`
+		`Societies disagree about ${phrase(CELLS[cell])} ${words}. Respondents in ` +
+		`${global.societies(cell)} societies judged it ${responseLabel(global.mean(cell, scale))} on ` +
+		`average, and ${percent(global.share(cell))} chose an appropriate answer.`
 	);
 }
 
-/** NFR-11: the beeswarm and map in one sentence. */
+/**
+ * NFR-11: the beeswarm and map in one sentence, in response labels (D-6): "Average answers about
+ * singing at a funeral ceremony run from extremely inappropriate among respondents in Saudi Arabia
+ * to somewhat appropriate among respondents in the Caribbean". The axis carries the numbers.
+ */
 export function societiesSummary(
 	column: readonly SocietyCell[],
 	lookup: (code: string) => Society | undefined,
@@ -223,26 +277,36 @@ export function societiesSummary(
 	};
 	const low = sorted[0];
 	const high = sorted[sorted.length - 1];
+	const [lowLabel, highLabel] = [low, high].map((c) => responseLabel(c.estimate!.value));
+	if (lowLabel === highLabel) {
+		return (
+			`Every society's average answer about ${phrase(CELLS[cell])} is ${lowLabel}, from ` +
+			`respondents in ${name(low)} to respondents in ${name(high)}${tail}.`
+		);
+	}
 	return (
-		`Estimates for ${phrase(CELLS[cell])} run from ${score(low.estimate!.value)} among ` +
-		`respondents in ${name(low)} to ${score(high.estimate!.value)} among respondents in ` +
-		`${name(high)}${tail}.`
+		`Average answers about ${phrase(CELLS[cell])} run from ${lowLabel} among respondents in ` +
+		`${name(low)} to ${highLabel} among respondents in ${name(high)}${tail}.`
 	);
 }
 
-/** NFR-11: the behavior strip (FR-26) in one sentence. */
+/**
+ * NFR-11: the behavior strip (FR-26) in one sentence, in response labels (D-6): "Judgments of
+ * eating run from extremely appropriate in a restaurant to very inappropriate in a job interview."
+ */
 export function stripSummary(global: GlobalCells, behavior: Behavior, scale: Scale): string {
 	const b = BEHAVIORS.indexOf(behavior);
 	const cells = SITUATIONS.map((_, s) => b * SITUATIONS.length + s);
 	const sorted = [...cells].sort((x, y) => global.mean(x, scale) - global.mean(y, scale) || x - y);
 	const low = sorted[0];
 	const high = sorted[sorted.length - 1];
-	const gerund = BEHAVIOR_TEXT[behavior].gerund.toLowerCase();
-	return (
-		`Across the ${SITUATIONS.length} situations, ${gerund} scores highest ` +
-		`${SITUATION_TEXT[CELLS[high].situation].item} (${score(global.mean(high, scale))}) and ` +
-		`lowest ${SITUATION_TEXT[CELLS[low].situation].item} (${score(global.mean(low, scale))}).`
-	);
+	const what = BEHAVIOR_TEXT[behavior].gerund.toLowerCase();
+	const where = (c: number) => SITUATION_TEXT[CELLS[c].situation].item;
+	const [highLabel, lowLabel] = [high, low].map((c) => responseLabel(global.mean(c, scale)));
+	return highLabel === lowLabel
+		? `Judgments of ${what} are ${highLabel} in every situation, highest ${where(high)} and ` +
+				`lowest ${where(low)}.`
+		: `Judgments of ${what} run from ${highLabel} ${where(high)} to ${lowLabel} ${where(low)}.`;
 }
 
 /**

@@ -258,7 +258,7 @@
 					title="{headline(CELLS[c.cell])}, society by society"
 					summary="Each shape is one society's average answer; they run from {score(
 						c.range[0]
-					)} to {score(c.range[1])}, around a global mean of {score(c.mean)}."
+					)} to {score(c.range[1])}, around a global average of {score(c.mean)}."
 					about={resolve('method/#disagreement')}
 				>
 					{#snippet chart()}

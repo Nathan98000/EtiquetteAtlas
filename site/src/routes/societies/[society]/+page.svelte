@@ -342,7 +342,7 @@
 									key={[
 										{ label: `Respondents in ${names[0]}`, mark: 'dot' },
 										{ label: `Respondents in ${names[1]}`, mark: 'ring' },
-										{ label: 'Global mean', mark: 'vtick' }
+										{ label: 'Global average', mark: 'vtick' }
 									]}
 									label="Pairs both can show, largest gap first"
 									showFirst="Show the 25 largest gaps"

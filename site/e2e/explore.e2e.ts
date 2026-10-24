@@ -54,7 +54,7 @@ test.describe('the matrix from 640 px', () => {
 		await expect(tip).toBeVisible();
 		await expect(tip).toContainText('Using a mobile phone at a funeral ceremony');
 		for (const text of [
-			'Global mean',
+			'Global average',
 			'95% interval',
 			'Disagreement',
 			'Societies',
@@ -114,7 +114,9 @@ test.describe('the matrix from 640 px', () => {
 	test('NFR-11: the matrix has a one-sentence summary and a table view', async ({ page }) => {
 		await page.goto(explore);
 		await matrixReady(page);
-		await expect(page.locator('#matrix-summary')).toHaveText(/^Average judgments run from .*\.$/);
+		await expect(page.locator('#matrix-summary')).toHaveText(
+			/^.+ is judged the most appropriate on average .*\.$/
+		);
 		await page.getByRole('button', { name: 'Show as table' }).click();
 		const table = page.getByRole('table', { name: /Global average and disagreement/ });
 		await expect(table.getByRole('row')).toHaveCount(151);

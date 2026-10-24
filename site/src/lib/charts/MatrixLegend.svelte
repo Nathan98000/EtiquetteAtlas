@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { respondentsIn, spread } from '#lib/data/format.ts';
+	import { respondentsIn } from '#lib/data/format.ts';
 	import Ramp from './Ramp.svelte';
 	import { dotSize, MARK_GLYPH, type MatrixCell, type SelectedSociety } from './matrix-model';
 
@@ -20,12 +20,14 @@
 		<Ramp ends={['Extremely inappropriate', '0', 'Extremely appropriate']} />
 	</div>
 	<div class="item">
-		<p class="key">Disagreement between societies (circle size)</p>
+		<p class="key">How much societies disagree (circle size)</p>
+		<!-- D-7: in words; each pair's value stays in its details. -->
 		<ul class="sizes">
-			{#each sizes as tau (tau)}
+			{#each sizes as tau, i (tau)}
 				<li>
+					{#if i === 0}less{/if}
 					<span class="dot-box"><span class="dot" style="--r: {dotSize(tau)}"></span></span>
-					{spread(tau)}
+					{#if i === sizes.length - 1}more{/if}
 				</li>
 			{/each}
 		</ul>
@@ -34,11 +36,11 @@
 	<ul class="item rings">
 		<li>
 			<span class="ring universal" aria-hidden="true"></span>
-			Most universal: {universal ? `${universal.headline} (${spread(universal.tau)})` : '…'}
+			Most universal: {universal?.headline ?? '…'}
 		</li>
 		<li>
 			<span class="ring dependent" aria-hidden="true"></span>
-			Most culture-dependent: {dependent ? `${dependent.headline} (${spread(dependent.tau)})` : '…'}
+			Most culture-dependent: {dependent?.headline ?? '…'}
 		</li>
 	</ul>
 	{#if society}
@@ -48,9 +50,11 @@
 					respondentsIn(society.code, society.name).slice(1)}, compared with the global average
 			</p>
 			<ul class="marks">
-				<li><span aria-hidden="true">{MARK_GLYPH.looser}</span> looser (more appropriate)</li>
-				<li><span aria-hidden="true">{MARK_GLYPH.stricter}</span> stricter (less appropriate)</li>
-				<li>no mark: close</li>
+				<li><span aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more appropriate)</li>
+				<li>
+					<span aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter (less appropriate)
+				</li>
+				<li>no mark: too close to call</li>
 				<li><span aria-hidden="true">{MARK_GLYPH.missing}</span> too few responses or not asked</li>
 			</ul>
 		</div>
