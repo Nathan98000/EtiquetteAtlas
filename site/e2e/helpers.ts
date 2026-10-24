@@ -114,6 +114,18 @@ export async function arrowsReady(page: Page) {
 	await expect(page.locator('#arrows-rows circle.dot').first()).toBeVisible();
 }
 
+/** A sample's radio, which waits under Options at every width (decision 10, D-33). */
+export function sampleRadio(page: Page, label: string) {
+	return page.getByRole('radio', { name: label, includeHidden: true });
+}
+
+/** Picks a sample, opening Options first (decision 10, D-33). */
+export async function pickSample(page: Page, label: string) {
+	const radio = sampleRadio(page, label);
+	if (!(await radio.isVisible())) await page.getByRole('button', { name: 'Options' }).click();
+	await radio.check();
+}
+
 /** Presses Tab until the locator has focus, as a keyboard user would (NFR-13). */
 export async function tabTo(page: Page, target: Locator, max = 40) {
 	for (let i = 0; i < max; i++) {

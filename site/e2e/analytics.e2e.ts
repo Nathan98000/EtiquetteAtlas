@@ -1,6 +1,6 @@
 import type { Page, Request } from '@playwright/test';
 import { analytics, basePath } from '../site.config.js';
-import { BEACON_LIVE, expect, test, url } from './helpers';
+import { BEACON_LIVE, expect, pickSample, test, url } from './helpers';
 
 // AT-9, FR-90, FR-91, C-11, NFR-30 to NFR-32: every page loads the analytics beacon, the only
 // third party it contacts, and nothing sets a cookie or stores anything but the theme, the quiz
@@ -80,7 +80,7 @@ test('FR-91, C-12, decision 94: nothing sent to the analytics carries a quiz ans
 	await expect(page.locator('.beeswarm .marker-label')).toBeVisible();
 	await page.goto(url('explore/?society=chl&sample=paper'), { waitUntil: 'networkidle' });
 	// A view change moves the query string in place, which the live beacon reports as a page view.
-	await page.locator('input[name="sample"][value="attention"]').check();
+	await pickSample(page, 'Passed the attention check');
 	await expect(page).toHaveURL(/sample=attention/);
 	if (BEACON_LIVE) await page.waitForTimeout(1500);
 

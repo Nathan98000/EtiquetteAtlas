@@ -1,4 +1,14 @@
-import { audiencesReady, expect, slopeReady, tabTo, test, url, watchCsp } from './helpers';
+import {
+	audiencesReady,
+	expect,
+	pickSample,
+	sampleRadio,
+	slopeReady,
+	tabTo,
+	test,
+	url,
+	watchCsp
+} from './helpers';
 
 const details = (page: import('@playwright/test').Page) =>
 	page.getByRole('complementary', { name: 'Details' });
@@ -245,7 +255,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await expect(page.locator('#slope-summary')).toContainText('respondents in Japan');
 	const japan = await page.locator('#slope-summary').textContent();
 
-	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
+	await pickSample(page, 'Passed the attention check');
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
 	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(page.locator('#slope-summary')).not.toHaveText(japan ?? '');
@@ -267,7 +277,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await page.goForward();
 	await page.goForward();
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Passed the attention check' })).toBeChecked();
+	await expect(sampleRadio(page, 'Passed the attention check')).toBeChecked();
 	await expect(box).toHaveValue('Japan');
 
 	// The header carries the society, sample and scale into the module and out of it.
@@ -310,10 +320,10 @@ test('NFR-13: by keyboard alone, open a behavior, read its slopegraph, switch to
 	await page.keyboard.press('Enter');
 	await expect(management).toHaveAttribute('aria-pressed', 'true');
 
-	// Back to the society switch, where an arrow picks all societies.
+	// On to the society switch, under the chart (D-23), where an arrow picks all societies.
 	const own = page.getByRole('radio', { name: 'Respondents in Chile' });
 	for (let i = 0; i < 20 && !(await own.evaluate((el) => el === document.activeElement)); i++) {
-		await page.keyboard.press('Shift+Tab');
+		await page.keyboard.press('Tab');
 	}
 	await expect(own).toBeFocused();
 	await page.keyboard.press('ArrowRight');

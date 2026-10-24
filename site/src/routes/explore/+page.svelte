@@ -123,21 +123,25 @@
 			{summary}
 			about={resolve('method/#global')}
 			centered={vs.scale === 'centered'}
+			scaled
 		>
 			{#snippet explain()}
-				{#if global.current}
-					{@const shift = centeringShift(global.current)}
-					The global averages move by {shift < 0.005
+				{@const shift = global.current ? centeringShift(global.current) : null}
+				The global averages move by {shift === null
+					? '…'
+					: shift < 0.005
 						? 'less than 0.01'
 						: `${spread(shift)} at most`}, so the matrix barely changes; centering matters on a
-					<a href={societyHref(vs.society, vs)}>society's fingerprint</a>.
-				{/if}
+				<a href={societyHref(vs.society, vs)}>society's fingerprint</a>.
 			{/snippet}
 			{#snippet controls()}
 				<SortSelect keys={SORT_KEYS} value={vs.sort} onchange={(sort) => setView({ sort })} />
 			{/snippet}
 			{#snippet legend()}
 				<MatrixLegend {universal} {dependent} {society} />
+			{/snippet}
+			{#snippet below()}
+				<MatrixLegend {universal} {dependent} part="rings" />
 			{/snippet}
 			{#snippet chart()}
 				<div class="grid-view">

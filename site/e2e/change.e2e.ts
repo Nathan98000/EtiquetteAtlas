@@ -3,6 +3,8 @@ import {
 	arrowsReady,
 	expect,
 	matrixReady,
+	pickSample,
+	sampleRadio,
 	swarmReady,
 	tabTo,
 	test,
@@ -188,10 +190,17 @@ test.describe('FR-50: a society’s page', () => {
 test.describe('FR-53: a society without 2000–2003 data', () => {
 	test('says so and shows the societies in both surveys', async ({ page }) => {
 		await page.goto(url('change/?society=chl'));
-		await expect(page.getByRole('status').filter({ hasText: 'did not include' })).toHaveText(
-			/^The 2000–2003 survey did not include Chile, so this page shows the 26 societies in both surveys\./
+		// D-19: the notice in the lede's place, with the societies in both surveys to pick from.
+		const notice = page.getByRole('status').filter({ hasText: 'did not include' });
+		await expect(notice.locator('p')).toHaveText(
+			'The 2000–2003 survey did not include Chile, so this page shows the 26 societies in both surveys.'
 		);
-		await expect(page.getByRole('combobox', { name: 'Society' })).toHaveValue('Chile');
+		await expect(page.locator('.lede')).toHaveCount(0);
+		const only = notice.getByRole('combobox', { name: 'Pick a society in both surveys' });
+		await only.fill('chil');
+		await expect(notice.getByRole('option')).toHaveCount(0);
+		await only.fill('');
+		await expect(page.getByRole('combobox', { name: 'Society', exact: true })).toHaveValue('Chile');
 		await expect(page.locator('#arrows-title')).toHaveText(
 			'Averaged over the 26 societies in both surveys, pair by pair'
 		);
@@ -287,7 +296,7 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	);
 	await expect(page.locator('#arrows-summary')).toContainText('for respondents in Japan');
 
-	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
+	await pickSample(page, 'Passed the attention check');
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
 	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(page.locator('.lede')).toHaveText(
@@ -312,7 +321,7 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await page.goForward();
 	await page.goForward();
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Passed the attention check' })).toBeChecked();
+	await expect(sampleRadio(page, 'Passed the attention check')).toBeChecked();
 	await expect(box).toHaveValue('Japan');
 	await expect(page.locator('.lede')).toHaveText(/judged 24 clearly more appropriate/);
 });

@@ -6,15 +6,17 @@
 		value: T;
 		options: readonly { value: T; label: string }[];
 		onchange: (value: T) => void;
+		/** One option per line, as in a menu (D-33). */
+		vertical?: boolean;
 	}
 
-	let { legend, name, value, options, onchange }: Props = $props();
+	let { legend, name, value, options, onchange, vertical = false }: Props = $props();
 </script>
 
 <!-- A radio group drawn as a segmented control: arrow keys move between options natively. -->
 <fieldset class="segmented">
 	<legend>{legend}</legend>
-	<div class="options">
+	<div class="options" class:vertical>
 		{#each options as option (option.value)}
 			<label class:checked={option.value === value}>
 				<input
@@ -66,6 +68,16 @@
 
 	label + label {
 		border-left: 1px solid var(--border-strong);
+	}
+
+	.vertical {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.vertical label + label {
+		border-left: 0;
+		border-top: 1px solid var(--border-strong);
 	}
 
 	label:hover {

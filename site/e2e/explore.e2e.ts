@@ -108,7 +108,7 @@ test.describe('the matrix from 640 px', () => {
 			grid.getByRole('link', { name: /respondents in Chile: .*looser than/ }).first()
 		).toBeVisible();
 		await expect(grid.locator('.mark').first()).toBeVisible();
-		await expect(page.getByText(/compared with the global average/)).toBeVisible();
+		await expect(page.locator('.legend').getByText(/^Respondents in Chile:$/)).toBeVisible();
 	});
 
 	test('NFR-11: the matrix has a one-sentence summary and a table view', async ({ page }) => {

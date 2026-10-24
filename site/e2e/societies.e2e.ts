@@ -3,6 +3,7 @@ import {
 	expect,
 	matrixReady,
 	noSidewaysScroll,
+	pickSample,
 	societiesReady,
 	test,
 	url,
@@ -252,7 +253,7 @@ test('FR-34: the facts panel shows respondents, students, languages, fieldwork a
 		'href',
 		/method\/#facts$/
 	);
-	await page.getByRole('radio', { name: "The paper's sample" }).check();
+	await pickSample(page, "The paper's sample");
 	await expect(facts).toContainText("Respondents (the paper's sample)");
 	// Decision 17: Mauritius has no month with 10 respondents starting in the paper's sample.
 	await page.goto(url('societies/mus/?sample=paper'));
@@ -316,7 +317,7 @@ test.describe('the index of societies', () => {
 		]);
 		await expect(regions.getByRole('link')).toHaveCount(90);
 		await expect(regions.getByText('not in this sample')).toHaveCount(0);
-		await page.getByRole('radio', { name: "The paper's sample" }).check();
+		await pickSample(page, "The paper's sample");
 		await expect(page).toHaveURL(/\/societies\/\?sample=paper$/);
 		await expect(regions.getByText('not in this sample')).toHaveCount(19);
 		await expect(page.locator('.lede')).toHaveText(

@@ -164,6 +164,7 @@
 				summary={swarmSummary}
 				about={resolve('method/#intervals')}
 				centered={vs.scale === 'centered'}
+				scaled
 				explain={CENTERING}
 			>
 				{#snippet legend()}
@@ -239,6 +240,7 @@
 				summary={d ? regionSummary(d.plotted) : data.mapSummary}
 				about={resolve('method/#map')}
 				centered={vs.scale === 'centered'}
+				scaled
 			>
 				{#snippet legend()}
 					<RegionLegend mode="estimate" />
@@ -282,6 +284,7 @@
 					summary={files ? stripSummary(files.global, behavior, vs.scale) : data.stripSummary}
 					about={resolve('method/#global')}
 					centered={vs.scale === 'centered'}
+					scaled
 				>
 					{#snippet chart()}
 						<BehaviorStrip cells={model} {cell} {href} />

@@ -1,4 +1,4 @@
-import { expect, swarmReady, test, url, watchCsp } from './helpers';
+import { expect, sampleRadio, swarmReady, test, url, watchCsp } from './helpers';
 
 const cell = url('explore/usemphone/funeral/');
 
@@ -13,7 +13,7 @@ test('AT-2: a cell URL with society and sample opens in a fresh browser with tha
 	await swarmReady(page);
 
 	// FR-4: the sample is applied and its badge shows.
-	await expect(page.getByRole('radio', { name: "The paper's sample" })).toBeChecked();
+	await expect(sampleRadio(page, "The paper's sample")).toBeChecked();
 	await expect(page.locator('.badge')).toHaveText(/The paper's sample: 71 societies/);
 
 	// FR-3, FR-20, FR-25: the society is highlighted and ranked.

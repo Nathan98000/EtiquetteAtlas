@@ -20,11 +20,18 @@
 		{ value: 'centered', label: RELATIVE[0].toUpperCase() + RELATIVE.slice(1) }
 	];
 	const counts: Record<SampleId, number> = { all: 90, paper: 71, attention: 80 };
+
+	function keydown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && optionsOpen) optionsOpen = false;
+	}
 </script>
 
 <!-- FR-3 to FR-5, FR-81: the global controls. Every change updates the URL, and every view
-     reads the URL, so all of them change together (§6.3, AT-11). -->
-<section class="control-bar" aria-label="View controls">
+     reads the URL, so all of them change together (§6.3, AT-11). D-33, decision 10: from 1024 px
+     one row, the society, the scale, Options and Copy link; the sample is under Options at every
+     width, and below 1024 px so are the scale and Copy link. -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<section class="control-bar" aria-label="View controls" onkeydown={keydown}>
 	<div class="inner">
 		<SocietyPicker
 			societies={societies.current}
@@ -32,6 +39,13 @@
 			{sample}
 			onselect={(code) => setView({ society: code })}
 		/>
+		<!-- FR-4: a badge whenever a non-default sample is active, outside Options. A `?sample=` link
+		     holds its place from the first paint (app.html), so the bar does not move (NFR-2). -->
+		<p class="badge" class:shown={sample !== 'all'} role="status">
+			{#if sample !== 'all'}
+				{SAMPLE_LABEL[sample]}: {societies.current?.count(sample) ?? counts[sample]} societies
+			{/if}
+		</p>
 		<button
 			type="button"
 			class="options-toggle button"
@@ -49,14 +63,8 @@
 					value={sample}
 					options={sampleOptions}
 					onchange={(value) => setView({ sample: value })}
+					vertical
 				/>
-				<!-- FR-4: a badge whenever a non-default sample is active. Its space is kept so the
-				     bar does not move when it appears. -->
-				<p class="badge" class:shown={sample !== 'all'} role="status">
-					{#if sample !== 'all'}
-						{SAMPLE_LABEL[sample]}: {societies.current?.count(sample) ?? counts[sample]} societies
-					{/if}
-				</p>
 			</div>
 			<div class="scale">
 				<Segmented
@@ -68,7 +76,9 @@
 				/>
 				<a class="about" href={resolve('method/#centered')}>About the two scales</a>
 			</div>
-			<CopyLink />
+			<div class="copy">
+				<CopyLink />
+			</div>
 		</div>
 	</div>
 </section>
@@ -80,20 +90,43 @@
 	}
 
 	.inner {
+		position: relative;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-end;
-		gap: 0.75rem 1.5rem;
+		gap: 0.75rem 1rem;
 		max-width: var(--page);
 		margin: 0 auto;
 		padding: 0.75rem var(--gutter);
 	}
 
-	.options {
-		display: contents;
+	.badge {
+		display: none;
+		min-width: 15rem;
+		min-height: 2rem;
+		margin: 0;
+		padding: 0.25rem 0.625rem;
+		border: 2px solid var(--text);
+		border-radius: 999px;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		align-self: center;
 	}
 
-	.sample,
+	.badge.shown,
+	:global(html[data-sample]) .badge {
+		display: block;
+	}
+
+	/* On a phone the badge takes its own line under the search. */
+	@media (max-width: 639.98px) {
+		.badge {
+			order: 3;
+			flex-basis: 100%;
+			min-width: 0;
+		}
+	}
+
 	.scale {
 		display: flex;
 		flex-wrap: wrap;
@@ -101,65 +134,76 @@
 		gap: 0.25rem 0.75rem;
 	}
 
-	.badge {
-		min-width: 13rem;
-		margin: 0;
-		padding: 0.25rem 0.625rem;
-		border: 2px solid transparent;
-		border-radius: 999px;
-		font-size: var(--text-sm);
-		font-weight: 600;
-		visibility: hidden;
-	}
-
-	.badge.shown {
-		visibility: visible;
-		border-color: var(--text);
-	}
-
 	.about {
 		font-size: var(--text-sm);
 		padding: 0.5rem 0;
 	}
 
-	.options-toggle {
+	/* Below 1024 px: the sample, the scale and Copy link fold under Options (§6.2, D-33). */
+	.options {
 		display: none;
+		flex-basis: 100%;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
 	}
 
-	/* < 640 px: the picker stays in a sticky bar and the other controls fold away (§6.2). */
+	.options.open {
+		display: flex;
+	}
+
+	/* < 640 px: the bar stays in reach as the page scrolls (§6.2). */
 	@media (max-width: 639.98px) {
 		.control-bar {
 			position: sticky;
 			top: 0;
 			z-index: 15;
 		}
+	}
 
+	/* ≥ 1024 px: one row; only the sample waits under Options, in a small panel. */
+	@media (min-width: 1024px) {
 		.inner {
-			flex-wrap: wrap;
-			align-items: flex-end;
+			flex-wrap: nowrap;
 		}
 
-		.options-toggle {
-			display: inline-flex;
-		}
-
-		.options {
-			display: none;
-			flex-basis: 100%;
-		}
-
+		.options,
 		.options.open {
-			display: flex;
-			flex-direction: column;
-			gap: 0.75rem;
+			display: contents;
+		}
+
+		.scale {
+			order: 1;
 		}
 
 		.badge {
-			min-width: 0;
+			order: 2;
 		}
 
-		.badge:not(.shown) {
+		.options-toggle {
+			order: 3;
+			margin-left: auto;
+		}
+
+		.copy {
+			order: 4;
+		}
+
+		.sample {
 			display: none;
+		}
+
+		.options.open .sample {
+			display: block;
+			position: absolute;
+			z-index: 20;
+			top: calc(100% - 0.25rem);
+			right: var(--gutter);
+			padding: 0.75rem;
+			border: 1px solid var(--border-strong);
+			border-radius: var(--radius);
+			background: var(--surface-raised);
+			box-shadow: var(--shadow);
 		}
 	}
 </style>

@@ -26,6 +26,11 @@
 		table: Snippet;
 		/** D-3, FR-5: the chart shows centered scores, so it says so beside its title. */
 		centered?: boolean;
+		/**
+		 * The chart follows the scale toggle: a page opened with `?scale=centered` holds its note's
+		 * space from the first paint (app.html), before the URL applies (NFR-2).
+		 */
+		scaled?: boolean;
 		/** What centering does, said once per page on its first chart (CENTERING, or more). */
 		explain?: string | Snippet;
 	}
@@ -41,6 +46,7 @@
 		chart,
 		table,
 		centered = false,
+		scaled = false,
 		explain
 	}: Props = $props();
 
@@ -52,9 +58,9 @@
 		<h2 id="{id}-title">{title}</h2>
 		{#if controls}<div class="tools">{@render controls()}</div>{/if}
 	</div>
-	{#if centered}
+	{#if centered || scaled}
 		<!-- D-3: nothing else on the chart may show that the scale changed, so the chart says so. -->
-		<p class="scale-chip">
+		<p class="scale-chip" class:pending={!centered} aria-hidden={centered ? undefined : 'true'}>
 			<strong>Relative to each society's own average.</strong>
 			{#if typeof explain === 'string'}{explain}{:else}{@render explain?.()}{/if}
 			<button type="button" class="link-button" onclick={() => setView({ scale: 'raw' })}>
@@ -121,6 +127,15 @@
 
 	.about {
 		font-size: var(--text-sm);
+	}
+
+	.scale-chip.pending {
+		display: none;
+	}
+
+	:global(html[data-centered]) .scale-chip.pending {
+		display: block;
+		visibility: hidden;
 	}
 
 	.scale-chip {

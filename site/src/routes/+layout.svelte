@@ -11,10 +11,15 @@
 	let { children }: LayoutProps = $props();
 
 	// NFR-2: prerendered pages cannot read their query string, so app.html marks a page opened with
-	// `?society=` before its first paint and CSS reserves the society's space from the start. Once
-	// the URL applies, the mark follows the view, as the reader moves between pages.
+	// `?society=`, another sample or the centered scale before its first paint, and CSS reserves the
+	// society's space, the sample's badge and the scale's notes from the start. Once the URL applies, the marks follow the view, as the
+	// reader moves between pages.
 	$effect(() => {
-		if (view.ready) document.documentElement.toggleAttribute('data-society', !!view.state.society);
+		if (!view.ready) return;
+		const root = document.documentElement;
+		root.toggleAttribute('data-society', !!view.state.society);
+		root.toggleAttribute('data-sample', view.state.sample !== 'all');
+		root.toggleAttribute('data-centered', view.state.scale === 'centered');
 	});
 
 	onMount(() => {

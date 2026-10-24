@@ -1,4 +1,4 @@
-import { expect, matrixReady, swarmReady, test, url } from './helpers';
+import { expect, matrixReady, pickSample, sampleRadio, swarmReady, test, url } from './helpers';
 
 test('AT-11: society, sample and scale update every view and the URL; back and forward restore them', async ({
 	page
@@ -24,7 +24,7 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 
 	// FR-4: the sample changes every view and shows its badge.
 	const before = await page.locator('#swarm-summary').textContent();
-	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
+	await pickSample(page, 'Passed the attention check');
 	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
 	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(page.locator('#swarm-summary')).not.toHaveText(before ?? '');
@@ -46,14 +46,14 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
 	await page.goBack();
 	await expect(page).toHaveURL(/\?society=chl$/);
-	await expect(page.getByRole('radio', { name: 'All respondents' })).toBeChecked();
+	await expect(sampleRadio(page, 'All respondents')).toBeChecked();
 	await expect(page.locator('.badge')).toHaveText('');
 	await page.goBack();
 	await expect(box).toHaveValue('');
 	await page.goForward();
 	await page.goForward();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'Passed the attention check' })).toBeChecked();
+	await expect(sampleRadio(page, 'Passed the attention check')).toBeChecked();
 	await expect(box).toHaveValue('Chile');
 });
 
@@ -81,7 +81,7 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 	);
 	await chip.getByRole('button', { name: 'Show as answered' }).click();
 	await expect(page).toHaveURL(/\?society=jpn$/);
-	await expect(chip).toHaveCount(0);
+	await expect(chip).toBeHidden();
 	await page.goBack();
 	await expect(
 		page.getByRole('radio', { name: "Relative to each society's average" })
@@ -115,7 +115,7 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 
 	// FR-4: the sample changes the grid, summary, facts and similar societies.
 	const before = await lede.textContent();
-	await page.getByRole('radio', { name: 'Passed the attention check' }).check();
+	await pickSample(page, 'Passed the attention check');
 	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
 	await expect(page.locator('.badge')).toHaveText(/Passed the attention check: 80 societies/);
 	await expect(facts).toContainText('Respondents (the attention-check sample)');
@@ -138,7 +138,7 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 	await expect(lede).toHaveText(/^Respondents in Japan/);
 	await page.goBack();
 	await expect(page).toHaveURL(/\/societies\/jpn\/$/);
-	await expect(page.getByRole('radio', { name: 'All respondents' })).toBeChecked();
+	await expect(sampleRadio(page, 'All respondents')).toBeChecked();
 	await page.goBack();
 	await expect(page).toHaveURL(/\/societies\/chl\/$/);
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Respondents in Chile');
@@ -193,7 +193,7 @@ test('§4.4: a society outside the sample reads "not in this sample"', async ({ 
 test('§6.1: invalid query values fall back to the defaults', async ({ page }) => {
 	await page.goto(url('explore/?society=zzz&sample=everyone&scale=log&sort=random'));
 	await matrixReady(page);
-	await expect(page.getByRole('radio', { name: 'All respondents' })).toBeChecked();
+	await expect(sampleRadio(page, 'All respondents')).toBeChecked();
 	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
 	await expect(page.getByLabel('Sort')).toHaveValue('paper');
 	await expect(page.getByRole('combobox', { name: 'Society' })).toHaveValue('');

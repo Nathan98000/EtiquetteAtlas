@@ -240,6 +240,7 @@
 				summary={chartSummary}
 				about={resolve('method/#fingerprint')}
 				centered={vs.scale === 'centered'}
+				scaled
 				explain={CENTERING}
 			>
 				{#snippet controls()}
@@ -361,6 +362,7 @@
 						summary={result ? comparisonSummary(pair, result, vs.scale) : 'Loading the comparison…'}
 						about={resolve('method/#compare')}
 						centered={vs.scale === 'centered'}
+						scaled
 					>
 						{#snippet chart()}
 							{#if result && dumbbell}
