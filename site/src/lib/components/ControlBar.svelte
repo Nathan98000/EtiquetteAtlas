@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { loadSocieties } from '#lib/data/load.ts';
 	import { SAMPLE_LABEL, SAMPLES, type SampleId, type Scale } from '#lib/data/model.ts';
 	import { RELATIVE } from '#lib/data/format.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
-	import { setView, view } from '#lib/state/view.svelte.ts';
+	import { pairHref, setView, view } from '#lib/state/view.svelte.ts';
 	import CopyLink from './CopyLink.svelte';
 	import Segmented from './Segmented.svelte';
 	import SocietyPicker from './SocietyPicker.svelte';
@@ -29,7 +30,8 @@
 <!-- FR-3 to FR-5, FR-81: the global controls. Every change updates the URL, and every view
      reads the URL, so all of them change together (§6.3, AT-11). D-33, decision 10: from 1024 px
      one row, the society, the scale, Options and Copy link; the sample is under Options at every
-     width, and below 1024 px so are the scale and Copy link. -->
+     width, and below 1024 px so are the scale and Copy link. Decision 11: the society box also
+     finds behaviors in situations and opens the pair, keeping the society. -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <section class="control-bar" aria-label="View controls" onkeydown={keydown}>
 	<div class="inner">
@@ -38,6 +40,7 @@
 			selected={view.state.society}
 			{sample}
 			onselect={(code) => setView({ society: code })}
+			onpair={(cell) => goto(pairHref(cell, view.state))}
 		/>
 		<!-- FR-4: a badge whenever a non-default sample is active, outside Options. A `?sample=` link
 		     holds its place from the first paint (app.html), so the bar does not move (NFR-2). -->

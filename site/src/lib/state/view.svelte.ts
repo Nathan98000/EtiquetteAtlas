@@ -2,7 +2,7 @@ import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { page } from '$app/state';
 import type { ResolvedPathname } from '$app/types';
-import { slug, type Behavior } from '../data/grid';
+import { cellParams, slug, type Behavior, type Cell } from '../data/grid';
 import { inChangeSurvey } from '../data/model';
 import {
 	AUDIENCE_KEYS,
@@ -20,6 +20,8 @@ import {
 	SOCIETIES_KEYS,
 	SOCIETIES_ROUTE,
 	AUDIENCES_ROUTE,
+	CELL_KEYS,
+	GLOBAL_KEYS,
 	defaultsFor,
 	keysFor,
 	parseView,
@@ -63,6 +65,13 @@ export function societyPath(code: string | null): ResolvedPathname {
 /** A link to a society's fingerprint that keeps the sample and scale (FR-32, decision 44). */
 export function societyHref(code: string | null, state: ViewState): ResolvedPathname {
 	return withView(societyPath(code), state, SOCIETIES_KEYS);
+}
+
+/** A pair's page, keeping the society, sample and scale; between pairs, the estimate too. */
+export function pairHref(cell: Cell, state: ViewState): ResolvedPathname {
+	const { behavior, situation } = cellParams(cell);
+	const keys = page.route.id === '/explore/[behavior]/[situation]' ? CELL_KEYS : GLOBAL_KEYS;
+	return withView(resolve(`explore/${behavior}/${situation}/`), state, keys);
 }
 
 /**

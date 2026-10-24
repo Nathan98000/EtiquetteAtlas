@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { headline, type Cell } from '#lib/data/grid.ts';
 	import type { SampleId, Societies, Society } from '#lib/data/model.ts';
+	import { matchPairs, matchSocieties } from '#lib/data/search.ts';
 
 	interface Props {
 		societies: Societies | undefined;
@@ -14,6 +16,8 @@
 		exclude?: string | null;
 		/** The only societies offered, such as the 26 in both surveys (D-19). */
 		only?: readonly string[] | null;
+		/** Decision 11: typing also finds behaviors in situations, and choosing one calls this. */
+		onpair?: ((cell: Cell) => void) | null;
 	}
 
 	let {
@@ -24,7 +28,8 @@
 		label = 'Society',
 		clearLabel = 'Clear the society',
 		exclude = null,
-		only = null
+		only = null,
+		onpair = null
 	}: Props = $props();
 
 	const id = $props.id();
@@ -39,12 +44,6 @@
 
 	const current = $derived(societies?.get(selected));
 
-	const fold = (text: string) =>
-		text
-			.normalize('NFD')
-			.replace(/\p{Diacritic}/gu, '')
-			.toLowerCase();
-
 	const sorted = $derived(
 		societies
 			? societies.list
@@ -53,26 +52,50 @@
 			: []
 	);
 
-	// FR-3: type-ahead by name (or code); names that start with the text come first.
-	const options = $derived.by(() => {
-		const q = fold(query.trim());
-		if (!editing || !q) return sorted;
-		const starts: Society[] = [];
-		const contains: Society[] = [];
-		for (const society of sorted) {
-			const name = fold(society.name);
-			if (name.startsWith(q) || society.code.toLowerCase() === q) starts.push(society);
-			else if (name.includes(q)) contains.push(society);
-		}
-		return [...starts, ...contains];
-	});
+	type Option =
+		{ kind: 'society'; key: string; society: Society } | { kind: 'pair'; key: string; cell: Cell };
+	interface Group {
+		key: string;
+		label: string;
+		options: Option[];
+		/** How many more matched than are shown. */
+		more: number;
+	}
 
-	const optionId = (code: string) => `${id}-option-${code}`;
+	// FR-3: type-ahead by name (or code); names that start with the text come first. With pairs,
+	// typing shows up to 6 societies and 8 pairs, each in its own group (decision 11).
+	const groups: Group[] = $derived.by(() => {
+		const typed = editing ? query : '';
+		const found = matchSocieties(sorted, typed);
+		const shown = onpair && typed.trim() ? 6 : found.length;
+		const societyGroup: Group = {
+			key: 'societies',
+			label: 'Societies',
+			options: found
+				.slice(0, shown)
+				.map((society): Option => ({ kind: 'society', key: society.code, society })),
+			more: found.length - Math.min(shown, found.length)
+		};
+		if (!onpair) return [societyGroup];
+		const cells = matchPairs(typed);
+		const pairGroup: Group = {
+			key: 'pairs',
+			label: 'Behaviors in situations',
+			options: cells
+				.slice(0, 8)
+				.map((cell): Option => ({ kind: 'pair', key: `cell-${cell.index}`, cell })),
+			more: Math.max(0, cells.length - 8)
+		};
+		return [societyGroup, pairGroup].filter((group) => group.options.length);
+	});
+	const options = $derived(groups.flatMap((group) => group.options));
+
+	const optionId = (option: Option) => `${id}-option-${option.key}`;
 	const activeOption = $derived(open ? options[active] : undefined);
 
 	function show() {
 		open = true;
-		const i = options.findIndex((s) => s.code === current?.code);
+		const i = options.findIndex((o) => o.kind === 'society' && o.society.code === current?.code);
 		active = Math.max(0, i);
 	}
 
@@ -82,17 +105,17 @@
 		query = '';
 	}
 
-	function choose(society: Society) {
+	function choose(option: Option) {
 		close();
-		if (society.code !== current?.code) onselect(society.code);
+		if (option.kind === 'pair') onpair?.(option.cell);
+		else if (option.society.code !== current?.code) onselect(option.society.code);
 	}
 
 	function move(to: number) {
 		if (!open) show();
 		else active = Math.min(options.length - 1, Math.max(0, to));
-		document.getElementById(optionId(options[active]?.code ?? ''))?.scrollIntoView({
-			block: 'nearest'
-		});
+		const option = options[active];
+		if (option) document.getElementById(optionId(option))?.scrollIntoView({ block: 'nearest' });
 	}
 
 	function keydown(event: KeyboardEvent) {
@@ -149,14 +172,17 @@
 			bind:this={input}
 			id={inputId}
 			type="text"
+			class:clearable={current}
 			role="combobox"
 			aria-autocomplete="list"
 			aria-expanded={open}
 			aria-controls={listId}
-			aria-activedescendant={activeOption ? optionId(activeOption.code) : undefined}
+			aria-activedescendant={activeOption ? optionId(activeOption) : undefined}
 			autocomplete="off"
 			spellcheck="false"
-			placeholder="Search {societies?.list.length ?? 90} societies"
+			placeholder={onpair
+				? 'Search societies and situations'
+				: `Search ${societies?.list.length ?? 90} societies`}
 			value={editing ? query : (current?.name ?? '')}
 			oninput={(event) => {
 				query = event.currentTarget.value;
@@ -180,31 +206,69 @@
 		{/if}
 	</div>
 	{#if open}
-		<ul id={listId} role="listbox" aria-label="Societies">
-			{#each options as society, i (society.code)}
-				{@const outside = !societies?.inSample(society.code, sample)}
-				<li
-					id={optionId(society.code)}
-					role="option"
-					tabindex="-1"
-					aria-selected={i === active}
-					class:active={i === active}
-					class:chosen={society.code === current?.code}
-					onmousedown={(event) => event.preventDefault()}
-					onclick={() => choose(society)}
-					onkeydown={keydown}
-				>
-					{society.name}
-					{#if outside}<span class="note">not in this sample</span>{/if}
-				</li>
+		<ul
+			id={listId}
+			role="listbox"
+			aria-label={onpair ? 'Societies and behaviors in situations' : 'Societies'}
+		>
+			{#if onpair}
+				{#each groups as group (group.key)}
+					<li role="group" aria-labelledby="{id}-{group.key}">
+						<div class="group-label" id="{id}-{group.key}" role="presentation">
+							{group.label}
+						</div>
+						<ul role="none">
+							{#each group.options as option (option.key)}
+								{@render item(option)}
+							{/each}
+							{#if group.more}
+								<li class="more" role="presentation">{group.more} more: type another word</li>
+							{/if}
+						</ul>
+					</li>
+				{:else}
+					{@render empty()}
+				{/each}
 			{:else}
-				<li class="empty" role="presentation">
-					{societies ? 'No society matches' : 'Loading societies…'}
-				</li>
-			{/each}
+				{#each options as option (option.key)}
+					{@render item(option)}
+				{:else}
+					{@render empty()}
+				{/each}
+			{/if}
 		</ul>
 	{/if}
 </div>
+
+{#snippet item(option: Option)}
+	{@const i = options.indexOf(option)}
+	<li
+		id={optionId(option)}
+		role="option"
+		tabindex="-1"
+		aria-selected={i === active}
+		class:active={i === active}
+		class:chosen={option.kind === 'society' && option.society.code === current?.code}
+		onmousedown={(event) => event.preventDefault()}
+		onclick={() => choose(option)}
+		onkeydown={keydown}
+	>
+		{#if option.kind === 'pair'}
+			{headline(option.cell)}
+		{:else}
+			{option.society.name}
+			{#if !societies?.inSample(option.society.code, sample)}
+				<span class="note">not in this sample</span>
+			{/if}
+		{/if}
+	</li>
+{/snippet}
+
+{#snippet empty()}
+	<li class="empty" role="presentation">
+		{#if !societies}Loading societies…{:else if onpair}Nothing matches{:else}No society matches{/if}
+	</li>
+{/snippet}
 
 <style>
 	.picker {
@@ -228,10 +292,22 @@
 	input {
 		width: 100%;
 		min-height: 2.75rem;
-		padding: 0.375rem 2.75rem 0.375rem 0.75rem;
+		padding: 0.375rem 0.75rem;
 		border: 1px solid var(--border-strong);
 		border-radius: var(--radius);
 		background: var(--surface-raised);
+		text-overflow: ellipsis;
+	}
+
+	input.clearable {
+		padding-right: 2.75rem;
+	}
+
+	/* The search's prompt fits a phone's bar (decision 11). */
+	@media (max-width: 479.98px) {
+		input::placeholder {
+			font-size: var(--text-sm);
+		}
 	}
 
 	.clear {
@@ -263,6 +339,34 @@
 		box-shadow: var(--shadow);
 	}
 
+	ul ul {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		box-shadow: none;
+		position: static;
+		max-height: none;
+		overflow: visible;
+	}
+
+	li[role='group'] {
+		display: block;
+		padding: 0;
+		cursor: default;
+	}
+
+	li[role='group'] + li[role='group'] {
+		margin-top: 0.25rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.group-label {
+		padding: 0.375rem 0.75rem 0.125rem;
+		font-size: var(--text-sm);
+		font-weight: 700;
+		color: var(--text-muted);
+	}
+
 	li {
 		display: flex;
 		justify-content: space-between;
@@ -285,8 +389,13 @@
 		font-style: italic;
 	}
 
-	.empty {
+	.empty,
+	.more {
 		color: var(--text-muted);
 		cursor: default;
+	}
+
+	.more {
+		font-size: var(--text-sm);
 	}
 </style>

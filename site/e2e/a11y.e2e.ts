@@ -37,6 +37,15 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 	{ path: 'story/', ready: storyRead },
 	{ path: 'explore/?society=chl', ready: matrixReady },
 	{ path: 'explore/usemphone/funeral/?society=chl', ready: swarmReady },
+	{
+		// Decision 11: the search open with both groups.
+		path: 'explore/?sample=paper',
+		ready: async (page) => {
+			await matrixReady(page);
+			await page.getByRole('combobox', { name: 'Society' }).fill('mo');
+			await expect(page.getByRole('group', { name: 'Behaviors in situations' })).toBeVisible();
+		}
+	},
 	{ path: 'societies/', ready: societiesReady },
 	{
 		path: 'societies/chl/?compare=jpn',

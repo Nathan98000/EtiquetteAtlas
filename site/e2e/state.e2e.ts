@@ -310,3 +310,44 @@ for (const [path, sample, prefixes] of SAMPLE_ROUTES) {
 		}
 	});
 }
+
+test('decision 11: the society box also finds behaviors in situations and opens one, keeping the society', async ({
+	page
+}) => {
+	await page.goto(url('explore/?society=jpn&sample=paper'));
+	await matrixReady(page);
+	const box = page.getByRole('combobox', { name: 'Society' });
+	await expect(box).toHaveAttribute('placeholder', 'Search societies and situations');
+	await box.fill('bus');
+	const pairs = page.getByRole('group', { name: 'Behaviors in situations' });
+	await expect(pairs.getByRole('option')).toHaveCount(8);
+	await expect(pairs.getByRole('option').first()).toHaveText('Arguing on a bus');
+	await expect(pairs).toContainText('7 more: type another word');
+	await expect(page.getByRole('group', { name: 'Societies' })).toHaveCount(0);
+
+	// Up to 6 societies and 8 pairs, each group named.
+	await box.fill('mo');
+	await expect(page.getByRole('group', { name: 'Societies' }).getByRole('option')).toHaveCount(4);
+	await expect(pairs.getByRole('option').first()).toBeVisible();
+	await box.fill('an');
+	await expect(page.getByRole('group', { name: 'Societies' }).getByRole('option')).toHaveCount(6);
+	await expect(page.getByRole('group', { name: 'Societies' })).toContainText(
+		'19 more: type another word'
+	);
+
+	await box.fill('eat bus');
+	await expect(pairs.getByRole('option')).toHaveText(['Eating on a bus']);
+	await box.press('Enter');
+	await expect(page).toHaveURL(/\/explore\/eat\/bus\/\?society=jpn&sample=paper$/);
+	await expect(box).toHaveValue('Japan');
+	await expect(page.locator('.society-box')).toContainText(/^Respondents in Japan: /);
+
+	// A society still sets the society, and the quiz's box finds societies only.
+	await box.fill('chil');
+	await box.press('Enter');
+	await expect(page).toHaveURL(/\/explore\/eat\/bus\/\?society=chl&sample=paper$/);
+	await page.goto(url(''));
+	const quiz = page.getByRole('combobox', { name: 'Compare with a society' });
+	await quiz.fill('bus');
+	await expect(page.getByRole('listbox', { name: 'Societies' })).toHaveText('No society matches');
+});
