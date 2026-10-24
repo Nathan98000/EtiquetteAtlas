@@ -135,6 +135,8 @@ export function extremes(
 export interface Rank {
 	/** 1 is the most accepting: the highest estimate. */
 	rank: number;
+	/** The same rank counted from the other end: 1 is the strictest, the lowest estimate. */
+	strict: number;
 	tied: boolean;
 	/** Societies ranked: those with a plotted estimate. */
 	of: number;
@@ -149,18 +151,26 @@ export function rank(
 	if (!own) return null;
 	const mine = cents(own.value);
 	let above = 0;
+	let below = 0;
 	let same = 0;
 	for (const v of values) {
 		const c = cents(v.value);
 		if (c > mine) above += 1;
-		else if (c === mine) same += 1;
+		else if (c < mine) below += 1;
+		else same += 1;
 	}
-	return { rank: above + 1, tied: same > 1, of: values.length };
+	return { rank: above + 1, strict: below + 1, tied: same > 1, of: values.length };
 }
 
-/** "12th most accepting of 87", "tied 3rd most accepting of 90". */
+/**
+ * Counted from the nearer end, so a reader never has to turn it round (D-27): "12th most
+ * accepting of 87" in the upper half, "10th strictest of 88" in the lower, "tied 3rd …" for ties.
+ */
 export function rankText(r: Rank): string {
-	return `${r.tied ? 'tied ' : ''}${ordinal(r.rank)} most accepting of ${r.of}`;
+	const tied = r.tied ? 'tied ' : '';
+	return r.strict < r.rank
+		? `${tied}${ordinal(r.strict)} strictest of ${r.of}`
+		: `${tied}${ordinal(r.rank)} most accepting of ${r.of}`;
 }
 
 /** NFR-11, FR-87: the matrix in one sentence. */

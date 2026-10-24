@@ -51,7 +51,7 @@ describe('FR-25: the selected society', () => {
 	it('is ranked among the plotted societies', () => {
 		expect(standing(d, 'CCC')).toMatchObject({ kind: 'plotted', text: '1st most accepting of 3' });
 		expect(standing(d, 'BBB')).toMatchObject({ kind: 'plotted', text: '2nd most accepting of 3' });
-		expect(standing(d, 'AAA')).toMatchObject({ kind: 'plotted', text: '3rd most accepting of 3' });
+		expect(standing(d, 'AAA')).toMatchObject({ kind: 'plotted', text: '1st strictest of 3' });
 	});
 
 	it('reads too few responses, not asked or not in this sample instead of a rank (FR-27)', () => {

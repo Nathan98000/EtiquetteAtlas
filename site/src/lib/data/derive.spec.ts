@@ -71,16 +71,29 @@ describe('FR-25: rank among the societies shown (decision 33)', () => {
 	];
 
 	it('ranks the highest estimate first and lets ties share a rank', () => {
-		expect(rank(values, 'BBB')).toEqual({ rank: 1, tied: true, of: 4 });
-		expect(rank(values, 'CCC')).toEqual({ rank: 1, tied: true, of: 4 });
-		expect(rank(values, 'AAA')).toEqual({ rank: 3, tied: false, of: 4 });
-		expect(rank(values, 'DDD')).toEqual({ rank: 4, tied: false, of: 4 });
+		expect(rank(values, 'BBB')).toEqual({ rank: 1, strict: 3, tied: true, of: 4 });
+		expect(rank(values, 'CCC')).toEqual({ rank: 1, strict: 3, tied: true, of: 4 });
+		expect(rank(values, 'AAA')).toEqual({ rank: 3, strict: 2, tied: false, of: 4 });
+		expect(rank(values, 'DDD')).toEqual({ rank: 4, strict: 1, tied: false, of: 4 });
 		expect(rank(values, 'EEE')).toBeNull();
 	});
 
-	it('reads "12th most accepting of 90"', () => {
-		expect(rankText({ rank: 12, tied: false, of: 90 })).toBe('12th most accepting of 90');
-		expect(rankText({ rank: 3, tied: true, of: 87 })).toBe('tied 3rd most accepting of 87');
+	it('reads "12th most accepting of 90" in the upper half', () => {
+		expect(rankText({ rank: 12, strict: 79, tied: false, of: 90 })).toBe(
+			'12th most accepting of 90'
+		);
+		expect(rankText({ rank: 3, strict: 84, tied: true, of: 87 })).toBe(
+			'tied 3rd most accepting of 87'
+		);
+		expect(rankText({ rank: 44, strict: 45, tied: false, of: 88 })).toBe(
+			'44th most accepting of 88'
+		);
+	});
+
+	it('D-27: reads "10th strictest of 88" in the lower half, from the nearer end', () => {
+		expect(rankText({ rank: 79, strict: 10, tied: false, of: 88 })).toBe('10th strictest of 88');
+		expect(rankText({ rank: 45, strict: 44, tied: false, of: 88 })).toBe('44th strictest of 88');
+		expect(rankText({ rank: 80, strict: 7, tied: true, of: 87 })).toBe('tied 7th strictest of 87');
 	});
 });
 
