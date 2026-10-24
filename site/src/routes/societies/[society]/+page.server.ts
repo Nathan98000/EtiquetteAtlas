@@ -1,4 +1,3 @@
-import { fingerprintTitle } from '#lib/charts/titles.ts';
 import { error } from '@sveltejs/kit';
 import {
 	fingerprintCells,
@@ -52,7 +51,8 @@ export const load: PageServerLoad = ({ params }) => {
 		},
 		summary: fingerprintSummary(who, counts, 'raw', closest),
 		chartSummary: fingerprintChartSummary(who, model, 'raw'),
-		chartTitle: fingerprintTitle(counts),
+		// The chart's title from three numbers, as `__data.json` is capped at 2 KB (HR-3).
+		titleCounts: [counts.shown, counts.looser, counts.stricter],
 		facts: factsView(societies, society.code, 'all')!,
 		similar
 	};

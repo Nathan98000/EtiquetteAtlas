@@ -122,7 +122,11 @@
 			? `Not in ${SAMPLE_PHRASE[vs.sample]}`
 			: counts
 				? fingerprintTitle(counts)
-				: data.chartTitle
+				: fingerprintTitle({
+						shown: data.titleCounts[0],
+						looser: data.titleCounts[1],
+						stricter: data.titleCounts[2]
+					})
 	);
 	const chartSummary = $derived(
 		outside
