@@ -6,7 +6,7 @@
 	import Distribution from '#lib/charts/Distribution.svelte';
 	import type { Drill } from '#lib/charts/drill-model.ts';
 	import SocietyTable from '#lib/charts/SocietyTable.svelte';
-	import { RESPONSES, count, percent, place } from '#lib/data/format.ts';
+	import { RESPONSES, count, percent, place, score } from '#lib/data/format.ts';
 	import type { ResponseCounts, SampleId, Society } from '#lib/data/model.ts';
 	import {
 		distributionSummary,
@@ -85,13 +85,17 @@
 						label="Societies placed by their average answer to {question.headline.toLowerCase()}, with your answer"
 						describedBy="answer-summary"
 						marker={{ value: scoreOf(response), label: `Your answer: ${responseText(response)}` }}
+						plain
 					/>
 				{/if}
 			</div>
+			<!-- D-9: what the marks are, without the model's words; the solid line's label gives way to
+			     the reader's answer on the chart, so it is named here. -->
 			<p class="note">
-				Each shape is one society's average answer, estimated with shrinkage (see the method page);
-				pick one to compare with its respondents. Your answer is a single rating, so it sits on one
-				of the six response points.
+				Each dot is one society's average answer, coloured by it; pick one to compare with its
+				respondents. The solid line is the global average{drill ? `, ${score(drill.mean)}` : ''};
+				the dashed line is your answer, a single rating, so it sits on one of the six response
+				points.
 			</p>
 		{/snippet}
 		{#snippet table()}

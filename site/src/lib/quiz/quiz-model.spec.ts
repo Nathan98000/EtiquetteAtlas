@@ -70,22 +70,22 @@ describe('FR-61: where an answer falls among the societies’ estimates', () => 
 
 	it('compares the answer with average answers, never with a society itself (decision 79)', () => {
 		expect(placementText(placement(cell5, 2), 2, 'all')).toBe(
-			'Your answer, very inappropriate (−1.5), is above the average answer of respondents in 2 ' +
-				'of 3 societies and the same in 1.'
+			"You said very inappropriate. In 2 of 3 societies, respondents' average answer was less " +
+				'approving than that; in 1 it was the same.'
 		);
 		const mixed = { above: 4, below: 83, same: 0, of: 87, tooFew: 0, notAsked: 0 };
 		expect(placementText(mixed, 5, 'all')).toBe(
-			'Your answer, very appropriate (+1.5), is above the average answer of respondents in 4 of ' +
-				'87 societies and below it in 83.'
+			"You said very appropriate. In 83 of 87 societies, respondents' average answer was more " +
+				'approving than that; in 4 it was less.'
 		);
 		const below = { above: 0, below: 2, same: 1, of: 3, tooFew: 0, notAsked: 0 };
 		expect(placementText(below, 3, 'all')).toBe(
-			'Your answer, somewhat inappropriate (−0.5), is below the average answer of respondents ' +
-				'in 2 of 3 societies and the same in 1.'
+			"You said somewhat inappropriate. In 2 of 3 societies, respondents' average answer was " +
+				'more approving than that; in 1 it was the same.'
 		);
 		expect(placementText(placement(cell5, 6), 6, 'paper')).toBe(
-			'Your answer, extremely appropriate (+2.5), is above the average answer of respondents ' +
-				"in all 3 societies in the Paper's sample."
+			"You said extremely appropriate. In all 3 societies in the Paper's sample, respondents' " +
+				'average answer was less approving than that.'
 		);
 	});
 
@@ -94,8 +94,8 @@ describe('FR-61: where an answer falls among the societies’ estimates', () => 
 		const p = placement(cell0, 1);
 		expect(p).toMatchObject({ of: 2, tooFew: 1, notAsked: 0 });
 		expect(placementText(p, 1, 'all')).toBe(
-			'Your answer, extremely inappropriate (−2.5), is below the average answer of respondents ' +
-				'in all 2 societies; 1 society has too few responses or was not asked.'
+			"You said extremely inappropriate. In all 2 societies, respondents' average answer was " +
+				'more approving than that. (1 society had too few responses or was not asked.)'
 		);
 	});
 });

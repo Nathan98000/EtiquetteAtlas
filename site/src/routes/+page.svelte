@@ -91,7 +91,18 @@
 		document.getElementById(id)?.focus();
 	}
 
-	// FR-61: the answer is shown right away; focus moves to where it falls.
+	// FR-61: the answer is shown right away; focus moves to where it falls, and the page scrolls
+	// so the chart under that heading is in view, not only the heading (D-9). No smooth scrolling
+	// under reduced motion.
+	async function showReveal() {
+		await tick();
+		const heading = document.getElementById('reveal-title');
+		if (!heading) return;
+		heading.focus({ preventScroll: true });
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		heading.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+	}
+
 	function reveal(event: SubmitEvent) {
 		event.preventDefault();
 		const response = picked[current];
@@ -99,7 +110,7 @@
 		start();
 		answers = { ...answers, [question.key]: response };
 		writeAnswers(sessionStore(), answers);
-		void focus('reveal-title');
+		void showReveal();
 	}
 
 	function next() {
@@ -400,6 +411,10 @@
 	.answer,
 	.summary {
 		margin-top: 2rem;
+	}
+
+	#reveal-title {
+		scroll-margin-top: 1rem;
 	}
 
 	.loading {

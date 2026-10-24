@@ -8,7 +8,7 @@ const summary = (page: Page) => page.locator('#answer-summary');
 async function answer(page: Page, label: string) {
 	await radio(page, label).check();
 	await page.getByRole('button', { name: 'See where your answer falls' }).click();
-	await expect(summary(page)).toHaveText(/^Your answer, /);
+	await expect(summary(page)).toHaveText(/^You said /);
 }
 
 async function next(page: Page) {
@@ -42,10 +42,22 @@ test.describe('FR-1, FR-60, FR-61: the quiz on the home page', () => {
 		);
 		await expect(page.getByRole('radio')).toHaveCount(6);
 		await answer(page, 'extremely appropriate');
+		// D-9: a sentence a reader can say back, without turning "below" round.
 		await expect(summary(page)).toHaveText(
-			'Your answer, extremely appropriate (+2.5), is above the average answer of respondents in ' +
-				'all 87 societies; 3 societies have too few responses or were not asked.'
+			"You said extremely appropriate. In all 87 societies, respondents' average answer was less " +
+				'approving than that. (3 societies had too few responses or were not asked.)'
 		);
+		// D-9: the chart comes into view, its dots in one colour, its note without the model's words.
+		const top = await page.locator('.beeswarm').evaluate((el) => el.getBoundingClientRect().top);
+		expect(top, "the reveal's chart starts on the screen").toBeLessThan(
+			page.viewportSize()!.height
+		);
+		await expect(page.locator('.beeswarm .dot.plain').first()).toBeAttached();
+		await expect(page.locator('.beeswarm .mean-label')).toHaveCount(0);
+		await expect(page.locator('.reveal .note')).toContainText(
+			'The solid line is the global average'
+		);
+		await expect(page.locator('.reveal .note')).not.toContainText('shrinkage');
 		await expect(page.locator('.beeswarm .marker')).toBeAttached();
 		await expect(page.locator('.beeswarm .marker-label')).toHaveText(
 			'Your answer: extremely appropriate'
@@ -59,7 +71,7 @@ test.describe('FR-1, FR-60, FR-61: the quiz on the home page', () => {
 		);
 		await answer(page, 'very inappropriate');
 		await expect(summary(page)).toHaveText(
-			/^Your answer, very inappropriate \(−1\.5\), is above the average answer of respondents in \d+ of 88 societies and below it in \d+/
+			/^You said very inappropriate\. In \d+ of 88 societies, respondents' average answer was (more|less) approving than that; in \d+ it was (more|less)\./
 		);
 		await next(page);
 		await answer(page, 'somewhat appropriate');
@@ -185,7 +197,7 @@ test('NFR-13, AT-6: by keyboard alone, answer the three questions and go on to t
 		await tabTo(page, page.getByRole('button', { name: 'See where your answer falls' }));
 		await page.keyboard.press('Enter');
 		await expect(page.locator('#reveal-title')).toBeFocused();
-		await expect(summary(page)).toHaveText(/^Your answer, somewhat inappropriate/);
+		await expect(summary(page)).toHaveText(/^You said somewhat inappropriate/);
 		const more = page.getByRole('button', { name: /^(Next question|See all your answers)$/ });
 		await tabTo(page, more, 80);
 		await page.keyboard.press('Enter');

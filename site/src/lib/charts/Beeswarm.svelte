@@ -3,7 +3,7 @@
 	import { scaleLinear } from 'd3-scale';
 	import { count, interval, place, score, signed } from '#lib/data/format.ts';
 	import { REGIONS, Status } from '#lib/data/model.ts';
-	import { REGION_SHAPE, regionStyle } from './colors';
+	import { REGION_SHAPE, regionStyle, scoreStyle } from './colors';
 	import { dodge, extent, type Placed } from './dodge';
 	import type { Drill, SocietyPoint } from './drill-model';
 	import SocietyTip from './SocietyTip.svelte';
@@ -20,8 +20,14 @@
 		onselect: (code: string) => void;
 		label: string;
 		describedBy: string;
-		/** FR-61: the quiz reader's answer, drawn as a dashed line with its label (decision 79). */
+		/**
+		 * FR-61: the quiz reader's answer, drawn as a dashed line with its label (decision 79). The
+		 * global mean's label then gives way to it, so the two never overlap (D-9); the page names the
+		 * solid line instead.
+		 */
 		marker?: { value: number; label: string };
+		/** D-9: one kind of dot, filled by its estimate, so the chart needs no key of regions. */
+		plain?: boolean;
 	}
 
 	let {
@@ -33,11 +39,11 @@
 		onselect,
 		label,
 		describedBy,
-		marker
+		marker,
+		plain = false
 	}: Props = $props();
 
-	// A marker's label takes a row above the global mean's.
-	const M = $derived({ left: 16, right: 16, top: marker ? 50 : 30, bottom: 56 });
+	const M = { left: 16, right: 16, top: 30, bottom: 56 };
 	let width = $state(0);
 	let container: HTMLDivElement | undefined = $state();
 	/** The society that holds the chart's one tab stop (roving tabindex). */
@@ -100,7 +106,10 @@
 	const offset = $derived(uncertainty ? M.top + 3 : 0);
 	const shapes = $derived(
 		Object.fromEntries(
-			REGIONS.map((region) => [region, symbolPath(REGION_SHAPE[region], layout.r)])
+			REGIONS.map((region) => [
+				region,
+				symbolPath(plain ? 'circle' : REGION_SHAPE[region], layout.r)
+			])
 		)
 	);
 	const order = $derived(layout.points.slice().sort((a, b) => a.x - b.x || a.y - b.y));
@@ -191,24 +200,25 @@
 			/>
 			<line class="zero" x1={x(0)} x2={x(0)} y1={M.top - 6} y2={layout.axis} />
 			<line class="mean" x1={x(drill.mean)} x2={x(drill.mean)} y1={M.top - 10} y2={layout.axis} />
-			<text
-				class="mean-label"
-				x={x(drill.mean)}
-				y={M.top - 14}
-				text-anchor={drill.mean < -1.2 ? 'start' : drill.mean > 1.2 ? 'end' : 'middle'}
-			>
-				Global mean {score(drill.mean)}
-			</text>
 			{#if marker}
 				{@const mx = x(marker.value)}
-				<line class="marker" x1={mx} x2={mx} y1={M.top - 30} y2={layout.axis} />
+				<line class="marker" x1={mx} x2={mx} y1={M.top - 10} y2={layout.axis} />
 				<text
 					class="marker-label"
 					x={mx}
-					y={M.top - 34}
+					y={M.top - 14}
 					text-anchor={marker.value < -1.2 ? 'start' : marker.value > 1.2 ? 'end' : 'middle'}
 				>
 					{marker.label}
+				</text>
+			{:else}
+				<text
+					class="mean-label"
+					x={x(drill.mean)}
+					y={M.top - 14}
+					text-anchor={drill.mean < -1.2 ? 'start' : drill.mean > 1.2 ? 'end' : 'middle'}
+				>
+					Global mean {score(drill.mean)}
 				</text>
 			{/if}
 
@@ -241,10 +251,12 @@
 				{#each layout.points as point (point.item.code)}
 					{@const p = point.item}
 					<g
-						class="dot region"
+						class="dot {plain ? 'score plain' : 'region'}"
 						class:small={p.status === Status.Small}
 						class:hovered={p.code === hovered}
-						style="{regionStyle(p.region)}; transform: translate({point.x}px, {point.y}px)"
+						style="{plain
+							? scoreStyle(p.estimate!.value)
+							: regionStyle(p.region)}; transform: translate({point.x}px, {point.y}px)"
 						role="button"
 						tabindex={p.code === tabStop ? 0 : -1}
 						aria-label={ariaLabel(p)}
@@ -365,6 +377,19 @@
 	.dot.small path {
 		fill: var(--surface);
 		stroke-width: 1.75;
+	}
+
+	/* D-9: filled by the estimate and ringed in the text colour for 3:1, as on the map; small
+	   samples get its dashed outline. */
+	.dot.plain path {
+		fill: var(--fill);
+		stroke: var(--text);
+	}
+
+	.dot.plain.small path {
+		fill: var(--fill);
+		stroke-width: 1.25;
+		stroke-dasharray: 2 1.5;
 	}
 
 	.ring {

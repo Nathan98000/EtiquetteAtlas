@@ -102,38 +102,37 @@ function inSample(sample: SampleId): string {
 }
 
 /**
- * FR-61: "Your answer, very appropriate (+1.5), is above the average answer of respondents in 58
- * of 87 societies and below it in 29."
+ * FR-61, D-9: "You said very appropriate. In 83 of 87 societies, respondents' average answer was
+ * more approving than that; in 4 it was less. (3 societies had too few responses or were not
+ * asked.)" It reads without turning "below" round, and still compares the answer with average
+ * answers, never with a society or its people (decision 79).
  */
 export function placementText(p: Placement, response: Response, sample: SampleId): string {
-	const start = `Your answer, ${responseText(response)} (${score(scoreOf(response))}), is`;
+	const start = `You said ${responseText(response)}.`;
 	const where = inSample(sample);
 	let middle: string;
-	if (p.of === 0) middle = ` not comparable: no society has enough responses${where}`;
-	else if (p.above === p.of) {
-		middle = ` above the average answer of respondents in all ${p.of} societies${where}`;
-	} else if (p.below === p.of) {
-		middle = ` below the average answer of respondents in all ${p.of} societies${where}`;
-	} else {
+	if (p.of === 0) middle = ` No society${where} has enough responses to compare with.`;
+	else {
 		// The first part names the comparison in full; the others refer back to it.
-		const parts = [
-			p.above ? (['above', p.above] as const) : null,
-			p.below ? (['below', p.below] as const) : null,
-			p.same ? (['the same as', p.same] as const) : null
-		].filter((part) => part !== null);
-		const [[word, n], ...rest] = parts;
-		const others = rest.map(
-			([w, k]) => ` and ${w === 'the same as' ? 'the same' : `${w} it`} in ${k}`
-		);
-		middle = ` ${word} the average answer of respondents in ${n} of ${p.of} societies${where}${others.join('')}`;
+		const parts = (
+			[
+				['more approving than that', 'more', p.below],
+				['less approving than that', 'less', p.above],
+				['the same as yours', 'the same', p.same]
+			] as const
+		).filter(([, , n]) => n > 0);
+		const [[full, , n], ...rest] = parts;
+		const lead = n === p.of ? `In all ${p.of} societies` : `In ${n} of ${p.of} societies`;
+		const others = rest.map(([, short, k]) => `; in ${k} it was ${short}`).join('');
+		middle = ` ${lead}${where}, respondents' average answer was ${full}${others}.`;
 	}
 	const missing = p.tooFew + p.notAsked;
 	const tail = missing
-		? `; ${missing} ${missing === 1 ? 'society has' : 'societies have'} too few responses or ${
+		? ` (${missing} ${missing === 1 ? 'society' : 'societies'} had too few responses or ${
 				missing === 1 ? 'was' : 'were'
-			} not asked`
+			} not asked.)`
 		: '';
-	return `${start}${middle}${tail}.`;
+	return `${start}${middle}${tail}`;
 }
 
 /** Whole percents of a society's respondents choosing each response. */
