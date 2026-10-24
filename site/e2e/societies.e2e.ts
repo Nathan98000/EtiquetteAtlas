@@ -180,12 +180,29 @@ test.describe('FR-17: below 640 px the fingerprint is a list', () => {
 		await page.goto(`${chile}?sort=paper`);
 		const list = page.getByRole('list', { name: /compared with the global average$/ });
 		await expect(list.getByRole('listitem')).toHaveCount(25);
+		await expect(list.getByRole('button', { name: 'Loading' })).toHaveCount(0);
 		await page.getByLabel('Jump to a behavior').selectOption('usemphone');
 		await page.getByRole('button', { name: 'Go', exact: true }).tap();
 		await expect(list.getByRole('listitem')).toHaveCount(150);
 		await expect(
 			list.getByRole('button', { name: /^Using a mobile phone at a funeral ceremony: / })
 		).toBeFocused();
+	});
+
+	test("D-14, D-31: a tap on the index's map names the society, and its button opens the page", async ({
+		page
+	}) => {
+		await page.goto(url('societies/'));
+		const map = page.locator('.map');
+		const japan = map.locator('[data-code="JPN"]');
+		await expect(japan).toBeVisible();
+		const box = (await japan.boundingBox())!;
+		await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+		const open = map.getByRole('button', { name: 'Show respondents in Japan' });
+		await expect(open).toBeVisible();
+		await expect(page).toHaveURL(/\/societies\/$/);
+		await open.tap();
+		await expect(page).toHaveURL(/\/societies\/jpn\/$/);
 	});
 
 	test('NFR-21: nothing scrolls sideways, compare mode included', async ({ page }) => {
@@ -339,6 +356,35 @@ test.describe('the index of societies', () => {
 		);
 		await regions.getByRole('link', { name: 'Chile' }).click();
 		await expect(page).toHaveURL(/\/societies\/chl\/\?sample=paper$/);
+	});
+
+	test('D-31: the index opens with a map of the 90 societies, each dot opening its page', async ({
+		page
+	}) => {
+		await page.goto(url('societies/?sample=paper&scale=centered'));
+		const map = page.locator('.map');
+		await expect(map.locator('[data-code]')).toHaveCount(90);
+		await expect(page.locator('#map-summary')).toHaveText(
+			"The 90 societies on a map, marked by the GSN authors' regions: 16 in Africa, 22 in Asia, " +
+				"14 in Latin America and 38 in the West. The 19 outside the paper's sample are outlined only."
+		);
+		await expect(map.locator('.dot.outside')).toHaveCount(19);
+		await expect(page.getByText('Outlined: not in this sample')).toBeVisible();
+
+		// Hover names the society; the dot is a link to its page, keeping the sample and scale.
+		const japan = map.locator('[data-code="JPN"]');
+		await japan.hover();
+		await expect(map.locator('.tooltip')).toContainText('Japan');
+		await expect(japan).toHaveAttribute('href', /\/societies\/jpn\/\?sample=paper&scale=centered$/);
+
+		// NFR-13: one tab stop, arrows move between societies, Enter opens one.
+		await map.locator('[data-code][tabindex="0"]').focus();
+		const first = await page.locator(':focus').getAttribute('data-code');
+		await page.keyboard.press('ArrowRight');
+		await expect(page.locator(':focus')).not.toHaveAttribute('data-code', first!);
+		const code = (await page.locator(':focus').getAttribute('data-code'))!.toLowerCase();
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(new RegExp(`/societies/${code}/\\?sample=paper&scale=centered$`));
 	});
 
 	test('decision 44: the picker opens a fingerprint; clearing it returns to the index', async ({

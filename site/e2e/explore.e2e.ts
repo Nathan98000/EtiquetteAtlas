@@ -171,6 +171,7 @@ test.describe('AT-1, FR-17: below 640 px the matrix is a list', () => {
 		).toHaveText('−0.6');
 		await expect(page.getByText('their average,')).toBeVisible();
 
+		await expect(list.getByRole('button', { name: 'Loading' })).toHaveCount(0);
 		await page.getByLabel('Jump to a behavior').selectOption('eat');
 		await page.getByRole('button', { name: 'Go', exact: true }).tap();
 		const first = list.getByRole('button', { name: /^Eating at a funeral ceremony: / });

@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import ChartFrame from '#lib/charts/ChartFrame.svelte';
+	import RegionLegend from '#lib/charts/RegionLegend.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import ShareButton from '#lib/components/ShareButton.svelte';
@@ -8,7 +11,7 @@
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
 	import { REGIONS } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
-	import { byRegion, indexSummary } from '#lib/data/society.ts';
+	import { byRegion, indexSummary, mapSummary } from '#lib/data/society.ts';
 	import { societyHref, view } from '#lib/state/view.svelte.ts';
 	import type { PageProps } from './$types';
 
@@ -28,6 +31,26 @@
 			void goto(societyHref(code, vs), { replaceState: true });
 		}
 	});
+
+	const mapText = $derived(
+		societies.current ? mapSummary(societies.current, vs.sample) : data.mapSummary
+	);
+
+	// D-31, NFR-3: the map's code and outlines load once it nears the screen, after the page.
+	let mapModule: Promise<typeof import('#lib/charts/SocietyMap.svelte')> | undefined = $state();
+	function loadMapWhenNear(node: HTMLElement) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((entry) => entry.isIntersecting)) {
+					mapModule ??= import('#lib/charts/SocietyMap.svelte');
+					observer.disconnect();
+				}
+			},
+			{ rootMargin: '300px' }
+		);
+		observer.observe(node);
+		return () => observer.disconnect();
+	}
 
 	// A fingerprint needs the sample's cells: start fetching before the click (decision 27).
 	function warm() {
@@ -54,8 +77,8 @@
 		</div>
 		<p class="lede">{summary}</p>
 		<p>
-			Pick a society, in the Society box above or the list below, to see where its respondents were
-			stricter or looser than the average of all societies.
+			Pick a society, on the map, in the Society box above or in the list below, to see where its
+			respondents were stricter or looser than the average of all societies.
 		</p>
 		<noscript>
 			<p>
@@ -68,6 +91,74 @@
 	{#if societies.error}
 		<LoadError error={societies.error} retry={societies.retry} />
 	{/if}
+
+	<!-- D-31: the index opens with where the societies are, each dot a way to its page. -->
+	<div class="map-section needs-js">
+		<ChartFrame
+			id="map"
+			title="Where the {societies.current?.list.length ?? 90} societies are"
+			summary={mapText}
+			about={resolve('method/#map')}
+		>
+			{#snippet legend()}
+				<RegionLegend
+					mode="place"
+					outside={!!societies.current?.list.some(
+						(s) => !societies.current?.inSample(s.code, vs.sample)
+					)}
+				/>
+			{/snippet}
+			{#snippet chart()}
+				<div {@attach loadMapWhenNear}>
+					{#if mapModule && societies.current}
+						{#await mapModule}
+							<div class="placeholder map"></div>
+						{:then { default: SocietyMap }}
+							<SocietyMap
+								societies={societies.current}
+								sample={vs.sample}
+								href={(code) => societyHref(code, vs)}
+								onwarm={warm}
+								label="Map of the societies by the GSN authors' regions"
+								describedBy="map-summary"
+							/>
+						{:catch error}
+							<LoadError
+								{error}
+								retry={() => (mapModule = import('#lib/charts/SocietyMap.svelte'))}
+							/>
+						{/await}
+					{:else}
+						<div class="placeholder map"></div>
+					{/if}
+				</div>
+			{/snippet}
+			{#snippet table()}
+				{#if societies.current}
+					<table class="data">
+						<caption>The societies, their region and their respondents in this sample</caption>
+						<thead>
+							<tr
+								><th scope="col">Society</th><th scope="col">Region</th><th scope="col"
+									>Respondents</th
+								></tr
+							>
+						</thead>
+						<tbody>
+							{#each [...societies.current.list].sort( (a, b) => a.name.localeCompare(b.name, 'en') ) as society (society.code)}
+								{@const n = societies.current.respondents(society.code, vs.sample)}
+								<tr>
+									<th scope="row">{society.name}</th>
+									<td>{society.region}</td>
+									<td class="num">{n === null ? 'not in this sample' : count(n)}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				{/if}
+			{/snippet}
+		</ChartFrame>
+	</div>
 
 	<!-- Decision 52: the regions are the GSN authors' grouping (§4.4). Rows are reserved before the
 	     list arrives, so nothing shifts (NFR-2). -->
@@ -117,6 +208,17 @@
 
 	.intro {
 		max-width: var(--measure);
+	}
+
+	.map-section {
+		margin-top: 1.5rem;
+	}
+
+	/* The map's shape (map-model.ts), held before its module and outlines arrive (NFR-2). */
+	.placeholder.map {
+		aspect-ratio: 2.466;
+		border-radius: var(--radius);
+		background: var(--surface-muted);
 	}
 
 	.lede {

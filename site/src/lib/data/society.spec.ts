@@ -6,6 +6,7 @@ import {
 	factsView,
 	indexSummary,
 	listText,
+	mapSummary,
 	monthLabel,
 	period,
 	similarView,
@@ -91,6 +92,16 @@ describe('decision 52: the index of societies', () => {
 		expect(indexSummary(societies, 'paper')).toBe(
 			"2 of the 3 societies are in the paper's sample, with 100 to 280 respondents " +
 				"in each, listed here by the GSN authors' four regions."
+		);
+	});
+
+	it('D-31: sums up the map in one sentence, naming the societies a sample leaves out', () => {
+		expect(mapSummary(societies, 'all')).toBe(
+			"The 3 societies on a map, marked by the GSN authors' regions: 1 in Africa, 1 in Asia, " +
+				'0 in Latin America and 1 in the West.'
+		);
+		expect(mapSummary(societies, 'paper')).toMatch(
+			/ The 1 outside the paper's sample are outlined only\.$/
 		);
 	});
 

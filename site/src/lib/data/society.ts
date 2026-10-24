@@ -149,6 +149,20 @@ export function indexSummary(societies: Societies, sample: SampleId): string {
 				`with ${min} to ${max} respondents in each, ${listed}.`;
 }
 
+/** D-31, NFR-11: the index's map in one sentence. */
+export function mapSummary(societies: Societies, sample: SampleId): string {
+	const regions = REGIONS.map((region) => {
+		const n = societies.list.filter((s) => s.region === region).length;
+		return `${n} in ${region === 'West' ? 'the West' : region}`;
+	});
+	const out = societies.list.filter((s) => !societies.inSample(s.code, sample)).length;
+	return (
+		`The ${societies.list.length} societies on a map, marked by the GSN authors' regions: ` +
+		`${listText(regions)}.` +
+		(out ? ` The ${out} outside ${SAMPLE_PHRASE[sample]} are outlined only.` : '')
+	);
+}
+
 /** Societies by the authors' regions (§4.4), each sorted by name. */
 export function byRegion(societies: Societies): { region: Region; members: Society[] }[] {
 	return REGIONS.map((region) => ({

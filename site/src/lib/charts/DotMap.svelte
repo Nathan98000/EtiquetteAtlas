@@ -9,6 +9,7 @@
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { REGION_SHAPE, scoreStyle } from './colors';
 	import type { Drill, SocietyPoint } from './drill-model';
+	import { MAP_NORTH, MAP_SOUTH } from './map-model';
 	import SocietyTip from './SocietyTip.svelte';
 	import TipChoose from './TipChoose.svelte';
 	import { TouchPin } from './touch-pin.svelte';
@@ -27,24 +28,21 @@
 
 	let { drill, selected, hovered, onhover, onselect, label, describedBy }: Props = $props();
 
-	// Equal Earth, cropped to the latitudes where societies sit (decision 36). Keep the aspect
-	// ratio in step with ASPECT in the page, which reserves the space before this module loads.
-	const NORTH = 75;
-	const SOUTH = -50;
-
 	const land = new Resource(() => loadLand());
 	const geometry = $derived(
 		land.current ? feature(land.current, land.current.objects.land) : undefined
 	);
 
+	const uid = $props.id();
+	const clipId = `${uid}-land`;
 	let width = $state(0);
 	let container: HTMLDivElement | undefined = $state();
 	let focusCode: string | null = $state(null);
 	let local: string | null = $state(null);
 
 	const projection = $derived(geoEqualEarth().fitWidth(Math.max(1, width), { type: 'Sphere' }));
-	const top = $derived(projection([0, NORTH])![1]);
-	const height = $derived(projection([0, SOUTH])![1] - top);
+	const top = $derived(projection([0, MAP_NORTH])![1]);
+	const height = $derived(projection([0, MAP_SOUTH])![1] - top);
 	const outline = $derived(geometry && width > 0 ? geoPath(projection).digits(1)(geometry) : '');
 	const r = $derived(width < 480 ? 3.5 : 5);
 	const shapes = $derived(
@@ -156,7 +154,9 @@
 			aria-label={label}
 			aria-describedby={describedBy}
 		>
-			<path class="land" d={outline} transform="translate(0 {-top})" />
+			<!-- Land beyond the crop stays inside the map's box; dots and rings may overflow it. -->
+			<clipPath id={clipId}><rect {width} {height} /></clipPath>
+			<path class="land" d={outline} transform="translate(0 {-top})" clip-path="url(#{clipId})" />
 			{#each drawn as dot (dot.point.code)}
 				{@const p = dot.point}
 				<!-- FR-24: dots coloured by the same estimate as the beeswarm, shaped by region. -->

@@ -4,11 +4,16 @@
 	import { symbolPath } from './symbols';
 
 	interface Props {
-		/** The beeswarm colours dots by region; the map colours them by the estimate. */
-		mode: 'region' | 'estimate';
+		/**
+		 * The beeswarm colours dots by region; the pair's map colours them by the estimate; the
+		 * societies index's map only places them (D-31).
+		 */
+		mode: 'region' | 'estimate' | 'place';
+		/** On the index's map: the sample leaves some societies out, drawn as outlines. */
+		outside?: boolean;
 	}
 
-	let { mode }: Props = $props();
+	let { mode, outside = false }: Props = $props();
 
 	const ramp = (stops: readonly string[]) => `linear-gradient(to right, ${stops.join(', ')})`;
 	const style = `--ramp-light: ${ramp(DIVERGING.light)}; --ramp-dark: ${ramp(DIVERGING.dark)}`;
@@ -20,7 +25,7 @@
 			<li>
 				<svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true">
 					<path
-						class={mode === 'region' ? 'region' : 'plain'}
+						class={mode === 'estimate' ? 'plain' : 'region'}
 						style={regionStyle(region)}
 						d={symbolPath(REGION_SHAPE[region], 5)}
 					/>
@@ -39,6 +44,14 @@
 				Hollow: small sample (10–29 respondents)
 			</li>
 			<li><span class="band" aria-hidden="true"></span> Where most societies fall</li>
+		{:else if mode === 'place'}
+			<!-- A `?sample=` link holds this key's place from the first paint (app.html, NFR-2). -->
+			<li class="outside-key" class:shown={outside}>
+				<svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true">
+					<path class="hollow" d={symbolPath('circle', 5)} />
+				</svg>
+				Outlined: not in this sample
+			</li>
 		{:else}
 			<li>
 				<span class="ramp" aria-hidden="true"></span>
@@ -95,6 +108,15 @@
 
 	path.region {
 		fill: var(--region);
+	}
+
+	.outside-key {
+		display: none;
+	}
+
+	.outside-key.shown,
+	:global(html[data-sample]) .outside-key {
+		display: inline-flex;
 	}
 
 	path.plain {

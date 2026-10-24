@@ -2,8 +2,7 @@ import { expect, test, url } from './helpers';
 
 // D-23 (design review, open decision 7): on a phone, every module route shows the top of its
 // main chart on the first screen, and no lede runs past 45 words. The chart's box is its reserved
-// space, so it counts before the data arrive. The story and the societies index join in their
-// phases (the tour's first picture, the index's map).
+// space, so it counts before the data arrive. The story joins with its first picture (phase 5).
 
 test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true });
 
@@ -14,6 +13,7 @@ const ROUTES = [
 	'explore/sing/funeral/',
 	// The longest title, over three lines on a phone.
 	'explore/listen/job-interview/?society=jpn',
+	'societies/',
 	'societies/usa/',
 	'societies/usa/?compare=jpn',
 	'audiences/',

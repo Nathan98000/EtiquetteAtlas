@@ -54,7 +54,14 @@ const ROUTES: { path: string; ready: (page: Page) => Promise<void> }[] = [
 			await expect(page.locator('.map [data-code]').first()).toBeVisible();
 		}
 	},
-	{ path: 'societies/', ready: societiesReady },
+	{
+		// D-31: the index's map loads after the page, its outlines included.
+		path: 'societies/',
+		ready: async (page) => {
+			await societiesReady(page);
+			await expect(page.locator('.map [data-code]').first()).toBeVisible();
+		}
+	},
 	{ path: 'societies/chl/', ready: matrixReady },
 	{
 		path: 'societies/chl/?compare=jpn',
