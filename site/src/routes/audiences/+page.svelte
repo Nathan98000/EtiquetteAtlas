@@ -102,8 +102,6 @@
 		{/if}
 	{/each}
 
-	<AudienceFilters {society} {outside} />
-
 	<ChartFrame
 		id="multiples"
 		title="All {BEHAVIORS.length} behaviors, by audience"
@@ -119,17 +117,27 @@
 		{/snippet}
 		{#snippet legend()}
 			<SeriesKey items={key} />
+			<!-- D-16: the three audiences named once, for every panel. -->
+			<p class="columns-key">
+				Left to right in each panel: <strong>alone</strong> ·
+				<strong>colleagues or classmates</strong>
+				· <strong>management or professors</strong>{#if vs.actor}, then, after a dotted rule,
+					<strong>done by a woman</strong> · <strong>by a man</strong>{/if}
+			</p>
+		{/snippet}
+		<!-- D-23: who is shown and the axis in words come under the panels, so they start higher. -->
+		{#snippet below()}
 			<!-- Section 5 of the design review: the axis in one line. -->
 			<p class="axis-key">
 				Higher is more appropriate, from −2.5 (extremely inappropriate) to +2.5 (extremely
-				appropriate); the dark line is 0.{vs.actor
-					? ' After the dotted rule: done by a woman and done by a man.'
-					: ''} Colours as on the matrix; dashed outline: 10 to 29 respondents.
+				appropriate); the dark line is 0. Colours as on the matrix; dashed outline: 10 to 29
+				respondents.
 			</p>
+			<AudienceFilters {society} {outside} />
 		{/snippet}
 		{#snippet chart()}
 			<ol class="multiples">
-				{#each order as i (i)}
+				{#each order as i, n (i)}
 					{@const row = rows?.[i]}
 					<li>
 						<!-- The link's name is its visible text (WCAG 2.5.3); the values in full are its
@@ -146,7 +154,7 @@
 							{#if row?.notAsked}
 								<span class="not-asked" aria-hidden="true">–</span>
 							{:else}
-								<Slopegraph {row} actor={vs.actor} size="small" />
+								<Slopegraph {row} actor={vs.actor} size="small" axis={n === 0} />
 							{/if}
 						</a>
 						{#if row && !row.notAsked}
@@ -180,6 +188,30 @@
 		padding: 1.25rem var(--gutter) 0;
 	}
 
+	/* The tallest society's lede, measured over the 90 at each width, for a `?society=` link
+	   (marked on <html> before the first paint, app.html), so the panels do not move (NFR-2). */
+	:global(html[data-society]) .lede {
+		min-height: 15.75rem;
+	}
+
+	@media (min-width: 360px) {
+		:global(html[data-society]) .lede {
+			min-height: 12.25rem;
+		}
+	}
+
+	@media (min-width: 640px) {
+		:global(html[data-society]) .lede {
+			min-height: 9.75rem;
+		}
+	}
+
+	@media (min-width: 720px) {
+		:global(html[data-society]) .lede {
+			min-height: 7.75rem;
+		}
+	}
+
 	.lede {
 		max-width: var(--measure);
 		font-size: var(--text-lg);
@@ -187,9 +219,15 @@
 
 	.axis-key {
 		max-width: var(--measure);
-		margin: 0 0 1rem;
+		margin: 0.75rem 0 1rem;
 		font-size: var(--text-sm);
 		color: var(--text-muted);
+	}
+
+	.columns-key {
+		max-width: var(--measure);
+		margin: 0 0 0.75rem;
+		font-size: var(--text-sm);
 	}
 
 	/* Five panels a row from 1024 px, three from 640 px, two below (decision 59). */

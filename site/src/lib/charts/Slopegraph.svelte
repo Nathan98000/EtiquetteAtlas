@@ -27,6 +27,8 @@
 		onselect?: (context: number) => void;
 		label?: string;
 		describedBy?: string;
+		/** small: label the scale's ends and 0, for the first panel (D-16). */
+		axis?: boolean;
 	}
 
 	let {
@@ -37,12 +39,15 @@
 		onpreview = () => {},
 		onselect = () => {},
 		label = '',
-		describedBy
+		describedBy,
+		axis = false
 	}: Props = $props();
 
 	/** The six response points (§4.3): response k sits at k − 3.5. */
 	const POINTS = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5];
 	const PAD = 8;
+	/** D-17: below 560 px the focused chart names its ends in words, above and below the plot. */
+	const WORDS_PAD = 22;
 
 	interface Group {
 		contexts: number[];
@@ -65,7 +70,9 @@
 	// A fixed scale (−2.5 to +2.5) keeps behaviors comparable. The actor's gender is a group of
 	// its own beside the audiences, or below them when the page is narrow, so its labels fit.
 	const layout = $derived.by(() => {
-		const gutter = focus ? (width >= 560 ? 176 : 44) : 4;
+		const narrow = focus && width < 560;
+		const gutter = focus ? (narrow ? 8 : 176) : axis ? 26 : 4;
+		const pad = narrow ? WORDS_PAD : PAD;
 		// From 640 px every line is named at its end; the margin is kept even for one line, so
 		// it does not move when a society's line arrives (NFR-2).
 		const ends = focus && width >= 640;
@@ -100,12 +107,13 @@
 			plotWidth,
 			plotHeight,
 			ends,
+			narrow,
 			stacked,
 			height: bands * (head + plotHeight + below),
 			tops: [...new Set(groups.map((g) => g.top))],
 			scale: scaleLinear()
 				.domain([-2.5, 2.5])
-				.range([plotHeight - PAD, PAD])
+				.range([plotHeight - pad, pad])
 		};
 	});
 
@@ -259,10 +267,25 @@
 						y1={top + layout.scale(0)}
 						y2={top + layout.scale(0)}
 					/>
-					{#if focus}
+					{#if focus && !layout.narrow}
 						{#each POINTS as p, i (p)}
 							<text x={layout.gutter - 8} y={top + layout.scale(p)} text-anchor="end">
-								{width >= 560 ? RESPONSES[i][0].toUpperCase() + RESPONSES[i].slice(1) : score(p)}
+								{RESPONSES[i][0].toUpperCase() + RESPONSES[i].slice(1)}
+							</text>
+						{/each}
+					{:else if focus}
+						<!-- D-17: the ends in words on a phone too, above and below the plot. -->
+						<text class="end" x={layout.gutter} y={top + layout.scale(2.5) - 12}>
+							Extremely appropriate ({score(2.5)})
+						</text>
+						<text class="end" x={layout.gutter} y={top + layout.scale(-2.5) + 12}>
+							Extremely inappropriate ({score(-2.5)})
+						</text>
+					{:else if axis}
+						<!-- D-16: the first panel names the scale, for all of them. -->
+						{#each [2.5, 0, -2.5] as p (p)}
+							<text class="tiny" x={layout.gutter - 3} y={top + layout.scale(p)} text-anchor="end">
+								{score(p)}
 							</text>
 						{/each}
 					{/if}
@@ -428,6 +451,10 @@
 	.grid text {
 		fill: var(--text-muted);
 		dominant-baseline: middle;
+	}
+
+	.grid text.tiny {
+		font-size: 0.6875rem;
 	}
 
 	.rule {

@@ -116,8 +116,6 @@
 		{/if}
 	{/each}
 
-	<AudienceFilters {society} {outside} />
-
 	<div class="layout">
 		<div class="chart">
 			<ChartFrame
@@ -128,10 +126,14 @@
 			>
 				{#snippet legend()}
 					<SeriesKey items={key} />
+				{/snippet}
+				<!-- D-23: who is shown and how to read the points come under the chart. -->
+				{#snippet below()}
 					<p class="key-note">
 						Points are coloured by score, as on the matrix; a dashed outline marks a small sample
 						(10 to 29 respondents).
 					</p>
+					<AudienceFilters {society} {outside} />
 				{/snippet}
 				{#snippet chart()}
 					<Slopegraph
@@ -221,7 +223,7 @@
 
 	.key-note {
 		max-width: var(--measure);
-		margin: 0 0 0.75rem;
+		margin: 0.75rem 0;
 		font-size: var(--text-sm);
 		color: var(--text-muted);
 	}
