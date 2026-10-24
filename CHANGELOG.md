@@ -12,49 +12,81 @@ the method page with the build date), which changes only when the pipeline does.
 The first public release: a free, static atlas of how appropriate respondents in 90 societies
 judge 15 everyday behaviors in 10 situations, built from aggregates of the Global Study of Everyday
 Norms (Eriksson et al. 2025, OSF sh4rb, CC BY 4.0). Every module had been live, unannounced, since
-M7; the launch adds only fixes (SRS §10).
+M7. Before the release a design review (`docs/design-review.md`) found the site hard going for a
+lay reader on a phone, and all 39 of its findings were built (decisions 111 to 140); otherwise the
+launch adds only fixes (SRS §10).
 
 ### What the site does
 
-- **Quiz** (`/`; FR-60 to FR-63): three questions, one at a time, each placing the reader's answer
-  among the societies' estimates and, with a society chosen, among its respondents' answers. The
-  answers stay in the tab (C-12).
-- **Guided story** (`/story/`; FR-64, FR-65): six steps, from the paper's finding that norms vary
-  more across situations than across societies to the most and least disputed pairs, an audience
-  effect and the largest difference between the two surveys.
-- **Explore** (`/explore/`; FR-10 to FR-27): the 15 × 10 matrix of global means and disagreement,
-  sortable, with a society's stricter or looser pairs; a page for each of the 150 pairs with a
-  beeswarm of the societies, a linked dot map, the selected society's rank, intervals, shrunken or
-  raw estimates, the behavior's strip across situations and "too few responses" or "not asked"
-  where a society cannot be shown.
-- **Societies** (`/societies/`; FR-30 to FR-34): an index by the GSN authors' regions and a
-  fingerprint for each of the 90 societies, with notably stricter or looser pairs, the five most
-  similar societies, a facts panel and a compare mode.
-- **Who's watching?** (`/audiences/`; FR-40 to FR-43): each behavior alone, in front of colleagues
+- **Home and quiz** (`/`; FR-1, FR-60 to FR-63): opens on the first of three questions, "How would
+  you answer?", each placing the reader's answer among the societies' averages and, with a society
+  chosen, among its respondents' answers; then a summary with one takeaway and a strip per
+  question. Under the quiz, five ways in: the tour, a search for a behavior in a situation, the
+  societies, Who's watching and Then and now. The answers stay in the tab (C-12).
+- **Tour** (`/story/`; FR-64, FR-65): six steps of about 50 words and one chart each, from the
+  paper's finding that norms vary more across situations than across societies, pictured with the
+  atlas's own averages, to the most and least disputed pairs, an audience effect and the largest
+  difference between the two surveys.
+- **Situations** (`/explore/`; FR-10 to FR-27): the 15 × 10 matrix of global averages with
+  disagreement as a ring, sortable, with a society's clearly stricter or looser pairs; on phones a
+  list with "Jump to a behavior" and the society's own values. A page for each of the 150 pairs
+  opens with the selected society's result and rank, then the pair's finding, a beeswarm of the
+  societies, a linked dot map and the behavior's strip across situations, with estimates adjusted
+  for small samples or not, intervals, and "too few responses" or "not asked" where a society
+  cannot be shown.
+- **Societies** (`/societies/`; FR-30 to FR-34): an index that opens with a map of the 90
+  societies by the GSN authors' regions, and a fingerprint for each, opening on its largest
+  differences, with its clearly stricter or looser pairs, the five most similar societies,
+  "Compare with…" and the facts about its respondents.
+- **Who's watching** (`/audiences/`; FR-40 to FR-43): each behavior alone, in front of colleagues
   or classmates and in front of management or professors, globally or for one society, with the
-  actor's gender and, globally, the respondents' gender.
-- **Change since the early 2000s** (`/change/`; FR-50 to FR-53): the 26 societies in both the
-  2000–2003 survey (Gelfand et al. 2011) and the GSN, as differences between surveys with their
-  provenance; one build setting removes the module (R-6).
-- **Method** (`/method/`; FR-70 to FR-73): what each chart shows, the three samples, what the atlas
-  cannot tell you, the privacy notice, the OSF files' versions and checksums, and every society's
-  respondents, student share, languages and fieldwork period.
-- **Throughout:** a society picker and sample (All data, the paper's sample, attention check) and
-  scale (raw or centered within each society) toggles that follow the reader; every view in the
-  URL, with back and forward; a share image for the home page, each module, every pair and every
-  society (247); a text summary on every page for readers without JavaScript; light and dark
-  themes.
+  actor's gender and, globally, the respondents' gender; the index opens on the largest drop.
+- **Then and now** (`/change/`; FR-50 to FR-53): the 26 societies in both the 2000–2003 survey
+  (Gelfand et al. 2011) and the GSN, as differences between two surveys, "clearly higher",
+  "clearly lower" or "too close to call", with their provenance; one build setting removes the
+  module (R-6).
+- **Method** (`/method/`; FR-70 to FR-73): "How to read the atlas" in five lines, then what each
+  chart shows, the paper's model, the three samples, what the atlas cannot tell you, the privacy
+  notice, the OSF files' versions and checksums, and every society's respondents, student share,
+  languages and fieldwork period.
+- **Throughout:** one search for societies and behaviors in situations; sample (all respondents,
+  the paper's sample, those who passed the attention check) and scale (as answered, or relative to
+  each society's average) toggles that follow the reader; every view in the URL, with Back for
+  each page, society or comparison; a Share button by every title; chart titles that state their
+  finding; a share image for the home page, each module, every pair and every society (247); a
+  text summary on every page for readers without JavaScript; light and dark themes.
+
+### Changed before release: the design review
+
+- **Words** (D-1 to D-10, D-15, D-27, D-34, D-35): findings first, in the response labels;
+  disagreement and ranks in words ("10th strictest of 88"); "clearly" and "too close to call" for
+  how sure; plain names for the toggles and samples; one decimal everywhere.
+- **Order** (D-5, D-16 to D-23, D-33, D-36): every module's main chart on the first phone screen,
+  with summaries, tables and notes under it; shorter ledes and notes; a one-row control bar with
+  the sample under Options.
+- **Navigation** (D-11 to D-14, D-21, D-24, D-28, D-29, D-31): the header reads Tour, Situations,
+  Societies, Who's watching, Then and now, Method, and names the module on phones; the hub and the
+  search; on touch a tap on a society's dot shows its tip, whose button selects it; Back steps
+  through pages, societies and comparisons, not toggles; a map on the societies index.
+- **The quiz and the tour** (D-2, D-9, D-10, D-22): the reveal brings its chart into view; the
+  summary has a takeaway; the tour's first step has a new picture and every step is shorter.
+- **The look** (D-25, D-26, D-37 to D-39): paper and ink, the palette as a band and a tile, marks
+  in one ink, beeswarm dots coloured as on the map, more colour near the middle of the dark ramp,
+  and share cards headed by findings, with the credit in two lines.
+- What happened to each finding is in section 10 of `docs/design-review.md`; the SRS lines these
+  changes need are proposed in `docs/srs-changes.md`.
 
 ### How it is built
 
 - An offline Python pipeline verifies the OSF files, rebuilds the paper's samples (25,422
   respondents in 90 societies; 18,656 in 71; 15,599 in 80) and publishes only aggregates: nothing
   respondent-level, and nothing describing fewer than 10 respondents (DR-9, DR-16).
-- A static SvelteKit site on GitHub Pages: 289 pages, about 36 MB, no server, database or cookie.
+- A static SvelteKit site on GitHub Pages: 289 pages, about 34 MB, no server, database or cookie.
   The only third party is Cloudflare Web Analytics, which sets no cookie (NFR-31, C-11).
 - Checked on every pull request: the pipeline's tests and privacy scan, unit and end-to-end tests,
   axe in both themes (WCAG 2.2 AA, NFR-10), Lighthouse budgets, the content review (AT-12), the
-  share images' credits, five browsers and visual regression.
+  share images' credits, five browsers, visual regression, and on phones a chart on every module's
+  first screen with no layout shift as a link's query applies.
 
 ### Fixed at launch
 
@@ -87,4 +119,5 @@ M7; the launch adds only fixes (SRS §10).
 | M5 Change since the early 2000s | 22 October 2026 | FR-50 to FR-53; AT-4 |
 | M6 Quiz and guided story | 23 October 2026 | FR-60 to FR-65; AT-3 |
 | M7 Polish | 23 October 2026 | Share images, method page, audits; AT-5 to AT-10, AT-12 |
+| Design changes | 24 October 2026 | The design review's 39 findings; decisions 111 to 140 |
 | Public launch | — | Launch checklist (§9.4) complete |
