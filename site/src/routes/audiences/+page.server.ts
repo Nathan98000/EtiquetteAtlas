@@ -1,4 +1,9 @@
-import { audienceRows, audiencesSummary, subjectOf } from '#lib/charts/audience-model.ts';
+import {
+	audienceOrder,
+	audienceRows,
+	audiencesSummary,
+	subjectOf
+} from '#lib/charts/audience-model.ts';
 import { contextsAll } from '#lib/server/derived.ts';
 import type { PageServerLoad } from './$types';
 
@@ -7,5 +12,9 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = () => {
 	const scope = { kind: 'global' } as const;
 	const rows = audienceRows(contextsAll, { scope, split: false });
-	return { summary: audiencesSummary(rows, subjectOf(scope, contextsAll.codes.length)) };
+	return {
+		summary: audiencesSummary(rows, subjectOf(scope, contextsAll.codes.length)),
+		// Decision 8: the panels prerender in the default order, largest drop first (NFR-2).
+		order: audienceOrder(rows, 'effect')
+	};
 };

@@ -109,7 +109,8 @@ test.describe('the fingerprint from 640 px', () => {
 	test('NFR-13: arrows move through the grid and Enter opens the pair for this society', async ({
 		page
 	}) => {
-		await page.goto(`${chile}?sample=paper`);
+		// Paper order, so the arrows' neighbours are known.
+		await page.goto(`${chile}?sample=paper&sort=paper`);
 		await matrixReady(page);
 		await page.locator('[data-cell="0"]').focus();
 		await page.keyboard.press('ArrowRight');
@@ -122,17 +123,16 @@ test.describe('the fingerprint from 640 px', () => {
 		await expect(page).toHaveURL(/\/explore\/laugh\/sidewalk\/\?society=chl&sample=paper$/);
 	});
 
-	test('decision 45: the grid sorts like the matrix, or by the largest differences', async ({
+	test("decision 45, decision 8: largest differences first by default, or the matrix's orders", async ({
 		page
 	}) => {
 		await page.goto(chile);
 		await matrixReady(page);
 		const firstRow = page.getByRole('grid').getByRole('rowheader').first();
-		await expect(firstRow).toHaveText('Argue');
-		await page.getByLabel('Sort').selectOption('difference');
-		await expect(page).toHaveURL(/\/societies\/chl\/\?sort=difference$/);
+		await expect(page.getByLabel('Sort')).toHaveValue('difference');
 		await expect(firstRow).not.toHaveText('Argue');
-		await page.goBack();
+		await page.getByLabel('Sort').selectOption('paper');
+		await expect(page).toHaveURL(/\/societies\/chl\/\?sort=paper$/);
 		await expect(firstRow).toHaveText('Argue');
 	});
 

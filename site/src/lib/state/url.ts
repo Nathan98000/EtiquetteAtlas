@@ -85,12 +85,20 @@ export const CHANGE_SOCIETY_ROUTE = '/change/[society]';
 
 /** The change routes open on the largest differences, so that order is their default. */
 export const CHANGE_DEFAULTS: Readonly<ViewState> = { ...DEFAULT_VIEW, sort: 'difference' };
+/** Decision 8 (D-12): a fingerprint opens on its largest differences. */
+export const FINGERPRINT_DEFAULTS: Readonly<ViewState> = { ...DEFAULT_VIEW, sort: 'difference' };
+/** Decision 8 (D-12): the small multiples open on the largest drop. */
+export const AUDIENCES_DEFAULTS: Readonly<ViewState> = { ...DEFAULT_VIEW, sort: 'effect' };
 
-/** The view a route shows when its URL has no query string. */
+/**
+ * The view a route shows when its URL has no query string: most telling first where a route has
+ * its own order (decision 8, amending decision 31); paper order stays one choice away.
+ */
 export function defaultsFor(routeId: string | null): Readonly<ViewState> {
-	return routeId === CHANGE_ROUTE || routeId === CHANGE_SOCIETY_ROUTE
-		? CHANGE_DEFAULTS
-		: DEFAULT_VIEW;
+	if (routeId === CHANGE_ROUTE || routeId === CHANGE_SOCIETY_ROUTE) return CHANGE_DEFAULTS;
+	if (routeId === FINGERPRINT_ROUTE) return FINGERPRINT_DEFAULTS;
+	if (routeId === AUDIENCES_ROUTE) return AUDIENCES_DEFAULTS;
+	return DEFAULT_VIEW;
 }
 
 const ORDER: readonly ViewKey[] = [

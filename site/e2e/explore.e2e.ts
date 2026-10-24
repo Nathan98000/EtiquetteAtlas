@@ -23,9 +23,10 @@ test.describe('the matrix from 640 px', () => {
 		expect(await page.evaluate(() => window.cspViolations)).toEqual([]);
 	});
 
-	test('FR-12, FR-80, FR-84: sorting reorders the grid, is kept in the URL and undone by back', async ({
+	test('FR-12, FR-80, FR-84: sorting reorders the grid and is kept in the URL; Back leaves the page', async ({
 		page
 	}) => {
+		await page.goto(url('method/'));
 		await page.goto(explore);
 		await matrixReady(page);
 		const firstRow = page.getByRole('grid').getByRole('rowheader').first();
@@ -38,9 +39,12 @@ test.describe('the matrix from 640 px', () => {
 		await page.getByLabel('Sort').selectOption('mean');
 		await expect(page).toHaveURL(/sort=mean$/);
 		await expect(firstRow).not.toHaveText('Argue');
+		// Decision 9: a sort replaces the history entry, so Back leaves the page at once.
 		await page.goBack();
-		await expect(page).toHaveURL(/sort=name$/);
-		await expect(page.getByLabel('Sort')).toHaveValue('name');
+		await expect(page).toHaveURL(/\/method\/$/);
+		await page.goForward();
+		await expect(page).toHaveURL(/\/explore\/\?sort=mean$/);
+		await expect(page.getByLabel('Sort')).toHaveValue('mean');
 	});
 
 	test('FR-13: hover shows behavior, situation, mean and disagreement with intervals, societies and respondents', async ({

@@ -39,21 +39,18 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 		"Relative to each society's own average. Each society's answers are shifted"
 	);
 
-	// FR-84: back and forward step through the states.
+	// FR-84, decision 9: the society was a step Back returns to; the sample and the scale replaced
+	// the entry instead of adding to it.
 	await page.goBack();
-	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
-	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
-	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
-	await page.goBack();
-	await expect(page).toHaveURL(/\?society=chl$/);
-	await expect(sampleRadio(page, 'All respondents')).toBeChecked();
-	await expect(page.locator('.badge')).toHaveText('');
-	await page.goBack();
+	await expect(page).toHaveURL(/\/explore\/usemphone\/funeral\/$/);
 	await expect(box).toHaveValue('');
+	await expect(sampleRadio(page, 'All respondents')).toBeChecked();
 	await page.goForward();
-	await page.goForward();
-	await expect(page).toHaveURL(/\?society=chl&sample=attention$/);
+	await expect(page).toHaveURL(/\?society=chl&sample=attention&scale=centered$/);
 	await expect(sampleRadio(page, 'Passed the attention check')).toBeChecked();
+	await expect(
+		page.getByRole('radio', { name: "Relative to each society's average" })
+	).toBeChecked();
 	await expect(box).toHaveValue('Chile');
 });
 
@@ -82,11 +79,9 @@ test('AT-11: the matrix follows the same controls', async ({ page }) => {
 	await chip.getByRole('button', { name: 'Show as answered' }).click();
 	await expect(page).toHaveURL(/\?society=jpn$/);
 	await expect(chip).toBeHidden();
+	// Decision 9: the scale replaced the entry, so Back undoes the society.
 	await page.goBack();
-	await expect(
-		page.getByRole('radio', { name: "Relative to each society's average" })
-	).toBeChecked();
-	await page.goBack();
+	await expect(page).toHaveURL(/\/explore\/$/);
 	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
 });
 
@@ -132,20 +127,15 @@ test('AT-11: on a fingerprint, society, sample and scale update every view and t
 	await expect(lede).toHaveText(/^Relative to each society's average, respondents in Japan/);
 	expect(await fills()).not.toBe(rawFills);
 
-	// FR-84: back and forward step through the states, the society included.
-	await page.goBack();
-	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
-	await expect(lede).toHaveText(/^Respondents in Japan/);
-	await page.goBack();
-	await expect(page).toHaveURL(/\/societies\/jpn\/$/);
-	await expect(sampleRadio(page, 'All respondents')).toBeChecked();
+	// FR-84, decision 9: Back returns to the other society; the sample and scale replaced their
+	// entry rather than adding to it.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/societies\/chl\/$/);
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Respondents in Chile');
 	await expect(box).toHaveValue('Chile');
+	await expect(page.getByRole('radio', { name: 'As answered' })).toBeChecked();
 	await page.goForward();
-	await page.goForward();
-	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
+	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention&scale=centered$/);
 	await expect(box).toHaveValue('Japan');
 	await expect(facts).toContainText('Respondents (the attention-check sample)');
 });

@@ -126,12 +126,11 @@ test.describe('FR-41: small multiples of all 15 behaviors', () => {
 		await page.goto(url('audiences/'));
 		await audiencesReady(page);
 		const panels = page.locator('.multiples > li');
-		await expect(panels.first()).toContainText('Argue');
 		await expect(page.locator('.lede')).toHaveText(
 			/^On average across the 90 societies, respondents judged every one of the 15 behaviors less appropriate in front of management or professors than when alone/
 		);
-		await page.getByLabel('Sort').selectOption('effect');
-		await expect(page).toHaveURL(/\/audiences\/\?sort=effect$/);
+		// Decision 8: the largest audience effect first unless the URL says otherwise.
+		await expect(page.getByLabel('Sort')).toHaveValue('effect');
 		await expect(panels.first()).toContainText('Music on headphones');
 		await expect(panels.first()).toContainText('3.0 lower with management');
 		await expect(panels.last()).toContainText('Talk');
@@ -144,6 +143,9 @@ test.describe('FR-41: small multiples of all 15 behaviors', () => {
 		await expect(page).toHaveURL(/\/audiences\/talk\/$/);
 		await page.getByRole('link', { name: 'All 15 behaviors' }).click();
 		await expect(page).toHaveURL(/\/audiences\/$/);
+		await page.getByLabel('Sort').selectOption('paper');
+		await expect(page).toHaveURL(/\/audiences\/\?sort=paper$/);
+		await expect(panels.first()).toContainText('Argue');
 	});
 
 	test('the panels follow the selected society; one not asked says so', async ({ page }) => {
@@ -154,7 +156,6 @@ test.describe('FR-41: small multiples of all 15 behaviors', () => {
 		);
 		await expect(page.getByRole('link', { name: /^Kiss on the mouth Not asked$/ })).toBeVisible();
 		await expect(page.getByRole('link', { name: /^Flirt Not asked$/ })).toBeVisible();
-		await page.getByLabel('Sort').selectOption('effect');
 		await expect(page.locator('.multiples > li').last()).toContainText('Flirt');
 	});
 });
@@ -265,18 +266,13 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await expect(page).toHaveURL(/\?society=jpn&sample=attention&scale=centered$/);
 	await expect(page.getByText(/applies to the situations only/)).toBeVisible();
 
+	// Decision 9: the sample and the scale replace the entry; only the society is a step back.
 	await page.goBack();
-	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
-	await expect(page.getByText(/Centering applies/)).toBeHidden();
-	await page.goBack();
-	await expect(page).toHaveURL(/\?society=jpn$/);
-	await expect(page.locator('#slope-summary')).toHaveText(japan ?? '');
-	await page.goBack();
+	await expect(page).toHaveURL(/\/audiences\/listen\/$/);
 	await expect(box).toHaveValue('');
 	await expect(page.locator('.lede')).toHaveText(/^On average across the 90 societies/);
 	await page.goForward();
-	await page.goForward();
-	await expect(page).toHaveURL(/\?society=jpn&sample=attention$/);
+	await expect(page).toHaveURL(/\?society=jpn&sample=attention&scale=centered$/);
 	await expect(sampleRadio(page, 'Passed the attention check')).toBeChecked();
 	await expect(box).toHaveValue('Japan');
 
@@ -286,7 +282,7 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 		'page'
 	);
 	await page.getByRole('link', { name: 'Audiences', exact: true }).click();
-	await expect(page).toHaveURL(/\/audiences\/\?society=jpn&sample=attention$/);
+	await expect(page).toHaveURL(/\/audiences\/\?society=jpn&sample=attention&scale=centered$/);
 	await audiencesReady(page);
 	await expect(page.locator('.lede')).toHaveText(/^Respondents in Japan judged/);
 });

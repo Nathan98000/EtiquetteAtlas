@@ -122,15 +122,25 @@
 				: data.chartSummary
 	);
 
+	// Decision 8: largest differences first by default. Until the society's values arrive, that
+	// order is the one prerendered from all respondents, so nothing moves when they do (NFR-2).
+	const byDifference = $derived(vs.sort === 'difference' && !model);
 	const order = $derived(
-		global.current
-			? fingerprintOrder(global.current, vs.scale, vs.sort, model)
-			: { rows: BEHAVIORS.map((_, i) => i), columns: SITUATIONS.map((_, i) => i) }
+		byDifference
+			? { rows: data.order.rows, columns: data.order.columns }
+			: global.current
+				? fingerprintOrder(global.current, vs.scale, vs.sort, model)
+				: { rows: BEHAVIORS.map((_, i) => i), columns: SITUATIONS.map((_, i) => i) }
 	);
 	const list = $derived(
-		global.current
-			? fingerprintListOrder(global.current, vs.scale, vs.sort, model)
-			: CELLS.map((cell) => cell.index)
+		byDifference
+			? [
+					...data.order.list,
+					...CELLS.map((c) => c.index).filter((c) => !data.order.list.includes(c))
+				]
+			: global.current
+				? fingerprintListOrder(global.current, vs.scale, vs.sort, model)
+				: CELLS.map((cell) => cell.index)
 	);
 
 	// The details panel keeps the last cell previewed (FR-13).

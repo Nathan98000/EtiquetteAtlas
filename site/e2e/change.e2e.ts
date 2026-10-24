@@ -308,19 +308,13 @@ test('AT-11: on the change routes, society, sample and scale update every view a
 	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention&scale=centered$/);
 	await expect(page.locator('.scale-note')).toContainText('has no scores relative to each society');
 
-	await page.goBack();
-	await expect(page).toHaveURL(/\?sample=attention$/);
-	await expect(page.locator('.scale-note')).toContainText('Scores as answered in both surveys');
-	await page.goBack();
-	await expect(page).toHaveURL(/\/change\/jpn\/$/);
-	await expect(page.locator('.lede')).toHaveText(/judged 22 clearly more appropriate/);
+	// Decision 9: the sample and the scale replace the entry; only the society is a step back.
 	await page.goBack();
 	await expect(page).toHaveURL(/\/change\/$/);
 	await expect(box).toHaveValue('');
 	await expect(page.locator('.lede')).toHaveText(/^Averaged over the 26 societies/);
 	await page.goForward();
-	await page.goForward();
-	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention$/);
+	await expect(page).toHaveURL(/\/change\/jpn\/\?sample=attention&scale=centered$/);
 	await expect(sampleRadio(page, 'Passed the attention check')).toBeChecked();
 	await expect(box).toHaveValue('Japan');
 	await expect(page.locator('.lede')).toHaveText(/judged 24 clearly more appropriate/);

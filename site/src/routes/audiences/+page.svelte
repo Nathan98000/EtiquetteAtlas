@@ -51,7 +51,13 @@
 	);
 	const rows = $derived(file && known ? audienceRows(file, { scope, split: vs.split }) : undefined);
 	// FR-41: the panels and their table follow the sort; paper order until the data arrives.
-	const order = $derived(rows ? audienceOrder(rows, vs.sort) : BEHAVIORS.map((_, b) => b));
+	const order = $derived(
+		rows
+			? audienceOrder(rows, vs.sort)
+			: vs.sort === 'effect'
+				? data.order
+				: BEHAVIORS.map((_, b) => b)
+	);
 	// Until the browser has the data, the prerendered All-data summary stands in (FR-87).
 	const summary = $derived(
 		rows && file ? audiencesSummary(rows, subjectOf(scope, file.codes.length)) : data.summary
@@ -137,7 +143,9 @@
 		{/snippet}
 		{#snippet chart()}
 			<ol class="multiples">
-				{#each order as i, n (i)}
+				<!-- Keyed by place, not behavior: when the order changes, each panel keeps its box and
+				     takes another behavior's contents, so nothing shifts (decision 8, NFR-2). -->
+				{#each order as i, n (n)}
 					{@const row = rows?.[i]}
 					<li>
 						<!-- The link's name is its visible text (WCAG 2.5.3); the values in full are its

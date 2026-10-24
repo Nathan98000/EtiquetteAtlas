@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	AUDIENCE_KEYS,
 	AUDIENCE_ROUTE,
+	AUDIENCES_DEFAULTS,
 	AUDIENCES_KEYS,
 	AUDIENCES_ROUTE,
 	CELL_KEYS,
@@ -11,6 +12,7 @@ import {
 	CHANGE_SOCIETY_KEYS,
 	CHANGE_SOCIETY_ROUTE,
 	DEFAULT_VIEW,
+	FINGERPRINT_DEFAULTS,
 	FINGERPRINT_KEYS,
 	FINGERPRINT_ROUTE,
 	GLOBAL_KEYS,
@@ -89,7 +91,8 @@ describe('FR-80: view state round-trips through the URL', () => {
 		expect(viewSearch(state, GLOBAL_KEYS)).toBe('');
 		expect(parseView(new URLSearchParams('sort=effect'), AUDIENCES_ROUTE).sort).toBe('effect');
 		expect(parseView(new URLSearchParams('sort=effect'), '/explore').sort).toBe('paper');
-		expect(parseView(new URLSearchParams('sort=mean'), AUDIENCES_ROUTE).sort).toBe('paper');
+		// An order the route does not offer falls back to its own default (decision 8).
+		expect(parseView(new URLSearchParams('sort=mean'), AUDIENCES_ROUTE).sort).toBe('effect');
 	});
 
 	it('decision 57: scope and split appear only where they change the view', () => {
@@ -119,6 +122,21 @@ describe('FR-80: view state round-trips through the URL', () => {
 		);
 		// Elsewhere paper order is the default.
 		expect(viewSearch({ ...state, sort: 'paper' }, MATRIX_KEYS)).toBe('?society=chl&sample=paper');
+	});
+
+	it('decision 8: fingerprints open on their largest differences, the audiences on the largest effect', () => {
+		expect(defaultsFor(FINGERPRINT_ROUTE)).toBe(FINGERPRINT_DEFAULTS);
+		expect(defaultsFor(AUDIENCES_ROUTE)).toBe(AUDIENCES_DEFAULTS);
+		expect(defaultsFor(AUDIENCE_ROUTE)).toBe(DEFAULT_VIEW);
+		expect(parseView(new URLSearchParams(''), FINGERPRINT_ROUTE).sort).toBe('difference');
+		expect(parseView(new URLSearchParams(''), AUDIENCES_ROUTE).sort).toBe('effect');
+		expect(parseView(new URLSearchParams('sort=paper'), FINGERPRINT_ROUTE).sort).toBe('paper');
+		const state: ViewState = { ...FINGERPRINT_DEFAULTS, sample: 'paper' };
+		expect(viewSearch(state, FINGERPRINT_KEYS, FINGERPRINT_DEFAULTS)).toBe('?sample=paper');
+		expect(viewSearch({ ...state, sort: 'paper' }, FINGERPRINT_KEYS, FINGERPRINT_DEFAULTS)).toBe(
+			'?sample=paper&sort=paper'
+		);
+		expect(viewSearch({ ...AUDIENCES_DEFAULTS }, AUDIENCES_KEYS, AUDIENCES_DEFAULTS)).toBe('');
 	});
 
 	it('decision 45: only a fingerprint sorts by its own differences', () => {

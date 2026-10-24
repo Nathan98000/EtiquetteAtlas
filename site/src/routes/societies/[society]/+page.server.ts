@@ -3,6 +3,8 @@ import {
 	fingerprintCells,
 	fingerprintChartSummary,
 	fingerprintCounts,
+	fingerprintListOrder,
+	fingerprintOrder,
 	fingerprintSummary
 } from '#lib/charts/fingerprint-model.ts';
 import { respondentsIn } from '#lib/data/format.ts';
@@ -41,6 +43,12 @@ export const load: PageServerLoad = ({ params }) => {
 		region: society.region,
 		peers,
 		empty: counts.shown === 0,
+		// Decision 8: the default order, largest differences first, so the prerendered grid and the
+		// phone list's first rows are already in it and nothing moves when the data arrive (NFR-2).
+		order: {
+			...fingerprintOrder(globalAll, 'raw', 'difference', model),
+			list: fingerprintListOrder(globalAll, 'raw', 'difference', model).slice(0, 25)
+		},
 		summary: fingerprintSummary(who, counts, 'raw', closest),
 		chartSummary: fingerprintChartSummary(who, model, 'raw'),
 		facts: factsView(societies, society.code, 'all')!,
