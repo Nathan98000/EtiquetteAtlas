@@ -175,11 +175,18 @@ export function fingerprintLabel(cell: FingerprintCell): string {
  * The counts in words: "Respondents in Chile were clearly stricter than the global average on
  * 23 of the 150 pairs and clearly looser on 41". `who` is "respondents in Chile".
  */
-function countsClause(who: string, counts: FingerprintCounts, scale: Scale): string {
+function countsClause(
+	who: string,
+	counts: FingerprintCounts,
+	scale: Scale,
+	define = false
+): string {
+	// "Pair" is defined where the page first uses it, the lede (decision 5).
+	const kind = define ? 'pairs of a behavior and a situation' : 'pairs';
 	const pairs =
 		counts.shown === CELL_COUNT
-			? `the ${CELL_COUNT} pairs`
-			: `the ${counts.shown} pairs with enough responses`;
+			? `the ${CELL_COUNT} ${kind}`
+			: `the ${counts.shown} ${kind} with enough responses`;
 	const start = scale === 'centered' ? `Relative to each society's average, ${who}` : capital(who);
 	return (
 		`${start} were clearly stricter than the global average on ${howMany(counts.stricter)} ` +
@@ -210,7 +217,7 @@ export function fingerprintSummary(
 		: closest
 			? `, and their answers are most like those of ${closest}`
 			: '; too few of their pairs have enough responses to compare them with other societies';
-	return `${countsClause(who, counts, scale)}${similar}.`;
+	return `${countsClause(who, counts, scale, true)}${similar}.`;
 }
 
 /** NFR-11: the grid in one sentence, with its largest differences either way. */

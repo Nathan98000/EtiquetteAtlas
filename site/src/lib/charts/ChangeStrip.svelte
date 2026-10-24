@@ -48,8 +48,7 @@
 					<span class="point" style="left: {x(row.diff.value)}%"></span>
 				</span>
 				<span class="value num" aria-hidden="true"
-					>{score(row.diff.value)}<span class="glyph">{DIRECTION_GLYPH[row.direction]}</span
-					></span
+					>{score(row.diff.value)}<span class="glyph">{DIRECTION_GLYPH[row.direction]}</span></span
 				>
 				<!-- D-4: how sure, in words beside ▲ and ▼. -->
 				<span class="note" aria-hidden="true"

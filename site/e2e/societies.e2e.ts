@@ -230,7 +230,10 @@ test('FR-34: the facts panel shows respondents, students, languages, fieldwork a
 	await expect(facts).toContainText(
 		/All respondents: \d+ · The paper's sample: \d+ · Passed the attention check: \d+/
 	);
-	await expect(facts).toContainText('Collection sites are not shown');
+	await expect(facts.getByRole('link', { name: 'How these facts were recorded' })).toHaveAttribute(
+		'href',
+		/method\/#facts$/
+	);
 	await page.getByRole('radio', { name: "The paper's sample" }).check();
 	await expect(facts).toContainText("Respondents (the paper's sample)");
 	// Decision 17: Mauritius has no month with 10 respondents starting in the paper's sample.

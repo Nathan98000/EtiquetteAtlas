@@ -136,7 +136,8 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 			)
 		).toBe(
 			'Respondents in Alpha were clearly stricter than the global average on 150 of the 150 ' +
-				'pairs and clearly looser on none, and their answers are most like those of respondents ' +
+				'pairs of a behavior and a situation and clearly looser on none, and their answers are ' +
+				'most like those of respondents ' +
 				'in the Philippines.'
 		);
 	});
@@ -144,7 +145,8 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 	it('says when pairs are missing and when no similar society can be named', () => {
 		expect(fingerprintSummary('respondents in Gamma', fingerprintCounts(ccc), 'raw', null)).toBe(
 			'Respondents in Gamma were clearly stricter than the global average on none of the 148 ' +
-				'pairs with enough responses and clearly looser on 148; too few of their pairs have ' +
+				'pairs of a behavior and a situation with enough responses and clearly looser on 148; ' +
+				'too few of their pairs have ' +
 				'enough responses to compare them with other societies.'
 		);
 	});
@@ -161,7 +163,7 @@ describe('FR-87, NFR-11: the fingerprint in one sentence', () => {
 			)
 		).toBe(
 			"Relative to each society's average, respondents in Alpha were clearly stricter than the global " +
-				'average on none of the 150 pairs and clearly looser on none.'
+				'average on none of the 150 pairs of a behavior and a situation and clearly looser on none.'
 		);
 	});
 

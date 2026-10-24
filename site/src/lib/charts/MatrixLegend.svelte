@@ -50,7 +50,9 @@
 					respondentsIn(society.code, society.name).slice(1)}, compared with the global average
 			</p>
 			<ul class="marks">
-				<li><span aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more appropriate)</li>
+				<li>
+					<span aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more appropriate)
+				</li>
 				<li>
 					<span aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter (less appropriate)
 				</li>

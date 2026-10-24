@@ -269,9 +269,9 @@
 	<section id="facts">
 		<h2>Society facts</h2>
 		<p>
-			Each society's page shows how many people responded in the chosen sample, the share flagged as
-			students, the languages people took the survey in, and the months of fieldwork; the table at
-			the end of this page lists them all. Student status was not collected the same way at every
+			Each society's page shows how many people responded in the chosen sample, the share recorded
+			as students, the languages people took the survey in, and the months of fieldwork; the table
+			at the end of this page lists them all. Student status was not collected the same way at every
 			site: some asked respondents, some recorded it for everyone they recruited, and some recorded
 			none, so we show the share with no status as well. Fieldwork months are those in which at
 			least 10 respondents started. The collection sites themselves are never shown, as they could

@@ -50,9 +50,8 @@
 		<h1>Societies</h1>
 		<p class="lede">{summary}</p>
 		<p>
-			Each society's page shows its fingerprint: where its respondents judged a behavior more or
-			less appropriate than the average of all societies, and which societies answered most alike.
-			Pick one in the Society box above, or from the list below.
+			Pick a society, in the Society box above or the list below, to see where its respondents were
+			stricter or looser than the average of all societies.
 		</p>
 		<noscript>
 			<p>

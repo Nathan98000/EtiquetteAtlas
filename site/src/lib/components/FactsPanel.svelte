@@ -24,7 +24,7 @@
 		</div>
 		{#if !facts || facts.inSample}
 			<div>
-				<dt>Flagged as students</dt>
+				<dt>Recorded as students</dt>
 				<dd>{facts?.inSample?.students ?? '…'}</dd>
 			</div>
 			<div>
@@ -47,11 +47,10 @@
 				<span class="num">{s.respondents ?? 'not included'}</span>{/each}
 		{:else}&nbsp;{/if}
 	</p>
+	<!-- D-20: how student status was recorded, and why collection sites are not shown, are on the
+	     method page. -->
 	<p class="note">
-		Student status was not collected the same way at every site: some asked, some recorded it for
-		everyone they recruited, some recorded none. Collection sites are not shown, to protect
-		respondents' privacy.
-		<a href={resolve('method/#facts')}>About these facts</a>
+		<a href={resolve('method/#facts')}>How these facts were recorded</a>
 	</p>
 </section>
 
