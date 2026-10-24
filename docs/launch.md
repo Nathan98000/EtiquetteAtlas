@@ -14,7 +14,7 @@ is sent or published from a coding session.
 | Method page reviewed by a second reader | Text settled (decision 93); the privacy notice corrected (L-1, decision 105); reviewed by a fresh agent in place of a human reader, a departure from §9.4 (decision 110), its findings below | — | — |
 | Attribution checked on pages and share images | Every page (`check-build.js`) and every image (`share-images.js`) carry the full credit; the four DOIs resolve, and their registered titles, journals, years and volumes match the credits (23 October 2026); the maintainer read the credit on the 10 sample images on the deployed site, all complete (23 October 2026) | Both, in CI | — |
 | Analytics confirmed counting, with no cookies set | Beacon on every page; on the deployed site it reports (`cdn-cgi/rum` answers 204), sets no cookie or storage, and sends no query string (decision 105). View changes count as page views but not as visits, and trends are read from Visits (decision 107). Counting confirmed in the dashboard, 23 October 2026: 188 visits, 191 page views | `npm run test:deployed` | — |
-| Social cards checked for the home page, one cell and one society | Tags and images on every route (AT-7) | — | The validators below (NFR-61) |
+| Social cards checked for the home page, one cell and one society | Done: tags and images on every route (AT-7), and the maintainer found every validator's preview correct for the home page, `/explore/sing/funeral/` and `/societies/chl/` (23 October 2026, NFR-61) | — | — |
 | Optional courtesy note to the GSN authors | Not sent: the maintainer's decision (decision 108); the change module stays on, and `CHANGE_MODULE=off` removes it in one deploy (R-6) | — | — |
 
 ## Findings
@@ -212,7 +212,7 @@ page on:
   `explore/talk/party.png`, `societies/usa.png` and `societies/mng.png`. On each, read the credit
   at the foot: authors, year, title, journal, the OSF DOI, CC BY 4.0 with its link, "Values shown
   are aggregated and modelled by The Etiquette Atlas" (and Gelfand et al. 2011 on the change card).
-- [ ] **Social-card validators** for https://nathan98000.github.io/EtiquetteAtlas/,
+- [x] **Social-card validators** (done 23 October 2026: every preview correct) for https://nathan98000.github.io/EtiquetteAtlas/,
   https://nathan98000.github.io/EtiquetteAtlas/explore/sing/funeral/ and
   https://nathan98000.github.io/EtiquetteAtlas/societies/chl/: Facebook's Sharing Debugger
   (https://developers.facebook.com/tools/debug/), LinkedIn's Post Inspector
