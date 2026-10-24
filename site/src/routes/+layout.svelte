@@ -10,6 +10,13 @@
 
 	let { children }: LayoutProps = $props();
 
+	// NFR-2: prerendered pages cannot read their query string, so app.html marks a page opened with
+	// `?society=` before its first paint and CSS reserves the society's space from the start. Once
+	// the URL applies, the mark follows the view, as the reader moves between pages.
+	$effect(() => {
+		if (view.ready) document.documentElement.toggleAttribute('data-society', !!view.state.society);
+	});
+
 	onMount(() => {
 		theme.start();
 		view.start();

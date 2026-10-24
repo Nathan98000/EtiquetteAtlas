@@ -154,100 +154,17 @@
 		{/if}
 	{/each}
 
-	<div class="strip-section needs-js">
-		<ChartFrame
-			id="strip"
-			title="{BEHAVIOR_TEXT[behavior].label} in each situation"
-			summary={files ? stripSummary(files.global, behavior, vs.scale) : data.stripSummary}
-			about={resolve('method/#global')}
-			centered={vs.scale === 'centered'}
-			explain={CENTERING}
-		>
-			{#snippet chart()}
-				<BehaviorStrip cells={model} {cell} {href} />
-			{/snippet}
-			{#snippet table()}
-				{#if model}
-					<table class="data">
-						<caption
-							>Global average for {BEHAVIOR_TEXT[behavior].label.toLowerCase()} by situation</caption
-						>
-						<thead>
-							<tr>
-								<th scope="col">Situation</th>
-								<th scope="col">Global average</th>
-								<th scope="col">Disagreement</th>
-								{#if society?.inSample}<th scope="col"
-										>Respondents in {place(society.code, society.name)}</th
-									>{/if}
-							</tr>
-						</thead>
-						<tbody>
-							{#each CELLS.filter((c) => c.behavior === behavior) as c (c.index)}
-								<tr>
-									<th scope="row">{SITUATION_TEXT[c.situation].label}</th>
-									<td>{score(model[c.index].mean)}</td>
-									<td>{spread(model[c.index].tau)}</td>
-									{#if society?.inSample}
-										<td>{model[c.index].society ? societyPhrase(model[c.index].society!) : ''}</td>
-									{/if}
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				{/if}
-			{/snippet}
-		</ChartFrame>
-		<p class="more-link">
-			<a href={withView(resolve(`audiences/${slug(behavior)}/`), vs, GLOBAL_KEYS)}>
-				{BEHAVIOR_TEXT[behavior].gerund} alone and in front of others
-			</a>
-		</p>
-		<!-- Decision 67: the 12 behaviors the 2000–2003 survey asked link to the change module, for
-		     the selected society when it was in both surveys. -->
-		{#if CHANGE_MODULE && CHANGE_BEHAVIORS.includes(behavior)}
-			<p class="more-link">
-				<a href={changeHref(vs.society, vs, false)}>
-					{cellChangeLink(
-						selectedSociety && inChangeSurvey(selectedSociety.code)
-							? place(selectedSociety.code, selectedSociety.name)
-							: null
-					)}
-				</a>
-			</p>
-		{/if}
-		<!-- FR-26: previous and next cells in paper order (decision 39). -->
-		<StepLinks
-			label="Other pairs"
-			previous={{ href: href(previous), label: headline(CELLS[previous]) }}
-			next={{ href: href(next), label: headline(CELLS[next]) }}
-		/>
-	</div>
-
+	<!-- D-5: the society's result, then the pair's finding and its beeswarm first; the map and the
+	     behavior across situations follow. -->
 	<div class="layout">
 		<div class="charts">
-			<div class="toggles needs-js">
-				<Segmented
-					legend="Estimate"
-					name="estimate"
-					value={vs.estimate}
-					options={estimateOptions}
-					onchange={(value) => setView({ estimate: value })}
-				/>
-				<Toggle
-					label="Show uncertainty"
-					checked={vs.uncertainty}
-					onchange={(checked) => setView({ uncertainty: checked })}
-				/>
-				<a class="about" href={resolve('method/#shrinkage')}>About the adjustment</a>
-			</div>
-
 			<ChartFrame
 				id="swarm"
 				title="Every society's average answer"
 				summary={swarmSummary}
 				about={resolve('method/#intervals')}
 				centered={vs.scale === 'centered'}
+				explain={CENTERING}
 			>
 				{#snippet legend()}
 					<RegionLegend mode="region" />
@@ -268,6 +185,24 @@
 						<div class="placeholder swarm"></div>
 					{/if}
 				{/snippet}
+				<!-- D-5: the estimate and uncertainty controls act on this chart, so they sit under it. -->
+				{#snippet below()}
+					<div class="toggles needs-js">
+						<Segmented
+							legend="Estimate"
+							name="estimate"
+							value={vs.estimate}
+							options={estimateOptions}
+							onchange={(value) => setView({ estimate: value })}
+						/>
+						<Toggle
+							label="Show uncertainty"
+							checked={vs.uncertainty}
+							onchange={(checked) => setView({ uncertainty: checked })}
+						/>
+						<a class="about" href={resolve('method/#shrinkage')}>About the adjustment</a>
+					</div>
+				{/snippet}
 				{#snippet table()}
 					{#if d}
 						<SocietyTable
@@ -277,7 +212,27 @@
 					{/if}
 				{/snippet}
 			</ChartFrame>
-
+			<!-- Links to this behavior elsewhere in the atlas, under the beeswarm (D-5). -->
+			<div class="more-links">
+				<p class="more-link">
+					<a href={withView(resolve(`audiences/${slug(behavior)}/`), vs, GLOBAL_KEYS)}>
+						{BEHAVIOR_TEXT[behavior].gerund} alone and in front of others
+					</a>
+				</p>
+				<!-- Decision 67: the 12 behaviors the 2000–2003 survey asked link to the change module, for
+		     the selected society when it was in both surveys. -->
+				{#if CHANGE_MODULE && CHANGE_BEHAVIORS.includes(behavior)}
+					<p class="more-link">
+						<a href={changeHref(vs.society, vs, false)}>
+							{cellChangeLink(
+								selectedSociety && inChangeSurvey(selectedSociety.code)
+									? place(selectedSociety.code, selectedSociety.name)
+									: null
+							)}
+						</a>
+					</p>
+				{/if}
+			</div>
 			<ChartFrame
 				id="map"
 				title="Where the societies are"
@@ -320,6 +275,60 @@
 					{/if}
 				{/snippet}
 			</ChartFrame>
+			<div class="strip-section needs-js">
+				<ChartFrame
+					id="strip"
+					title="{BEHAVIOR_TEXT[behavior].label} in each situation"
+					summary={files ? stripSummary(files.global, behavior, vs.scale) : data.stripSummary}
+					about={resolve('method/#global')}
+					centered={vs.scale === 'centered'}
+				>
+					{#snippet chart()}
+						<BehaviorStrip cells={model} {cell} {href} />
+					{/snippet}
+					{#snippet table()}
+						{#if model}
+							<table class="data">
+								<caption
+									>Global average for {BEHAVIOR_TEXT[behavior].label.toLowerCase()} by situation</caption
+								>
+								<thead>
+									<tr>
+										<th scope="col">Situation</th>
+										<th scope="col">Global average</th>
+										<th scope="col">Disagreement</th>
+										{#if society?.inSample}<th scope="col"
+												>Respondents in {place(society.code, society.name)}</th
+											>{/if}
+									</tr>
+								</thead>
+								<tbody>
+									{#each CELLS.filter((c) => c.behavior === behavior) as c (c.index)}
+										<tr>
+											<th scope="row">{SITUATION_TEXT[c.situation].label}</th>
+											<td>{score(model[c.index].mean)}</td>
+											<td>{spread(model[c.index].tau)}</td>
+											{#if society?.inSample}
+												<td
+													>{model[c.index].society
+														? societyPhrase(model[c.index].society!)
+														: ''}</td
+												>
+											{/if}
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						{/if}
+					{/snippet}
+				</ChartFrame>
+				<!-- FR-26: previous and next cells in paper order (decision 39). -->
+				<StepLinks
+					label="Other pairs"
+					previous={{ href: href(previous), label: headline(CELLS[previous]) }}
+					next={{ href: href(next), label: headline(CELLS[next]) }}
+				/>
+			</div>
 		</div>
 
 		<aside class="panel" aria-labelledby="all-title">
@@ -392,7 +401,12 @@
 	}
 
 	.strip-section {
-		margin: 1.5rem 0 2rem;
+		margin-bottom: 2rem;
+	}
+
+	/* The links follow the beeswarm closely; the grid's gap would part them. */
+	.more-links {
+		margin-top: -1.75rem;
 	}
 
 	.more-link {
@@ -433,7 +447,7 @@
 		flex-wrap: wrap;
 		align-items: flex-end;
 		gap: 0.75rem 1.5rem;
-		margin-bottom: -1.5rem;
+		margin-top: 0.75rem;
 	}
 
 	.about {
@@ -442,7 +456,7 @@
 	}
 
 	.placeholder.swarm {
-		min-height: 13.5rem;
+		min-height: 18.375rem;
 	}
 
 	.placeholder.map {

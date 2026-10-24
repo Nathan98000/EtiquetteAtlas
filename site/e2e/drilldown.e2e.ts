@@ -85,10 +85,11 @@ test('FR-24: the map loads when needed, and hover is linked both ways with the b
 test('FR-25, NFR-13: by keyboard, a society is reached, selected and ranked', async ({ page }) => {
 	await page.goto(cell);
 	await swarmReady(page);
-	await page.getByRole('checkbox', { name: 'Show uncertainty' }).focus();
+	// D-5: the controls sit under the beeswarm, so it comes just before them.
+	await page.getByRole('radio', { name: 'Adjusted for small samples' }).focus();
 	let inSwarm = false;
 	for (let i = 0; i < 8 && !inSwarm; i++) {
-		await page.keyboard.press('Tab');
+		await page.keyboard.press('Shift+Tab');
 		inSwarm = await page.evaluate(
 			() => !!document.activeElement?.closest('.beeswarm') && document.activeElement !== null
 		);
@@ -130,8 +131,14 @@ test("D-1, D-27, FR-25: the society's result comes first, ranked from the nearer
 	await swarmReady(page);
 	const box = page.locator('.society-box');
 	await expect(box).toContainText('Pick a society to see where it stands.');
-	const empty = (await box.boundingBox())!.height;
 
+	// The box's height as first painted, before the app applies the URL's society.
+	await page.addInitScript(() =>
+		document.addEventListener('DOMContentLoaded', () => {
+			const el = document.querySelector('.society-box');
+			(window as unknown as { painted: number }).painted = el!.getBoundingClientRect().height;
+		})
+	);
 	await page.goto(url('explore/eat/bus/?society=jpn'));
 	await swarmReady(page);
 	// Directly under the title, before the global lede.
@@ -144,8 +151,10 @@ test("D-1, D-27, FR-25: the society's result comes first, ranked from the nearer
 	await expect(box).toContainText(
 		/^Respondents in Japan: somewhat inappropriate \(−0\.\d\), clearly stricter than the global average; \d+(st|nd|rd|th) strictest of 88\./
 	);
-	// NFR-2: its height is reserved, so the society's arrival moves nothing.
-	expect((await box.boundingBox())!.height).toBe(empty);
+	// NFR-2: app.html marks a `?society=` link before the first paint, so the box's space is
+	// reserved from the start and the society's arrival moves nothing.
+	const painted = await page.evaluate(() => (window as unknown as { painted: number }).painted);
+	expect((await box.boundingBox())!.height).toBe(painted);
 });
 
 test('D-15, D-34: a small sample says what it does to the estimate; point-like intervals are not shown', async ({
