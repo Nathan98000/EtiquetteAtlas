@@ -95,7 +95,7 @@
 
 <div class="explore">
 	<div class="intro">
-		<h1>How appropriate is each behavior in each situation?</h1>
+		<h1>What is appropriate where?</h1>
 		<!-- D-6, D-23: one short line; the legend says what the colour and the circle mean. -->
 		<p class="lede">
 			How respondents in {global.current?.societies(0) ?? 90} societies judged each pair of a behavior

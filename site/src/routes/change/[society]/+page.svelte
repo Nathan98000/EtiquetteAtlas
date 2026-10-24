@@ -106,7 +106,7 @@
 				<dt>2023–2024 survey</dt>
 				<dd class="num">
 					{facts?.newer ? `${count(facts.newer)} respondents` : '…'}
-					<span class="muted">{SAMPLE_LABEL[vs.sample]}</span>
+					{#if vs.sample !== 'all'}<span class="muted">{SAMPLE_LABEL[vs.sample]}</span>{/if}
 				</dd>
 			</div>
 			<div>

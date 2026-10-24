@@ -21,9 +21,10 @@
 <section class="card" aria-labelledby="similar-title">
 	<h2 id="similar-title">Most similar answers</h2>
 	<p class="note">
-		Similarity is the correlation of two fingerprints: 1 would mean the same pattern of stricter and
-		looser pairs, 0 no shared pattern. It measures how alike the answers are, not how related the
-		cultures are. <a href={resolve('method/#similar')}>About similarity</a>
+		<!-- D-8: in words; the method page says it is a correlation of two fingerprints. -->
+		1 would mean exactly the same pattern of stricter and looser pairs, 0 no shared pattern. It measures
+		how alike the answers are, not how related the cultures are.
+		<a href={resolve('method/#similar')}>About similarity</a>
 	</p>
 	{#if similar === undefined}
 		<ol class="list" aria-busy="true">
