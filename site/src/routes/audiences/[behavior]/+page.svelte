@@ -105,7 +105,12 @@
 		<a href={audiencesHref(null, vs)}>All 15 behaviors</a>
 	</nav>
 	<h1>{data.title}</h1>
-	<p class="lede">{summary}</p>
+	<!-- NFR-2: on a `?society=` link (marked before the first paint, app.html) the prerendered lede
+	     stays as an invisible sizer, so a society's shorter sentence does not pull the chart up. -->
+	<div class="lede-stack">
+		<p class="lede">{summary}</p>
+		<p class="sizer" aria-hidden="true">{data.summary}</p>
+	</div>
 	<noscript>
 		<p>The slopegraph needs JavaScript.</p>
 	</noscript>
@@ -193,9 +198,27 @@
 		content: '← ';
 	}
 
-	.lede {
+	.lede,
+	.sizer {
 		max-width: var(--measure);
 		font-size: var(--text-lg);
+	}
+
+	.lede-stack {
+		display: grid;
+	}
+
+	.lede-stack > p {
+		grid-area: 1 / 1;
+	}
+
+	.sizer {
+		display: none;
+		visibility: hidden;
+	}
+
+	:global(html[data-society]) .sizer {
+		display: block;
 	}
 
 	.layout {

@@ -41,11 +41,13 @@
 		/>
 		<!-- FR-4: a badge whenever a non-default sample is active, outside Options. A `?sample=` link
 		     holds its place from the first paint (app.html), so the bar does not move (NFR-2). -->
-		<p class="badge" class:shown={sample !== 'all'} role="status">
-			{#if sample !== 'all'}
-				{SAMPLE_LABEL[sample]}: {societies.current?.count(sample) ?? counts[sample]} societies
-			{/if}
-		</p>
+		<div class="badge-row" class:shown={sample !== 'all'}>
+			<p class="badge" role="status">
+				{#if sample !== 'all'}
+					{SAMPLE_LABEL[sample]}: {societies.current?.count(sample) ?? counts[sample]} societies
+				{/if}
+			</p>
+		</div>
 		<button
 			type="button"
 			class="options-toggle button"
@@ -100,8 +102,21 @@
 		padding: 0.75rem var(--gutter);
 	}
 
-	.badge {
+	/* The badge has a row of its own, so a `?sample=` link, marked before the first paint
+	   (app.html), holds the same place before and after its text arrives (NFR-2). */
+	.badge-row {
 		display: none;
+		order: 3;
+		flex-basis: 100%;
+	}
+
+	.badge-row.shown,
+	:global(html[data-sample]) .badge-row {
+		display: block;
+	}
+
+	.badge {
+		display: inline-block;
 		min-width: 15rem;
 		min-height: 2rem;
 		margin: 0;
@@ -110,21 +125,6 @@
 		border-radius: 999px;
 		font-size: var(--text-sm);
 		font-weight: 600;
-		align-self: center;
-	}
-
-	.badge.shown,
-	:global(html[data-sample]) .badge {
-		display: block;
-	}
-
-	/* On a phone the badge takes its own line under the search. */
-	@media (max-width: 639.98px) {
-		.badge {
-			order: 3;
-			flex-basis: 100%;
-			min-width: 0;
-		}
 	}
 
 	.scale {
@@ -161,12 +161,9 @@
 		}
 	}
 
-	/* ≥ 1024 px: one row; only the sample waits under Options, in a small panel. */
+	/* ≥ 1024 px: one row; only the sample waits under Options, in a small panel. With another
+	   sample, the badge takes a second row. */
 	@media (min-width: 1024px) {
-		.inner {
-			flex-wrap: nowrap;
-		}
-
 		.options,
 		.options.open {
 			display: contents;
@@ -174,18 +171,22 @@
 
 		.scale {
 			order: 1;
-		}
-
-		.badge {
-			order: 2;
+			flex: none;
 		}
 
 		.options-toggle {
-			order: 3;
+			order: 2;
 			margin-left: auto;
+			flex: none;
 		}
 
 		.copy {
+			order: 3;
+			flex: none;
+			white-space: nowrap;
+		}
+
+		.badge-row {
 			order: 4;
 		}
 

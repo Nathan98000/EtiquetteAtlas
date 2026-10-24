@@ -285,7 +285,7 @@
 						<!-- D-16: the first panel names the scale, for all of them. -->
 						{#each [2.5, 0, -2.5] as p (p)}
 							<text class="tiny" x={layout.gutter - 3} y={top + layout.scale(p)} text-anchor="end">
-								{score(p)}
+								{p === 0 ? '0' : score(p)}
 							</text>
 						{/each}
 					{/if}

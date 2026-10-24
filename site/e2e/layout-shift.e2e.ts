@@ -14,12 +14,15 @@ const LINKS = [
 	'societies/usa/?compare=jpn',
 	'audiences/?society=jpn',
 	'audiences/usemphone/?society=chl',
+	'audiences/kiss/?society=sau',
 	'change/?society=chl',
 	'change/jpn/?sample=attention'
 ];
 
+// 412 × 823 is Lighthouse's mobile screen.
 for (const [width, height] of [
 	[375, 812],
+	[412, 823],
 	[1280, 800]
 ]) {
 	test.describe(`at ${width} px`, () => {

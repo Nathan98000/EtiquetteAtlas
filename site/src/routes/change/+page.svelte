@@ -92,7 +92,11 @@
 />
 
 <div class="change-page">
-	<h1>Then and now<span class="sub">: two surveys about 20 years apart</span></h1>
+	<!-- The colon is for the title's text; the second half starts its own line. -->
+	<h1>
+		Then and now<span class="visually-hidden">:</span>
+		<span class="sub">two surveys about 20 years apart</span>
+	</h1>
 	<!-- D-19: a society the older survey did not include gets the notice in the lede's place, with
 	     the societies it did include to pick from. A `?society=` link reserves the taller of the two
 	     from the first paint (app.html), so nothing moves when the society applies (NFR-2). -->
