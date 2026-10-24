@@ -130,7 +130,10 @@ test('§9.1: quiz, then story, then the explorer', async ({ page }) => {
 		await page.getByRole('button', { name: 'See where your answer falls' }).click();
 		await page.getByRole('button', { name: /^(Next question|See all your answers)$/ }).click();
 	}
-	await page.getByRole('link', { name: 'Take the guided tour' }).click();
+	await page
+		.getByRole('region', { name: 'Your answers' })
+		.getByRole('link', { name: 'Take the 2-minute tour', exact: true })
+		.click();
 	await expect(page).toHaveURL(/\/story\/$/);
 	await page.locator('.progress').getByRole('link', { name: 'Skip to the atlas' }).click();
 	await expect(page).toHaveURL(/\/explore\/$/);

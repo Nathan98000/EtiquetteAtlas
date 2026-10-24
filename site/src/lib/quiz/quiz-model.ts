@@ -135,6 +135,49 @@ export function placementText(p: Placement, response: Response, sample: SampleId
 	return `${start}${middle}${tail}`;
 }
 
+/** D-10: which way most societies' average answers lean from the reader's answer. */
+export type Lean = 'more' | 'less' | 'middle';
+
+export function lean(p: Placement): Lean | null {
+	if (p.of === 0) return null;
+	if (p.below > p.of / 2) return 'more';
+	if (p.above > p.of / 2) return 'less';
+	return 'middle';
+}
+
+/**
+ * D-10: the summary's one takeaway: "On 2 of 3 questions, most societies' average answers were
+ * more approving than yours." Answers are compared with average answers only (decision 79).
+ */
+export function takeaway(placements: readonly (Placement | null)[]): string {
+	const leans = placements.flatMap((p) => {
+		const l = p ? lean(p) : null;
+		return l ? [l] : [];
+	});
+	const k = leans.length;
+	if (!k) return 'None of your answers has societies to compare with.';
+	const all =
+		k === 1 ? 'On the one question' : k === 2 ? 'On both questions' : `On all ${k} questions`;
+	const on = (n: number) => (n === k ? all : `On ${n} of ${k} questions`);
+	const more = leans.filter((l) => l === 'more').length;
+	const less = leans.filter((l) => l === 'less').length;
+	const most = "most societies' average answers were";
+	if (more && less) return `${on(more)}, ${most} more approving than yours; on ${less}, less.`;
+	if (more) return `${on(more)}, ${most} more approving than yours.`;
+	if (less) return `${on(less)}, ${most} less approving than yours.`;
+	return `${all}, your answer fell among the societies' average answers.`;
+}
+
+/** D-10: one answer in a line: "You said very appropriate; 83 of 87 … more approving." */
+export function summaryLine(p: Placement, response: Response): string {
+	const said = `You said ${responseText(response)}`;
+	if (p.of === 0) return `${said}; no society has enough responses to compare with.`;
+	if (p.same === p.of) return `${said}, the same as every society's average answer.`;
+	const [n, way] = p.below >= p.above ? [p.below, 'more'] : [p.above, 'less'];
+	const which = n === p.of ? `all ${p.of}` : `${n} of ${p.of}`;
+	return `${said}; ${which} societies' average answers were ${way} approving.`;
+}
+
 /** Whole percents of a society's respondents choosing each response. */
 export function shares(counts: ResponseCounts): number[] {
 	return counts.counts.map((c) => (c / counts.n) * 100);
@@ -181,6 +224,23 @@ export function societyText(
 				: `${percent(share)} of ${who}${small} chose ${responseText(response)}, as you did; ${average}.`;
 		}
 	}
+}
+
+/** D-10: the chosen society on one answer: "8% of respondents in Japan chose very appropriate too." */
+export function societyShareText(
+	answer: SocietyAnswer,
+	code: string,
+	name: string,
+	cell: Cell,
+	response: Response,
+	sample: SampleId
+): string {
+	if (answer.kind !== 'counts') return societyText(answer, code, name, cell, response, sample);
+	const who = `respondents in ${place(code, name)}`;
+	const small = answer.small ? ` (a small sample of ${count(answer.counts.n)})` : '';
+	return answer.counts.counts[response - 1] === 0
+		? `None of the ${who}${small} chose ${responseText(response)}.`
+		: `${percent(shares(answer.counts)[response - 1])} of ${who}${small} chose ${responseText(response)} too.`;
 }
 
 /** The chosen society's standing in the drill-down's terms, with its counts when it has them. */

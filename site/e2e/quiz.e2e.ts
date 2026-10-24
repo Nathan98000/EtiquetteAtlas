@@ -88,7 +88,7 @@ test.describe('FR-1, FR-60, FR-61: the quiz on the home page', () => {
 		await next(page);
 		await answer(page, 'somewhat appropriate');
 		await next(page);
-		const list = page.locator('.summary li');
+		const list = page.locator('.summary .rows > li');
 		await expect(list).toHaveCount(3);
 		await expect(list.nth(0)).toContainText('Eating in a restaurant');
 		await expect(list.nth(2).getByRole('link')).toHaveAttribute(
@@ -140,6 +140,45 @@ test.describe('FR-1, FR-60, FR-61: the quiz on the home page', () => {
 	});
 });
 
+test('D-10: the summary: one takeaway, each answer against the societies, the chosen society, the tour', async ({
+	page
+}) => {
+	await page.goto(url('?society=jpn'));
+	for (const label of ['extremely appropriate', 'very inappropriate', 'somewhat appropriate']) {
+		await answer(page, label);
+		await next(page);
+	}
+	await expect(page.locator('#summary-title')).toBeFocused();
+	const summary = page.getByRole('region', { name: 'Your answers' });
+	await expect(summary.locator('.takeaway')).toHaveText(
+		"On 2 of 3 questions, most societies' average answers were more approving than yours; on 1, less."
+	);
+	const rows = summary.locator('.rows > li');
+	await expect(rows).toHaveCount(3);
+	await expect(rows.nth(0)).toContainText(
+		"You said extremely appropriate; all 87 societies' average answers were less approving."
+	);
+	await expect(rows.nth(0)).toContainText(
+		'of respondents in Japan chose extremely appropriate too.'
+	);
+	await expect(rows.locator('svg.strip')).toHaveCount(3);
+	await expect(rows.nth(0).locator('line.society')).toHaveCount(87);
+	await expect(rows.nth(0).locator('line.society.chosen')).toHaveCount(1);
+	// Each pair's name opens it; no link carries an answer (C-12).
+	await expect(rows.nth(0).getByRole('link', { name: 'Eating in a restaurant' })).toHaveAttribute(
+		'href',
+		/\/explore\/eat\/restaurant\/\?society=jpn$/
+	);
+	const tour = summary.getByRole('link', { name: 'Take the 2-minute tour', exact: true });
+	await expect(tour).toHaveClass(/primary/);
+	await expect(tour).toHaveAttribute('href', /\/story\/\?society=jpn$/);
+	for (const href of await summary
+		.getByRole('link')
+		.evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''))) {
+		expect(href).not.toMatch(/appropriate|response|answer|=[1-6](&|$)/);
+	}
+});
+
 test('AT-3, FR-63, C-12, NFR-30: answers never leave the tab; a reload keeps them and a new tab does not', async ({
 	page,
 	context
@@ -181,8 +220,8 @@ test('AT-3, FR-63, C-12, NFR-30: answers never leave the tab; a reload keeps the
 
 	// A reload keeps the answers: the summary comes back.
 	await page.reload();
-	await expect(page.locator('.summary li')).toHaveCount(3);
-	await expect(page.locator('.summary li').nth(0)).toContainText('extremely appropriate');
+	await expect(page.locator('.summary .rows > li')).toHaveCount(3);
+	await expect(page.locator('.summary .rows > li').nth(0)).toContainText('extremely appropriate');
 
 	// A new tab starts empty.
 	const tab = await context.newPage();
@@ -219,7 +258,12 @@ test('NFR-13, AT-6: by keyboard alone, answer the three questions and go on to t
 		}
 	}
 	await expect(page.locator('#summary-title')).toBeFocused();
-	await tabTo(page, page.getByRole('link', { name: 'Take the guided tour' }));
+	await tabTo(
+		page,
+		page
+			.getByRole('region', { name: 'Your answers' })
+			.getByRole('link', { name: 'Take the 2-minute tour', exact: true })
+	);
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(/\/story\/$/);
 });

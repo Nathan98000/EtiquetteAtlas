@@ -22,13 +22,7 @@
 	import { REGIONS, SAMPLE_PHRASE } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { QUIZ_ITEMS } from '#lib/quiz/items.ts';
-	import {
-		RESPONSE_VALUES,
-		placement,
-		placementText,
-		quizQuestions,
-		type Response
-	} from '#lib/quiz/quiz-model.ts';
+	import { RESPONSE_VALUES, quizQuestions, type Response } from '#lib/quiz/quiz-model.ts';
 	import { readAnswers, sessionStore, writeAnswers, type Answers } from '#lib/quiz/quiz-store.ts';
 	import { GLOBAL_KEYS } from '#lib/state/url.ts';
 	import {
@@ -87,11 +81,14 @@
 	// NFR-3: the reveal's charts load with the data, not with the page (decision 80).
 	let revealCode: Promise<typeof import('#lib/components/QuizReveal.svelte')> | undefined =
 		$state();
+	let summaryCode: Promise<typeof import('#lib/components/QuizSummary.svelte')> | undefined =
+		$state();
 
 	function start() {
 		if (started) return;
 		started = true;
 		revealCode = import('#lib/components/QuizReveal.svelte');
+		summaryCode = import('#lib/components/QuizSummary.svelte');
 		const sample = view.state.sample;
 		preload(
 			() => loadGlobal(sample),
@@ -155,6 +152,16 @@
 		const { behavior, situation } = cellParams(questions.find((q) => q.index === cell)!);
 		return withView(resolve(`explore/${behavior}/${situation}/`), vs, GLOBAL_KEYS);
 	};
+
+	const summaryRows = $derived(
+		questions.map((q) => ({
+			question: q,
+			response: answers[q.key],
+			drill: drillFor(q.index),
+			counts: countsFor(q.index),
+			href: cellHref(q.index)
+		}))
+	);
 
 	// Decision 11: the hub's small pictures, drawn from the palette's tokens; they hold no data.
 	const STRIP = [-2.1, -1.3, -0.6, 0.2, 0.9, 1.7];
@@ -279,29 +286,25 @@
 			{:else}
 				<section class="summary" aria-labelledby="summary-title">
 					<h2 id="summary-title" tabindex="-1">Your answers</h2>
-					<ol>
-						{#each questions as q (q.key)}
-							{@const response = answers[q.key]}
-							{@const d = drillFor(q.index)}
-							<li>
-								<strong>{q.headline}</strong>:
-								{#if response !== undefined}
-									{d
-										? placementText(placement(d, response), response, vs.sample)
-										: RESPONSES[response - 1]}
-								{:else}
-									not answered.
-								{/if}
-								<a href={cellHref(q.index)}>See every society for this pair</a>
-							</li>
-						{/each}
-					</ol>
+					{#await summaryCode}
+						<p class="loading">Loading…</p>
+					{:then module}
+						{#if module}
+							<module.default rows={summaryRows} {society} sample={vs.sample} />
+						{/if}
+					{:catch error}
+						<LoadError
+							{error}
+							retry={() => (summaryCode = import('#lib/components/QuizSummary.svelte'))}
+						/>
+					{/await}
+					<!-- D-10: the tour is the next step; nothing here shares or carries the answers. -->
 					<p class="next-steps">
 						<a class="button primary" href={withView(resolve('story/'), vs, GLOBAL_KEYS)}>
-							Take the guided tour
+							Take the 2-minute tour
 						</a>
 						<a class="button" href={withView(resolve('explore/'), vs, GLOBAL_KEYS)}>
-							Explore the matrix
+							Explore the atlas
 						</a>
 						<button type="button" class="button" onclick={again}>Start again</button>
 					</p>
@@ -512,10 +515,6 @@
 	.loading {
 		min-height: 14rem;
 		color: var(--text-muted);
-	}
-
-	.summary li {
-		margin-bottom: 0.75rem;
 	}
 
 	.next-steps {

@@ -13,7 +13,10 @@ import {
 	scoreOf,
 	shares,
 	societyAnswer,
-	societyText
+	societyShareText,
+	societyText,
+	summaryLine,
+	takeaway
 } from './quiz-model';
 
 const societies = new Societies(societiesDoc());
@@ -96,6 +99,58 @@ describe('FR-61: where an answer falls among the societies’ estimates', () => 
 		expect(placementText(p, 1, 'all')).toBe(
 			"You said extremely inappropriate. In all 2 societies, respondents' average answer was " +
 				'more approving than that. (1 society had too few responses or was not asked.)'
+		);
+	});
+});
+
+describe('D-10: the summary of the three answers', () => {
+	const p = (below: number, above: number, of = 87) => ({
+		above,
+		below,
+		same: of - below - above,
+		of,
+		tooFew: 0,
+		notAsked: 0
+	});
+
+	it('says in one line which way most societies leaned, compared with average answers', () => {
+		expect(takeaway([p(83, 4), p(80, 7), p(10, 70)])).toBe(
+			"On 2 of 3 questions, most societies' average answers were more approving than yours; " +
+				'on 1, less.'
+		);
+		expect(takeaway([p(83, 4), p(80, 7), p(60, 20)])).toBe(
+			"On all 3 questions, most societies' average answers were more approving than yours."
+		);
+		expect(takeaway([p(10, 70), null, p(40, 40)])).toBe(
+			"On 1 of 2 questions, most societies' average answers were less approving than yours."
+		);
+		expect(takeaway([p(40, 40), p(30, 30, 60)])).toBe(
+			"On both questions, your answer fell among the societies' average answers."
+		);
+		expect(takeaway([null, p(0, 0, 0)])).toBe(
+			'None of your answers has societies to compare with.'
+		);
+	});
+
+	it('puts each answer in a line, and the chosen society’s share who gave it', () => {
+		expect(summaryLine(p(83, 4), 5)).toBe(
+			"You said very appropriate; 83 of 87 societies' average answers were more approving."
+		);
+		expect(summaryLine(placement(cell5, 2), 2)).toBe(
+			"You said very inappropriate; 2 of 3 societies' average answers were less approving."
+		);
+		expect(summaryLine(p(0, 87), 6)).toBe(
+			"You said extremely appropriate; all 87 societies' average answers were less approving."
+		);
+		expect(summaryLine(p(0, 0, 0), 3)).toBe(
+			'You said somewhat inappropriate; no society has enough responses to compare with.'
+		);
+		const answer = societyAnswer(cell5, 'BBB', counts.counts(1, 5));
+		expect(societyShareText(answer, 'BBB', 'Philippines', cell5Cell(), 2, 'all')).toBe(
+			'20% of respondents in Philippines chose very inappropriate too.'
+		);
+		expect(societyShareText({ kind: 'not-asked' }, 'CCC', 'Gamma', cell5Cell(), 2, 'all')).toMatch(
+			/^Respondents in Gamma were not asked about /
 		);
 	});
 });
