@@ -33,6 +33,13 @@
 	color-scheme: light;
 }
 
+/* Phones: ledes and chart titles a step smaller, so a chart reaches the first screen (D-23). */
+@media (max-width: 639.98px) {
+	:root {
+		--text-lg: 1.125rem;
+	}
+}
+
 /* Dark theme: the system setting unless the reader picked light, or the reader's pick (§6.4).
    The two blocks must stay identical. */
 :root[data-theme='dark'] {

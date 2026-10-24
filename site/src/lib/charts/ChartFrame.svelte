@@ -18,6 +18,8 @@
 		about: ResolvedPathname;
 		/** Controls shown next to the title, such as a sort menu. */
 		controls?: Snippet;
+		/** Controls that act on the chart, shown right under it (D-5). */
+		below?: Snippet;
 		legend?: Snippet;
 		chart: Snippet;
 		/** NFR-11: the same values as an accessible table. */
@@ -34,6 +36,7 @@
 		summary,
 		about,
 		controls,
+		below,
 		legend,
 		chart,
 		table,
@@ -47,19 +50,7 @@
 <section class="chart-frame" aria-labelledby="{id}-title">
 	<div class="head">
 		<h2 id="{id}-title">{title}</h2>
-		<div class="tools">
-			{@render controls?.()}
-			<button
-				type="button"
-				class="button"
-				aria-expanded={showTable}
-				aria-controls="{id}-table"
-				onclick={() => (showTable = !showTable)}
-			>
-				{showTable ? 'Show as chart' : 'Show as table'}
-			</button>
-			<a class="about" href={about}>About this chart</a>
-		</div>
+		{#if controls}<div class="tools">{@render controls()}</div>{/if}
 	</div>
 	{#if centered}
 		<!-- D-3: nothing else on the chart may show that the scale changed, so the chart says so. -->
@@ -71,7 +62,6 @@
 			</button>
 		</p>
 	{/if}
-	<p class="summary" id="{id}-summary">{summary}</p>
 	{@render legend?.()}
 	<div class="body needs-js" hidden={showTable}>
 		{@render chart()}
@@ -80,6 +70,24 @@
 		{#if showTable}
 			{@render table()}
 		{/if}
+	</div>
+	{@render below?.()}
+	<!-- D-23: what the chart says, its table and its method note come after it, so the chart starts
+	     near the top of the screen; NFR-11 and FR-7 are unchanged. -->
+	<div class="foot">
+		<p class="summary" id="{id}-summary">{summary}</p>
+		<div class="links">
+			<button
+				type="button"
+				class="button"
+				aria-expanded={showTable}
+				aria-controls="{id}-table"
+				onclick={() => (showTable = !showTable)}
+			>
+				{showTable ? 'Show as chart' : 'Show as table'}
+			</button>
+			<a class="about" href={about}>About this chart</a>
+		</div>
 	</div>
 </section>
 
@@ -96,6 +104,7 @@
 		align-items: baseline;
 		justify-content: space-between;
 		gap: 0.5rem 1rem;
+		margin-bottom: 0.5rem;
 	}
 
 	h2 {
@@ -123,8 +132,19 @@
 		font-size: var(--text-sm);
 	}
 
+	.foot {
+		margin-top: 0.75rem;
+	}
+
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 1rem;
+	}
+
 	.summary {
-		margin: 0.5rem 0 0.75rem;
+		margin: 0 0 0.5rem;
 		max-width: var(--measure);
 		color: var(--text-muted);
 	}

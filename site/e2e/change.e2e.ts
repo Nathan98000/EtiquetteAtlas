@@ -121,7 +121,10 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 	test('NFR-11: the arrows as a table', async ({ page }) => {
 		await page.goto(url('change/'));
 		await arrowsReady(page);
-		await page.locator('#arrows-title ~ * button', { hasText: 'Show as table' }).click();
+		await page
+			.locator('section:has(> .head #arrows-title)')
+			.getByRole('button', { name: 'Show as table' })
+			.click();
 		const table = page.locator('#arrows-table table');
 		await expect(table.getByRole('row')).toHaveCount(121);
 		await expect(table.getByRole('row').nth(1)).toContainText('Music on headphones');
@@ -376,7 +379,10 @@ test('FR-83, NFR-60: change routes have their own title, description and canonic
 
 test('FR-7, FR-52: "About this chart" opens the method page’s change section', async ({ page }) => {
 	await page.goto(url('change/jpn/'));
-	await page.locator('#arrows-title ~ * a', { hasText: 'About this chart' }).click();
+	await page
+		.locator('section:has(> .head #arrows-title)')
+		.getByRole('link', { name: 'About this chart' })
+		.click();
 	await expect(page).toHaveURL(/\/method\/#change$/);
 	const section = page.locator('#change');
 	await expect(section.getByRole('heading', { level: 2 })).toHaveText(
