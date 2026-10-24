@@ -9,11 +9,11 @@
      credit are visible; what only summaries are shown, the full citations and the method link are
      one click away, shortened and never removed. -->
 <aside class="provenance" data-provenance aria-labelledby="provenance-title">
-	<h2 id="provenance-title">About the two surveys</h2>
 	<p>
-		Different people, recruited differently, answered different questionnaires in different eras.
-		Each value is a gap between the two surveys' averages, not a change in anyone's views, and it
-		does not say why they differ. 2000–2003 data:
+		<strong id="provenance-title">About the two surveys.</strong> Different people, recruited
+		differently, answered different questionnaires in different eras. Each value is a gap between
+		the two surveys' averages, not a change in anyone's views, and it does not say why they differ.
+		2000–2003 data:
 		<a href={comparison.url} rel="external">Gelfand et al. (2011)</a>, shared by the GSN authors.
 	</p>
 	<details>
@@ -30,15 +30,11 @@
 <style>
 	.provenance {
 		max-width: var(--measure);
-		margin: 1.5rem 0;
-		padding: 1rem 1.25rem;
+		margin: 1rem 0 1.5rem;
+		padding: 0.75rem 1rem;
+		font-size: var(--text-sm);
 		border-left: 3px solid var(--border-strong);
 		background: var(--surface-muted);
-	}
-
-	h2 {
-		font-size: var(--text-md);
-		margin: 0 0 0.5rem;
 	}
 
 	p {

@@ -21,7 +21,7 @@
 	.scale-note {
 		max-width: var(--measure);
 		min-height: 3em;
-		margin: 0 0 1.5rem;
+		margin: 0.75rem 0 0;
 		font-size: var(--text-sm);
 		color: var(--text-muted);
 	}

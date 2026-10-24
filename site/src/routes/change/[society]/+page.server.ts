@@ -31,6 +31,7 @@ export const load: PageServerLoad = ({ params }) => {
 	return {
 		code: society.code,
 		name: society.name,
+		who: capital(respondentsIn(society.code, society.name)),
 		title: `${capital(respondentsIn(society.code, society.name))} in 2000–2003 and 2023–2024`,
 		summary: changeSummary(scope, view, n),
 		chartSummary: changeChartSummary(scope, view, n),

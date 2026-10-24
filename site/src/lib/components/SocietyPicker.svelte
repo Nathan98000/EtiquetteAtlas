@@ -12,6 +12,8 @@
 		clearLabel?: string;
 		/** A society left out of the options, such as the one a fingerprint shows (FR-33). */
 		exclude?: string | null;
+		/** The only societies offered, such as the 26 in both surveys (D-19). */
+		only?: readonly string[] | null;
 	}
 
 	let {
@@ -21,7 +23,8 @@
 		onselect,
 		label = 'Society',
 		clearLabel = 'Clear the society',
-		exclude = null
+		exclude = null,
+		only = null
 	}: Props = $props();
 
 	const id = $props.id();
@@ -45,7 +48,7 @@
 	const sorted = $derived(
 		societies
 			? societies.list
-					.filter((s) => s.code !== exclude)
+					.filter((s) => s.code !== exclude && (!only || only.includes(s.code)))
 					.sort((a, b) => a.name.localeCompare(b.name, 'en'))
 			: []
 	);

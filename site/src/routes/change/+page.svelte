@@ -21,6 +21,7 @@
 	import ChangeScaleNote from '#lib/components/ChangeScaleNote.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
+	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
 	import { CHANGE_SHARE_ALT } from '#lib/change-text.ts';
 	import { attribution } from '#lib/attribution.ts';
 	import { interval, place, score } from '#lib/data/format.ts';
@@ -91,8 +92,33 @@
 />
 
 <div class="change-page">
-	<h1>Then and now: two surveys about 20 years apart</h1>
-	<p class="lede">{summary}</p>
+	<h1>Then and now<span class="sub">: two surveys about 20 years apart</span></h1>
+	<!-- D-19: a society the older survey did not include gets the notice in the lede's place, with
+	     the societies it did include to pick from. A `?society=` link reserves the taller of the two
+	     from the first paint (app.html), so nothing moves when the society applies (NFR-2). -->
+	<div class="lede-slot">
+		{#if missing}
+			<div class="notice" role="status">
+				<p>
+					The 2000–2003 survey did not include {place(missing.code, missing.name)}, so this page
+					shows {together}.
+				</p>
+				<div class="notice-actions">
+					<SocietyPicker
+						societies={societies.current}
+						selected={null}
+						sample={vs.sample}
+						only={CHANGE_SOCIETIES}
+						label="Pick a society in both surveys"
+						onselect={(code) => setView({ society: code })}
+					/>
+					<a href={changeHref(null, vs)}>Show all {n} societies</a>
+				</div>
+			</div>
+		{:else}
+			<p class="lede">{summary}</p>
+		{/if}
+	</div>
 	<noscript>
 		<p>The charts need JavaScript.</p>
 	</noscript>
@@ -103,16 +129,7 @@
 		{/if}
 	{/each}
 
-	{#if missing}
-		<!-- FR-53: say so, and show the societies in both surveys instead. -->
-		<p class="notice" role="status">
-			The 2000–2003 survey did not include {place(missing.code, missing.name)}, so this page shows {together}.
-			<a href={changeHref(null, vs)}>Show all {n} societies</a>
-		</p>
-	{/if}
-
 	<ChangeProvenance />
-	<ChangeScaleNote />
 
 	<ChangeArrows
 		view={arrows}
@@ -122,7 +139,9 @@
 		sort={vs.sort}
 		onsort={(sort) => setView({ sort })}
 		{href}
-	/>
+	>
+		{#snippet below()}<ChangeScaleNote />{/snippet}
+	</ChangeArrows>
 
 	<section class="more" aria-label="Societies and behaviors">
 		<ChartFrame
@@ -201,9 +220,31 @@
 		padding: 1.25rem var(--gutter) 0;
 	}
 
+	/* Decision 7: "Then and now" first, the rest of the title a step smaller. */
+	h1 .sub {
+		display: block;
+		font-size: var(--text-lg);
+		font-weight: 600;
+	}
+
 	.lede {
 		max-width: var(--measure);
 		font-size: var(--text-lg);
+	}
+
+	.lede-slot {
+		margin-bottom: 1rem;
+	}
+
+	/* The taller of the lede and the notice, measured at each width (D-19, NFR-2). */
+	:global(html[data-society]) .lede-slot {
+		min-height: 13rem;
+	}
+
+	@media (min-width: 640px) {
+		:global(html[data-society]) .lede-slot {
+			min-height: 9.5rem;
+		}
 	}
 
 	.notice {
@@ -211,6 +252,17 @@
 		padding: 0.75rem 1rem;
 		border: 1px dashed var(--border-strong);
 		border-radius: var(--radius);
+	}
+
+	.notice p {
+		margin: 0 0 0.5rem;
+	}
+
+	.notice-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: 0.5rem 1rem;
 	}
 
 	.more {

@@ -81,7 +81,8 @@
 	<nav class="crumbs" aria-label="Breadcrumb">
 		<a href={changeHref(null, vs)}>All {n} societies in both surveys</a>
 	</nav>
-	<h1>{data.title}</h1>
+	<!-- D-23: the society first, the surveys' years a step smaller. -->
+	<h1>{data.who} <span class="sub">in 2000–2003 and 2023–2024</span></h1>
 	<p class="lede">{summary}</p>
 	<noscript>
 		<p>The chart needs JavaScript.</p>
@@ -95,29 +96,9 @@
 
 	{#if outside}
 		<SampleNotice text="{outsideText} The chart shows {together} instead." />
-	{:else}
-		<!-- Fixed columns and lines, so values arriving after the page do not move it (NFR-2). -->
-		<dl class="facts" aria-label="Respondents">
-			<div>
-				<dt>2000–2003 survey</dt>
-				<dd class="num">{facts?.older ? `${count(facts.older)} respondents` : '…'}</dd>
-			</div>
-			<div>
-				<dt>2023–2024 survey</dt>
-				<dd class="num">
-					{facts?.newer ? `${count(facts.newer)} respondents` : '…'}
-					{#if vs.sample !== 'all'}<span class="muted">{SAMPLE_LABEL[vs.sample]}</span>{/if}
-				</dd>
-			</div>
-			<div>
-				<dt>Pairs in both</dt>
-				<dd class="num">{facts?.pairs ?? '…'}</dd>
-			</div>
-		</dl>
 	{/if}
 
 	<ChangeProvenance />
-	<ChangeScaleNote />
 
 	<ChangeArrows
 		view={arrows}
@@ -130,7 +111,32 @@
 		sort={vs.sort}
 		onsort={(sort) => setView({ sort })}
 		{href}
-	/>
+	>
+		<!-- D-23: the scale note and the respondents under the chart, so the arrows start higher. -->
+		{#snippet below()}
+			<ChangeScaleNote />
+			{#if !outside}
+				<!-- Fixed columns and lines, so values arriving after the page do not move it (NFR-2). -->
+				<dl class="facts" aria-label="Respondents">
+					<div>
+						<dt>2000–2003 survey</dt>
+						<dd class="num">{facts?.older ? `${count(facts.older)} respondents` : '…'}</dd>
+					</div>
+					<div>
+						<dt>2023–2024 survey</dt>
+						<dd class="num">
+							{facts?.newer ? `${count(facts.newer)} respondents` : '…'}
+							{#if vs.sample !== 'all'}<span class="muted">{SAMPLE_LABEL[vs.sample]}</span>{/if}
+						</dd>
+					</div>
+					<div>
+						<dt>Pairs in both</dt>
+						<dd class="num">{facts?.pairs ?? '…'}</dd>
+					</div>
+				</dl>
+			{/if}
+		{/snippet}
+	</ChangeArrows>
 
 	<p class="more-link">
 		<a href={societyHref(data.code, vs)}>
@@ -158,6 +164,12 @@
 	.lede {
 		max-width: var(--measure);
 		font-size: var(--text-lg);
+	}
+
+	h1 .sub {
+		display: block;
+		font-size: var(--text-lg);
+		font-weight: 600;
 	}
 
 	.facts {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import SortSelect from '#lib/components/SortSelect.svelte';
@@ -29,9 +30,11 @@
 		sort: SortKey;
 		onsort: (sort: SortKey) => void;
 		href: (cell: number) => ResolvedPathname;
+		/** Notes under the chart, such as the scale note (D-23). */
+		below?: Snippet;
 	}
 
-	let { view, reference, title, summary, together, sort, onsort, href }: Props = $props();
+	let { view, reference, title, summary, together, sort, onsort, href, below }: Props = $props();
 
 	const rows = $derived(view ? changeOrder(view.rows, sort) : []);
 	const byIndex = (list: readonly ChangeRow[] | undefined, index: number | null) =>
@@ -57,7 +60,7 @@
      with the details beside it from 1024 px (§6.2) and the values as a table (NFR-11). -->
 <div class="layout">
 	<div class="chart">
-		<ChartFrame id="arrows" {title} {summary} about={resolve('method/#change')}>
+		<ChartFrame id="arrows" {title} {summary} about={resolve('method/#change')} {below}>
 			{#snippet controls()}
 				<SortSelect keys={CHANGE_SORT_KEYS} value={sort} onchange={onsort} />
 			{/snippet}
