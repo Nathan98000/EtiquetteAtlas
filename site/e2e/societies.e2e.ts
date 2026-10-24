@@ -357,7 +357,7 @@ test('decision 44: the header and links out carry the society between routes', a
 	);
 	await page.getByRole('link', { name: 'Societies', exact: true }).click();
 	await expect(page).toHaveURL(/\/societies\/jpn\/\?sample=attention$/);
-	await expect(page.getByRole('link', { name: 'Explore', exact: true })).toHaveAttribute(
+	await expect(page.getByRole('link', { name: 'Situations', exact: true })).toHaveAttribute(
 		'href',
 		/\/explore\/\?society=jpn&sample=attention$/
 	);

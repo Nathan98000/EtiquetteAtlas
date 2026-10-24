@@ -126,3 +126,34 @@ test('C-11, NFR-30: the site sets no cookies', async ({ page, context }) => {
 	await page.goto(`${basePath}/missing/`);
 	expect(await context.cookies()).toEqual([]);
 });
+
+test('FR-2, decision 11, D-24: the header links every module in order; a phone names the current one', async ({
+	page
+}) => {
+	await page.goto(`${basePath}/explore/eat/bus/`);
+	const nav = page.getByRole('navigation', { name: 'Modules' });
+	await expect(nav.getByRole('link')).toHaveText([
+		'Tour',
+		'Situations',
+		'Societies',
+		"Who's watching",
+		'Then and now',
+		'Method'
+	]);
+	await expect(nav.getByRole('link', { name: 'Situations' })).toHaveAttribute(
+		'aria-current',
+		'page'
+	);
+
+	await page.setViewportSize({ width: 320, height: 640 });
+	const menu = page.getByRole('button', { name: 'Menu: Situations' });
+	await expect(menu).toBeVisible();
+	await expect(nav).toBeHidden();
+	await menu.click();
+	await expect(menu).toHaveAttribute('aria-expanded', 'true');
+	await nav.getByRole('link', { name: "Who's watching" }).click();
+	await expect(page.getByRole('button', { name: "Menu: Who's watching" })).toBeVisible();
+	await expect(nav).toBeHidden();
+	await page.goto(home);
+	await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeVisible();
+});

@@ -8,19 +8,21 @@
 	import { changeHref, societyHref, view, withView } from '#lib/state/view.svelte.ts';
 	import ThemeSwitch from './ThemeSwitch.svelte';
 
-	// FR-2: every module, including those built later, which have placeholder pages (decision 29).
-	// A build without the change module leaves its link out (R-6, decision 75).
+	// FR-2: every module. Decision 11: named for what a reader looks up, the tour first. A build
+	// without the change module leaves its link out (R-6, decision 75).
 	const MODULES: { label: string; path: ResolvedPathname; section: string }[] = [
-		{ label: 'Explore', path: resolve('explore/'), section: '/explore' },
+		{ label: 'Tour', path: resolve('story/'), section: '/story' },
+		{ label: 'Situations', path: resolve('explore/'), section: '/explore' },
 		{ label: 'Societies', path: resolve('societies/'), section: '/societies' },
-		{ label: 'Audiences', path: resolve('audiences/'), section: '/audiences' },
+		{ label: "Who's watching", path: resolve('audiences/'), section: '/audiences' },
 		{ label: CHANGE_NAME, path: resolve('change/'), section: '/change' },
-		{ label: 'Story', path: resolve('story/'), section: '/story' },
 		{ label: 'Method', path: resolve('method/'), section: '/method' }
 	].filter((module) => CHANGE_MODULE || module.section !== '/change');
 
 	let open = $state(false);
 	const section = $derived(page.route.id ?? '');
+	// D-24: on phones the menu button names the module the reader is in.
+	const current = $derived(MODULES.find((module) => section.startsWith(module.section)));
 
 	// Societies opens the selected society's fingerprint, or the index without one (decision 44);
 	// Change opens the selected society's change page when it has one (decision 67).
@@ -50,7 +52,8 @@
 			aria-controls="site-nav"
 			onclick={() => (open = !open)}
 		>
-			Menu
+			{#if current}<span class="visually-hidden">Menu:</span> {current.label}{:else}Menu{/if}
+			<span class="caret" aria-hidden="true">▾</span>
 		</button>
 		<div id="site-nav" class="menu" class:open>
 			<nav aria-label="Modules">
@@ -130,6 +133,15 @@
 	/* ≥ 1024 px: module tabs in the header (§6.2). */
 	.menu-button {
 		display: none;
+		font-weight: 600;
+	}
+
+	.caret {
+		font-size: 0.75em;
+	}
+
+	.menu-button[aria-expanded='true'] .caret {
+		transform: rotate(180deg);
 	}
 
 	/* Below 1024 px the header collapses to a menu holding the modules and the theme (§6.2). */
@@ -149,6 +161,24 @@
 
 		.menu.open {
 			display: flex;
+		}
+
+		/* The wordmark and the module's name share one row down to 320 px. */
+		@media (max-width: 419.98px) {
+			.bar {
+				column-gap: 0.5rem;
+			}
+
+			.menu-button {
+				padding-inline: 0.625rem;
+				font-size: var(--text-sm);
+			}
+		}
+
+		@media (max-width: 359.98px) {
+			.wordmark {
+				font-size: var(--text-sm);
+			}
 		}
 
 		nav {

@@ -169,7 +169,7 @@ test.describe('FR-42: filters', () => {
 		await expect(page).toHaveURL(/\/audiences\/\?society=chl&scope=global$/);
 		await expect(page.locator('.lede')).toHaveText(/^On average across the 90 societies/);
 		// The society stays selected for the other routes, and the filters follow into a behavior.
-		await expect(page.getByRole('link', { name: 'Explore', exact: true })).toHaveAttribute(
+		await expect(page.getByRole('link', { name: 'Situations', exact: true })).toHaveAttribute(
 			'href',
 			/\/explore\/\?society=chl$/
 		);
@@ -277,11 +277,11 @@ test('AT-11: on the audiences, society, sample and scale update every view and t
 	await expect(box).toHaveValue('Japan');
 
 	// The header carries the society, sample and scale into the module and out of it.
-	await expect(page.getByRole('link', { name: 'Audiences', exact: true })).toHaveAttribute(
+	await expect(page.getByRole('link', { name: "Who's watching", exact: true })).toHaveAttribute(
 		'aria-current',
 		'page'
 	);
-	await page.getByRole('link', { name: 'Audiences', exact: true }).click();
+	await page.getByRole('link', { name: "Who's watching", exact: true }).click();
 	await expect(page).toHaveURL(/\/audiences\/\?society=jpn&sample=attention&scale=centered$/);
 	await audiencesReady(page);
 	await expect(page.locator('.lede')).toHaveText(/^Respondents in Japan judged/);
