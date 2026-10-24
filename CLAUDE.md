@@ -11,7 +11,9 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
 - Briefs: `docs/claude-code-kickoff.md` (M0), `docs/m1-kickoff.md` (M1), `docs/m2-kickoff.md`
   (M2), `docs/m3-kickoff.md` (M3), `docs/m4-kickoff.md` (M4), `docs/m5-kickoff.md` (M5),
   `docs/m6-kickoff.md` (M6), `docs/m7-kickoff.md` (M7), `docs/launch-kickoff.md` (public launch),
-  `docs/design-review-kickoff.md` (design review; its report goes to `docs/design-review.md`).
+  `docs/design-review-kickoff.md` (design review; its report goes to `docs/design-review.md`),
+  `docs/design-changes-kickoff.md` (the review's changes before v1.0; what happened to each finding
+  is section 10 of `docs/design-review.md`).
   Manual GitHub and analytics steps, and what to watch after the launch: `docs/SETUP.md`. What is
   left before the public launch, and the launch checks' findings: `docs/launch.md`. Proposed SRS
   edits and what happened to each: `docs/srs-changes.md`. Releases: `CHANGELOG.md`; what comes
@@ -68,7 +70,9 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
   cards; `scripts/in-docker.sh` runs a command in the Playwright Linux image. `e2e/` holds
   Playwright tests, which import `test` and `expect` from `e2e/helpers.ts` so every page load
   waits for the app to mount and the analytics beacon is stubbed; `@compat` tests also run in
-  Firefox, WebKit, an iPhone and a Pixel; `visual.e2e.ts` (only with `VISUAL=1`) compares against
+  Firefox, WebKit, an iPhone and a Pixel; `first-screen.e2e.ts` keeps every module's main chart on
+  the first phone screen and its lede under 45 words, `layout-shift.e2e.ts` keeps query links from
+  shifting (decision 138); `visual.e2e.ts` (only with `VISUAL=1`) compares against
   `e2e/visual-baselines/`. `lighthouserc.cjs` configures Lighthouse CI. Vitest specs sit next to the
   code as `*.spec.ts` (and `scripts/*.spec.js`).
   - `src/cards/`: the share-image cards, a separate route tree built only by `npm run cards`:
@@ -83,23 +87,30 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
     typed tables and `CHANGE_SOCIETIES`), `load.ts` (cache and retry), `resource.svelte.ts` (a load in a
     component), `derive.ts` (sorts, ranks, summaries), `format.ts` (numbers and phrases),
     `society.ts` (facts and similar societies in words), `method.ts` (the method page's sample
-    effects, student share and versions).
+    effects, student share and versions), `search.ts` (the search's matching of societies and
+    pairs, decision 122).
   - `src/lib/state/`: `url.ts` (query-string state), `view.svelte.ts` (reading it, `setView`,
-    `withView`, `societyHref` for fingerprints, `audiencesHref` for the audiences and `changeHref`
-    for the change pages), `theme.svelte.ts`.
-  - `src/lib/charts/`: `Grid.svelte`, `BarList.svelte` and `DataTable.svelte` are the shared 15 ×
+    `withView`, `societyHref` for fingerprints, `audiencesHref` for the audiences, `changeHref`
+    for the change pages and `pairHref` for a pair from the search), `theme.svelte.ts`.
+  - `src/lib/charts/`: `ChartFrame.svelte` is every chart's frame: title, subtitle, key, the chart,
+    its controls (`below`), then summary, "Show as table" and "About this chart" (decision 117).
+    `titles.ts` builds the titles that state each chart's finding, at build time and in the browser
+    (decision 118). `Grid.svelte`, `BarList.svelte` and `DataTable.svelte` are the shared 15 ×
     10 grid (keyboard, details), phone list and table; the matrix (`Matrix*`) and the fingerprint
     (`Fingerprint*`) wrap them. `Slopegraph.svelte` draws the audiences' focused chart and small
     panels (`audience-model.ts`, `AudienceDetails.svelte`); `SeriesKey.svelte` tells lines apart
     by shape and line style. `Dumbbell.svelte` draws two values per row for compare mode (lazy)
     and, with arrows, for the change routes (`ChangeArrows.svelte`, `ChangeStrip.svelte`,
-    `change-model.ts`). Also beeswarm, map (lazy), strip, legends and tables; `*-model.ts` hold
-    their pure logic; `colors.ts` the palettes.
-  - `src/lib/components/`: header, control bar, society picker, facts panel, similar-societies
-    list, the audiences' filters, the change pages' provenance note and scale note, the quiz's
-    reveal (`QuizReveal`, loaded on first interaction), the story's steps (`StoryStep`,
-    `StoryChange`), and shared controls (`Segmented`, `Toggle`, `SortSelect`, `StepLinks`,
-    `SampleNotice`).
+    `change-model.ts`). Also beeswarm, map (lazy), the societies index's map (`SocietyMap`, lazy;
+    both maps share `map-model.ts`'s crop), the tour's first picture (`SpreadStrips`), strip,
+    legends and tables; `touch-pin.svelte.ts` and `TipChoose.svelte` give a society's mark its
+    touch tip (decision 125); `*-model.ts` hold their pure logic; `colors.ts` the palettes.
+  - `src/lib/components/`: header, control bar, society picker (also the search for pairs,
+    `onpair`), facts panel, similar-societies list, a pair's society box (`CellSociety`), the
+    audiences' filters, the change pages' provenance note and scale note, the quiz's reveal and
+    summary (`QuizReveal`, `QuizSummary`, loaded on first interaction), the story's steps
+    (`StoryStep`, `StoryChange`), and shared controls (`Segmented`, `Toggle`, `SortSelect`,
+    `StepLinks`, `SampleNotice`, `ShareButton`).
   - `src/lib/quiz/`: `items.ts` (the three quiz items, FR-60), `quiz-model.ts` (an answer among
     the society estimates and a society's responses) and `quiz-store.ts` (the one sessionStorage
     key). `src/lib/story/story-model.ts` picks the story's steps from All data.
@@ -107,10 +118,12 @@ OSF sh4rb, CC BY 4.0). One maintainer; Claude pairs.
     `server/change.ts` holds the change file's, read only by the change routes; `server/method.ts`
     the manifest and the other samples' global cells, for the method page.
   - `src/lib/change-module.ts`: `CHANGE_MODULE`, whether this build has the change module (R-6).
-  - Routes: `/` (the quiz), `/story` (the guided story), `/explore` (matrix), `/explore/[behavior]/[situation]` (150 cells),
-    `/societies` (index) and `/societies/[society]` (90 fingerprints, with `?compare=`),
-    `/audiences` (15 small multiples) and `/audiences/[behavior]` (15 slopegraphs), `/change`
-    (the 26 societies in both surveys) and `/change/[society]` (26 pages), and `/method`.
+  - Routes, with their names in the header (decision 121): `/` (the quiz and the hub), `/story`
+    (Tour), `/explore` (Situations: the matrix), `/explore/[behavior]/[situation]` (150 pairs),
+    `/societies` (Societies: the index and its map) and `/societies/[society]` (90 fingerprints,
+    with `?compare=`), `/audiences` (Who's watching: 15 small multiples) and
+    `/audiences/[behavior]` (15 slopegraphs), `/change` (Then and now: the 26 societies in both
+    surveys) and `/change/[society]` (26 pages), and `/method`.
 - `.github/workflows/`: `ci.yml` (pull requests; reused by deploy), `deploy.yml` (push to `main`
   → GitHub Pages), `pipeline.yml` (manual).
 
@@ -179,8 +192,10 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   Internal links use `resolve()` from `$app/paths`; off-site links carry `rel="external"`.
 - Share images (decisions 88 to 92): never commit them. `npm run cards:docker` rebuilds them
   after changing the data, `src/cards/` or anything in `src/lib/`; CI rebuilds them when those
-  inputs change and the deploy downloads them. Card text follows the site's wording rules; every
-  number comes from the decoders. Each image carries the NFR-40 credit, which the script checks.
+  inputs change and the deploy downloads them. Card text follows the site's wording rules, its
+  headlines from the pages' own functions (`cellHeadline`, `fingerprintHeadline`; decision 136);
+  every number comes from the decoders. Each image carries the NFR-40 credit, which the script
+  checks.
 - Ship data, JS and CSS content-hashed (HR-3): import them through Vite, not `static/`. A
   data file is added to `src/lib/data/files.ts` with `?url` and loaded through `load.ts`;
   browser code never imports JSON directly. Build-time text comes from `+page.server.ts` through
@@ -196,8 +211,11 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   and `split` follow the reader within that module only (decision 57): link there with
   `audiencesHref(behavior, state)`. A change page's society is its path too (decision 67): link
   with `changeHref(code, state)`, which opens the overview with `?society=` for a society without
-  2000–2003 data; pass `withSort` false from outside the module. Routes may have their own
-  defaults (`defaultsFor`): the change routes sort by difference unless the URL says otherwise.
+  2000–2003 data; pass `withSort` false from outside the module. A pair chosen in the search
+  opens with `pairHref(cell, state)`. Routes may have their own defaults (`defaultsFor`,
+  decision 126): fingerprints and the change routes sort by difference and the audiences index by
+  effect unless the URL says otherwise. Only a new route, society or `compare` adds a history
+  entry; sorts and toggles replace it (decision 127).
   Load a sample's files only once the URL applies: `new Resource(() => (view.ready ?
   loadX(view.state.sample) : undefined))` (decision 96).
 - The change module can be removed in one build (`CHANGE_MODULE=off`, R-6, decisions 75, 85
@@ -206,15 +224,27 @@ Workflows: `docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7
   only it uses in `vite.config.ts`'s `withoutChangeModule`, and check the off build with
   `check:build`, which refuses any mention of the 2000–2003 survey in it.
 - Quiz answers are read and written only through `quiz-store.ts` (FR-63, C-12, decision 80):
-  never in a URL, request, log or error message. The story shows All data whatever the sample
-  toggle (decision 82).
+  never in a URL, request, log or error message, and nothing shares, links to or encodes them (the
+  Share button shares only a page's title and address). The story shows All data whatever the
+  sample toggle (decision 82).
+- Words on screen: the response label first, then the share choosing an appropriate answer, scores
+  in brackets, details, tables and axes; "clearly" or "too close to call" for how sure, never
+  "notably" or "significant" (decisions 111 to 113); a chart's title states its finding and its
+  subtitle what is drawn (decision 118). The samples, scales and estimates have plain names
+  ("All respondents", "As answered", "Adjusted for small samples") while the URL keeps `paper`,
+  `centered` and `raw`.
+- On touch, a tap on a society's mark shows its tip; only the tip's button selects (decision 125).
 - Colours come from `charts/colors.ts` and the tokens in `app.css`: pass `scoreStyle()` or
-  `regionStyle()` and the `score` or `region` class, which pick the theme's colour. Check new
+  `regionStyle()` and the `score` or `region` class, which pick the theme's colour. Selected states
+  and primary buttons take the ink (`--accent`), never a data colour; links and focus stay blue;
+  marks on fills are in the text ink with a page-coloured halo (decisions 134, 135). Check new
   colours for 3:1 (marks) and 4.5:1 (text) in both themes; `colors.spec.ts` does so for the
-  palettes.
-- The inline theme script in `src/app.html` gets its CSP hash in `vite.config.ts`; keep scripts
-  out of `static/` and add no other inline script. The beacon tag in `app.html` must match
-  `analytics` in `site.config.js`, which the CSP and `check-build.js` read.
+  palettes and keeps the palette's midpoint distinct from every surface.
+- The inline script in `src/app.html` sets the theme and marks `data-society`, `data-sample` and
+  `data-centered` on `<html>` from the query before the first paint; pages reserve what a query
+  adds only under those marks, so nothing shifts (decision 137). It gets its CSP hash in
+  `vite.config.ts`; keep scripts out of `static/` and add no other inline script. The beacon tag in
+  `app.html` must match `analytics` in `site.config.js`, which the CSP and `check-build.js` read.
 - A `@playwright/test` update also needs the image tag in `ci.yml` (two jobs and a check) and new
   visual baselines (`npm run test:visual:update`).
 - Python: Ruff (line length 100), strict mypy, type hints. Front end: TypeScript, Prettier,
