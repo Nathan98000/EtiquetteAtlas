@@ -13,6 +13,7 @@
 		type SlopeTableRow
 	} from '#lib/charts/audience-model.ts';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
+	import { audienceTitle } from '#lib/charts/titles.ts';
 	import DataTable, { type Column } from '#lib/charts/DataTable.svelte';
 	import SeriesKey, { type KeyItem } from '#lib/charts/SeriesKey.svelte';
 	import Slopegraph from '#lib/charts/Slopegraph.svelte';
@@ -23,7 +24,7 @@
 	import ShareButton from '#lib/components/ShareButton.svelte';
 	import StepLinks from '#lib/components/StepLinks.svelte';
 	import { neighbours } from '#lib/data/derive.ts';
-	import { BEHAVIOR_TEXT, BEHAVIORS } from '#lib/data/grid.ts';
+	import { ALONE, BEHAVIOR_TEXT, BEHAVIORS, MANAGEMENT } from '#lib/data/grid.ts';
 	import { loadContexts, loadSocieties } from '#lib/data/load.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
 	import { audiencesHref, view } from '#lib/state/view.svelte.ts';
@@ -130,7 +131,15 @@
 		<div class="chart">
 			<ChartFrame
 				id="slope"
-				title="{text.label}, by audience"
+				title={row
+					? audienceTitle(
+							BEHAVIORS[behavior],
+							row.main.values[ALONE].estimate?.value ?? null,
+							row.main.values[MANAGEMENT].estimate?.value ?? null
+						)
+					: data.chartTitle}
+				reserve={data.chartTitle}
+				subtitle="Average answer in front of each audience{vs.split ? ', by who does it' : ''}"
 				summary={chartSummary}
 				about={resolve('method/#audiences')}
 			>

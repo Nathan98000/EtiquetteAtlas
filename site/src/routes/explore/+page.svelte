@@ -8,6 +8,7 @@
 	import MatrixList from '#lib/charts/MatrixList.svelte';
 	import MatrixTable from '#lib/charts/MatrixTable.svelte';
 	import { centeringShift, matrixCells, type SelectedSociety } from '#lib/charts/matrix-model.ts';
+	import { PAIRS_SUBTITLE, pairsTitle } from '#lib/charts/titles.ts';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import { SHARE_ALT } from '#lib/share.ts';
@@ -15,7 +16,7 @@
 	import SortSelect from '#lib/components/SortSelect.svelte';
 	import { spread } from '#lib/data/format.ts';
 	import { SORT_KEYS, listOrder, matrixOrder, matrixSummary } from '#lib/data/derive.ts';
-	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
+	import { BEHAVIORS, CELLS, SITUATIONS, cellParams } from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSocieties, preload } from '#lib/data/load.ts';
 	import { SAMPLES } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
@@ -62,6 +63,11 @@
 	// Before the data arrives this is the prerendered All-data summary, which the default view
 	// shows anyway (FR-87).
 	const summary = $derived(global.current ? matrixSummary(global.current, vs.scale) : data.summary);
+	const title = $derived(
+		global.current
+			? pairsTitle(CELLS.map((c) => global.current!.mean(c.index, vs.scale)))
+			: data.title
+	);
 	const universal = $derived(model?.find((c) => c.universal));
 	const dependent = $derived(model?.find((c) => c.dependent));
 
@@ -100,7 +106,7 @@
 			<h1>What is appropriate where?</h1>
 			<ShareButton />
 		</div>
-		<!-- D-6, D-23: one short line; the legend says what the colour and the circle mean. -->
+		<!-- D-6, D-23: one short line; the legend says what the colour and the ring mean. -->
 		<p class="lede">
 			How respondents in {global.current?.societies(0) ?? 90} societies judged each pair of a behavior
 			and a situation, and how much societies disagree. Select a pair to see every society.
@@ -123,7 +129,8 @@
 	<div class="layout">
 		<ChartFrame
 			id="matrix"
-			title="Average judgment and disagreement, {CELL_COUNT} pairs"
+			{title}
+			subtitle={PAIRS_SUBTITLE}
 			{summary}
 			about={resolve('method/#global')}
 			centered={vs.scale === 'centered'}

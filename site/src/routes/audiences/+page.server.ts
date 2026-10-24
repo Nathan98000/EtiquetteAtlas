@@ -1,3 +1,4 @@
+import { audiencesTitle } from '#lib/charts/titles.ts';
 import {
 	audienceOrder,
 	audienceRows,
@@ -14,6 +15,7 @@ export const load: PageServerLoad = () => {
 	const rows = audienceRows(contextsAll, { scope, split: false });
 	return {
 		summary: audiencesSummary(rows, subjectOf(scope, contextsAll.codes.length)),
+		title: audiencesTitle(rows.map((r) => r.effect)),
 		// Decision 8: the panels prerender in the default order, largest drop first (NFR-2).
 		order: audienceOrder(rows, 'effect')
 	};

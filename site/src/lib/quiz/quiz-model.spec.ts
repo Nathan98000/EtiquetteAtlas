@@ -5,6 +5,8 @@ import { Distributions, GlobalCells, SAMPLES, Societies, SocietyCells } from '..
 import { cellsDoc, distributionsDoc, globalDoc, societiesDoc } from '../data/test-fixtures';
 import { QUIZ_ITEMS } from './items';
 import {
+	answerTitle,
+	appropriateTitle,
 	distributionSummary,
 	placement,
 	placementText,
@@ -129,6 +131,19 @@ describe('D-10: the summary of the three answers', () => {
 		);
 		expect(takeaway([null, p(0, 0, 0)])).toBe(
 			'None of your answers has societies to compare with.'
+		);
+	});
+
+	it('direction A: titles the reveal’s charts with what they show', () => {
+		expect(answerTitle(p(83, 4))).toBe(
+			"83 of 87 societies' average answers are more approving than yours"
+		);
+		expect(answerTitle(p(0, 87))).toBe(
+			"All 87 societies' average answers are less approving than yours"
+		);
+		expect(answerTitle(p(0, 0, 0))).toBe('No society has enough responses to compare with');
+		expect(appropriateTitle(counts.counts(1, 5)!, 'BBB', 'Philippines')).toBe(
+			'50% of respondents in Philippines chose an appropriate answer'
 		);
 	});
 

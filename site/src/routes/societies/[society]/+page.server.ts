@@ -1,3 +1,4 @@
+import { fingerprintTitle } from '#lib/charts/titles.ts';
 import { error } from '@sveltejs/kit';
 import {
 	fingerprintCells,
@@ -51,6 +52,7 @@ export const load: PageServerLoad = ({ params }) => {
 		},
 		summary: fingerprintSummary(who, counts, 'raw', closest),
 		chartSummary: fingerprintChartSummary(who, model, 'raw'),
+		chartTitle: fingerprintTitle(counts),
 		facts: factsView(societies, society.code, 'all')!,
 		similar
 	};

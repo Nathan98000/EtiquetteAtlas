@@ -131,6 +131,25 @@ export function changeCounts(rows: readonly { direction: Direction }[]): ChangeC
 	return counts;
 }
 
+/** Direction A: the arrows' title, how many pairs are clearly higher and lower in 2023–2024. */
+export function arrowsTitle(c: ChangeCounts): string {
+	if (!c.shown) return 'No pair both surveys can show';
+	if (!c.higher && !c.lower) return 'Too close to call on every pair';
+	return `${c.higher} of the ${c.shown} pairs are clearly higher in 2023–2024, ${c.lower} clearly lower`;
+}
+
+/** The societies' strip's title: how many are clearly higher in 2023–2024 on average. */
+export function societyStripTitle(strip: readonly { direction: Direction }[]): string {
+	const c = changeCounts(strip);
+	return `Clearly higher in 2023–2024 on average for respondents in ${c.higher} of the ${c.shown} societies`;
+}
+
+/** The behaviors' strip's title. */
+export function behaviorStripTitle(strip: readonly { direction: Direction }[]): string {
+	const c = changeCounts(strip);
+	return `${c.higher} of the ${c.shown} behaviors are clearly higher in 2023–2024 on average`;
+}
+
 /**
  * The rows in the order `sort` asks for (decision 67): the largest difference first (ties in paper
  * order), paper order, or by behavior and situation name.

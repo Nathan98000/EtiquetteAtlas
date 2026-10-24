@@ -1,3 +1,4 @@
+import { rangeTitle, regionTitle, stripTitle } from '#lib/charts/titles.ts';
 import { error } from '@sveltejs/kit';
 import { drill, regionSummary } from '#lib/charts/drill-model.ts';
 import { cellSummary, societiesSummary, stripSummary } from '#lib/data/derive.ts';
@@ -33,6 +34,15 @@ export const load: PageServerLoad = ({ params }) => {
 			(code) => societies.get(code),
 			cell
 		),
-		mapSummary: regionSummary(d.plotted)
+		mapSummary: regionSummary(d.plotted),
+		swarmTitle: rangeTitle(d.plotted.map((p) => p.estimate!.value)),
+		mapTitle: regionTitle(d.plotted.map((p) => ({ region: p.region, value: p.estimate!.value }))),
+		stripTitle: stripTitle(
+			behavior,
+			CELLS.filter((c) => c.behavior === behavior).map((c) => ({
+				cell: c,
+				value: globalAll.mean(c.index, 'raw')
+			}))
+		)
 	};
 };

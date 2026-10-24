@@ -1,3 +1,4 @@
+import { audienceTitle } from '#lib/charts/titles.ts';
 import { error } from '@sveltejs/kit';
 import {
 	audienceRows,
@@ -5,7 +6,14 @@ import {
 	slopeSummary,
 	subjectOf
 } from '#lib/charts/audience-model.ts';
-import { BEHAVIOR_TEXT, BEHAVIORS, behaviorFromSlug, slug } from '#lib/data/grid.ts';
+import {
+	ALONE,
+	BEHAVIOR_TEXT,
+	BEHAVIORS,
+	MANAGEMENT,
+	behaviorFromSlug,
+	slug
+} from '#lib/data/grid.ts';
 import { contextsAll } from '#lib/server/derived.ts';
 import type { EntryGenerator, PageServerLoad } from './$types';
 
@@ -25,6 +33,11 @@ export const load: PageServerLoad = ({ params }) => {
 		behavior: b,
 		title: `${BEHAVIOR_TEXT[behavior].gerund}: who's watching?`,
 		summary: behaviorSummary(rows, b, subjectOf(scope, contextsAll.codes.length)),
-		chartSummary: slopeSummary(rows[b], false)
+		chartSummary: slopeSummary(rows[b], false),
+		chartTitle: audienceTitle(
+			behavior,
+			rows[b].main.values[ALONE].estimate?.value ?? null,
+			rows[b].main.values[MANAGEMENT].estimate?.value ?? null
+		)
 	};
 };

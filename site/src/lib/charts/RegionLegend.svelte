@@ -5,8 +5,9 @@
 
 	interface Props {
 		/**
-		 * The beeswarm colours dots by region; the pair's map colours them by the estimate; the
-		 * societies index's map only places them (D-31).
+		 * D-26: the beeswarm and the pair's map both fill dots by the estimate and shape them by
+		 * region; the beeswarm's key adds its band. The societies index's map colours its dots by
+		 * region, as it shows no estimate (D-31).
 		 */
 		mode: 'region' | 'estimate' | 'place';
 		/** On the index's map: the sample leaves some societies out, drawn as outlines. */
@@ -25,7 +26,7 @@
 			<li>
 				<svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true">
 					<path
-						class={mode === 'estimate' ? 'plain' : 'region'}
+						class={mode === 'place' ? 'region' : 'plain'}
 						style={regionStyle(region)}
 						d={symbolPath(REGION_SHAPE[region], 5)}
 					/>
@@ -36,15 +37,7 @@
 		<li class="muted">(the GSN authors' regions)</li>
 	</ul>
 	<ul class="keys">
-		{#if mode === 'region'}
-			<li>
-				<svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true">
-					<path class="hollow" d={symbolPath('circle', 5)} />
-				</svg>
-				Hollow: small sample (10–29 respondents)
-			</li>
-			<li><span class="band" aria-hidden="true"></span> Where most societies fall</li>
-		{:else if mode === 'place'}
+		{#if mode === 'place'}
 			<!-- A `?sample=` link holds this key's place from the first paint (app.html, NFR-2). -->
 			<li class="outside-key" class:shown={outside}>
 				<svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true">
@@ -55,14 +48,17 @@
 		{:else}
 			<li>
 				<span class="ramp" aria-hidden="true"></span>
-				Fill: the society's estimate, from inappropriate to appropriate
+				Fill: average answer
 			</li>
 			<li>
 				<svg width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true">
 					<path class="dashed" d={symbolPath('circle', 5)} />
 				</svg>
-				Dashed outline: small sample
+				Dashed: small sample (10–29)
 			</li>
+			{#if mode === 'region'}
+				<li><span class="band" aria-hidden="true"></span> Where most societies fall</li>
+			{/if}
 		{/if}
 	</ul>
 </div>
@@ -104,6 +100,17 @@
 
 	.muted {
 		color: var(--text-muted);
+	}
+
+	/* Phones: one wrapping list, so the key takes fewer lines above the chart (D-23). */
+	@media (max-width: 639.98px) {
+		.legend {
+			gap: 0.25rem 1rem;
+		}
+
+		ul {
+			display: contents;
+		}
 	}
 
 	path.region {

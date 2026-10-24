@@ -201,7 +201,7 @@ test.describe('FR-53: a society without 2000–2003 data', () => {
 		await expect(notice.getByRole('option')).toHaveCount(0);
 		await only.fill('');
 		await expect(page.getByRole('combobox', { name: 'Society', exact: true })).toHaveValue('Chile');
-		await expect(page.locator('#arrows-title')).toHaveText(
+		await expect(page.locator('#arrows .subtitle')).toHaveText(
 			'Averaged over the 26 societies in both surveys, pair by pair'
 		);
 		await arrowsReady(page);
@@ -217,7 +217,7 @@ test.describe('FR-53: a society without 2000–2003 data', () => {
 		await expect(page.getByRole('status').filter({ hasText: 'are not in the' })).toContainText(
 			"Respondents in South Korea are not in the paper's sample. The chart shows the 22 societies in both surveys instead."
 		);
-		await expect(page.locator('#arrows-title')).toHaveText(
+		await expect(page.locator('#arrows .subtitle')).toHaveText(
 			'Averaged over the 22 societies in both surveys, pair by pair'
 		);
 		await page.getByRole('button', { name: 'Show all respondents' }).click();

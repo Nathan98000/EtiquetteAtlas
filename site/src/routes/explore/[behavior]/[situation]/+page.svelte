@@ -9,6 +9,7 @@
 	import { matrixCells, societyPhrase, type SelectedSociety } from '#lib/charts/matrix-model.ts';
 	import RegionLegend from '#lib/charts/RegionLegend.svelte';
 	import SocietyTable from '#lib/charts/SocietyTable.svelte';
+	import { rangeTitle, regionTitle, stripTitle } from '#lib/charts/titles.ts';
 	import CellSociety from '#lib/components/CellSociety.svelte';
 	import LoadError from '#lib/components/LoadError.svelte';
 	import Segmented from '#lib/components/Segmented.svelte';
@@ -92,6 +93,22 @@
 			: data.swarmSummary
 	);
 	const behavior = $derived(CELLS[cell].behavior);
+	// Direction A: each chart's title states what it shows, prerendered from All data (NFR-2).
+	const titles = $derived({
+		swarm: d ? rangeTitle(d.plotted.map((p) => p.estimate!.value)) : data.swarmTitle,
+		map: d
+			? regionTitle(d.plotted.map((p) => ({ region: p.region, value: p.estimate!.value })))
+			: data.mapTitle,
+		strip: model
+			? stripTitle(
+					behavior,
+					CELLS.filter((c) => c.behavior === behavior).map((c) => ({
+						cell: c,
+						value: model[c.index].mean
+					}))
+				)
+			: data.stripTitle
+	});
 	const { previous, next } = $derived(neighbours(cell));
 	// Decision 5 (D-8): the estimate and scale in plain words, for captions and labels; the title
 	// stays "Every society's average answer" and the toggle says which.
@@ -165,7 +182,9 @@
 		<div class="charts">
 			<ChartFrame
 				id="swarm"
-				title="Every society's average answer"
+				title={titles.swarm}
+				subtitle="Each dot: one society's average answer"
+				legendAfterOnPhones
 				summary={swarmSummary}
 				about={resolve('method/#intervals')}
 				centered={vs.scale === 'centered'}
@@ -241,7 +260,8 @@
 			</div>
 			<ChartFrame
 				id="map"
-				title="Where the societies are"
+				title={titles.map}
+				subtitle="Each dot: one society, where it is"
 				summary={d ? regionSummary(d.plotted) : data.mapSummary}
 				about={resolve('method/#map')}
 				centered={vs.scale === 'centered'}
@@ -285,7 +305,8 @@
 			<div class="strip-section needs-js">
 				<ChartFrame
 					id="strip"
-					title="{BEHAVIOR_TEXT[behavior].label} in each situation"
+					title={titles.strip}
+					subtitle="The global average in each situation"
 					summary={files ? stripSummary(files.global, behavior, vs.scale) : data.stripSummary}
 					about={resolve('method/#global')}
 					centered={vs.scale === 'centered'}

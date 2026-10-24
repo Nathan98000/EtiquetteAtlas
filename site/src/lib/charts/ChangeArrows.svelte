@@ -24,6 +24,8 @@
 		/** On a society's page, the societies in both surveys, for the details. */
 		reference?: ChangeView;
 		title: string;
+		/** What is drawn, under the title (direction A). */
+		subtitle: string;
 		summary: string;
 		/** "the 26 societies in both surveys". */
 		together: string;
@@ -34,7 +36,8 @@
 		below?: Snippet;
 	}
 
-	let { view, reference, title, summary, together, sort, onsort, href, below }: Props = $props();
+	let { view, reference, title, subtitle, summary, together, sort, onsort, href, below }: Props =
+		$props();
 
 	const rows = $derived(view ? changeOrder(view.rows, sort) : []);
 	const byIndex = (list: readonly ChangeRow[] | undefined, index: number | null) =>
@@ -56,14 +59,25 @@
 	];
 </script>
 
+{#snippet under()}
+	<div class="sort"><SortSelect keys={CHANGE_SORT_KEYS} value={sort} onchange={onsort} /></div>
+	{@render below?.()}
+{/snippet}
+
 <!-- FR-50: an arrow per pair from the 2000–2003 average to the 2023–2024 average (decision 69),
      with the details beside it from 1024 px (§6.2) and the values as a table (NFR-11). -->
 <div class="layout">
 	<div class="chart">
-		<ChartFrame id="arrows" {title} {summary} about={resolve('method/#change')} {below}>
-			{#snippet controls()}
-				<SortSelect keys={CHANGE_SORT_KEYS} value={sort} onchange={onsort} />
-			{/snippet}
+		<!-- D-5, D-23: the order acts on the chart, so it sits right under it, as the pair page's and
+		     the audiences' controls do; the arrows then start on the first phone screen. -->
+		<ChartFrame
+			id="arrows"
+			{title}
+			{subtitle}
+			{summary}
+			about={resolve('method/#change')}
+			below={under}
+		>
 			{#snippet chart()}
 				<div class="reserve">
 					{#if view}
@@ -77,7 +91,7 @@
 								{ label: '2023–2024 survey (GSN)', mark: 'dot' },
 								{ label: 'From 2000–2003 to 2023–2024', mark: 'arrow' }
 							]}
-							label="{title}, {sort === 'difference'
+							label="{subtitle}, {sort === 'difference'
 								? 'largest difference first'
 								: sort === 'name'
 									? 'by name'
@@ -97,7 +111,7 @@
 			{#snippet table()}
 				{#if view}
 					<DataTable
-						caption="{title}, in the chart's order"
+						caption="{subtitle}, in the chart's order"
 						rows={changeTable(rows)}
 						{columns}
 						key={(r) => r.key}
@@ -122,6 +136,10 @@
 </div>
 
 <style>
+	.sort {
+		margin: 0.75rem 0;
+	}
+
 	.layout {
 		display: grid;
 		gap: 2rem;

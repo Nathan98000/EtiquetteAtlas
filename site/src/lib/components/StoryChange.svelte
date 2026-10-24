@@ -74,7 +74,10 @@
 	{#snippet figure()}
 		<ChartFrame
 			id="story-change"
-			title="{headline(cell)}, society by society"
+			title={rows
+				? `${headline(cell)}: ${rows.filter((r) => r.direction === 1).length} of ${rows.length} societies clearly higher in 2023–2024`
+				: `${headline(cell)}, society by society`}
+			subtitle="Each society in both surveys, largest first"
 			summary="Each arrow runs from a society's 2000–2003 average to its 2023–2024 average; averaged over the {numbers.societies} societies, the difference is {score(
 				numbers.diff
 			)}."

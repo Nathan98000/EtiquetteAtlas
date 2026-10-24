@@ -17,6 +17,7 @@
 	import FingerprintLegend from '#lib/charts/FingerprintLegend.svelte';
 	import FingerprintList from '#lib/charts/FingerprintList.svelte';
 	import FingerprintTable from '#lib/charts/FingerprintTable.svelte';
+	import { FINGERPRINT_SUBTITLE, compareTitle, fingerprintTitle } from '#lib/charts/titles.ts';
 	import {
 		fingerprintCells,
 		fingerprintChartSummary,
@@ -35,7 +36,7 @@
 	import SocietyPicker from '#lib/components/SocietyPicker.svelte';
 	import { FINGERPRINT_SORT_KEYS } from '#lib/data/derive.ts';
 	import { RELATIVE, place, respondentsIn } from '#lib/data/format.ts';
-	import { BEHAVIORS, CELLS, CELL_COUNT, SITUATIONS, cellParams } from '#lib/data/grid.ts';
+	import { BEHAVIORS, CELLS, SITUATIONS, cellParams } from '#lib/data/grid.ts';
 	import { loadCells, loadGlobal, loadSimilarity, loadSocieties, preload } from '#lib/data/load.ts';
 	import { SAMPLE_PHRASE, SAMPLES, inChangeSurvey } from '#lib/data/model.ts';
 	import { Resource } from '#lib/data/resource.svelte.ts';
@@ -115,6 +116,14 @@
 		const closest = similar[0] ? respondentsIn(similar[0].code, similar[0].name) : null;
 		return fingerprintSummary(who, counts, vs.scale, closest);
 	});
+	// Direction A: the chart's title states what it shows, prerendered from All data (NFR-2).
+	const chartTitle = $derived(
+		outside
+			? `Not in ${SAMPLE_PHRASE[vs.sample]}`
+			: counts
+				? fingerprintTitle(counts)
+				: data.chartTitle
+	);
 	const chartSummary = $derived(
 		outside
 			? outsideText
@@ -250,7 +259,8 @@
 		<div class="layout">
 			<ChartFrame
 				id="fingerprint"
-				title="Compared with the global average, {CELL_COUNT} pairs"
+				title={chartTitle}
+				subtitle={FINGERPRINT_SUBTITLE}
 				summary={chartSummary}
 				about={resolve('method/#fingerprint')}
 				centered={vs.scale === 'centered'}
@@ -379,7 +389,10 @@
 				{:else}
 					<ChartFrame
 						id="dumbbell"
-						title="Respondents in {names[0]} and in {names[1]}, pair by pair"
+						title={result
+							? compareTitle(CELLS[result.pairs[0]?.index ?? -1])
+							: `Respondents in ${names[0]} and in ${names[1]}`}
+						subtitle="Each pair in both societies, largest gaps first"
 						summary={result ? comparisonSummary(pair, result, vs.scale) : 'Loading the comparison…'}
 						about={resolve('method/#compare')}
 						centered={vs.scale === 'centered'}

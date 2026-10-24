@@ -48,7 +48,7 @@
 			<Ramp ends={['Extremely inappropriate', '0', 'Extremely appropriate']} />
 		</div>
 		<div class="item">
-			<p class="key">How much societies disagree (circle size)</p>
+			<p class="key">How much societies disagree (ring size)</p>
 			<!-- D-7: in words; each pair's value stays in its details. -->
 			<ul class="sizes">
 				{#each sizes as tau, i (tau)}
@@ -69,8 +69,14 @@
 					<li class="list-only">
 						<span class="bar-key"></span> their average, <span class="tick-key"></span> the global average
 					</li>
-					<li><span>{MARK_GLYPH.looser}</span> clearly looser (more appropriate)</li>
-					<li><span>{MARK_GLYPH.stricter}</span> clearly stricter (less appropriate)</li>
+					<li>
+						<span>{MARK_GLYPH.looser}</span> clearly looser
+						<span class="long">(more appropriate)</span>
+					</li>
+					<li>
+						<span>{MARK_GLYPH.stricter}</span> clearly stricter
+						<span class="long">(less appropriate)</span>
+					</li>
 					<li>no mark: too close to call</li>
 					<li><span>{MARK_GLYPH.missing}</span> too few responses or not asked</li>
 				</ul>
@@ -90,10 +96,12 @@
 						</li>
 					{/if}
 					<li>
-						<span aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser (more appropriate)
+						<span aria-hidden="true">{MARK_GLYPH.looser}</span> clearly looser
+						<span class="long">(more appropriate)</span>
 					</li>
 					<li>
-						<span aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter (less appropriate)
+						<span aria-hidden="true">{MARK_GLYPH.stricter}</span> clearly stricter
+						<span class="long">(less appropriate)</span>
 					</li>
 					<li>no mark: too close to call</li>
 					<li>
@@ -151,11 +159,12 @@
 		box-shadow: inset 0 0 0 1px var(--border-strong);
 	}
 
+	/* D-25: the disagreement ring, as in the matrix. */
 	.dot {
 		width: calc(var(--r) * 64%);
 		aspect-ratio: 1;
+		border: 2px solid var(--text);
 		border-radius: 50%;
-		background: var(--text);
 	}
 
 	.rings li {
@@ -241,7 +250,8 @@
 			row-gap: 0;
 		}
 
-		.grid-only {
+		.grid-only,
+		.long {
 			display: none;
 		}
 

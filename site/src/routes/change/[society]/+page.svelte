@@ -2,7 +2,9 @@
 	import { resolve } from '$app/paths';
 	import ChangeArrows from '#lib/charts/ChangeArrows.svelte';
 	import {
+		arrowsTitle,
 		changeChartSummary,
+		changeCounts,
 		changeSummary,
 		globalChange,
 		societyChange,
@@ -108,9 +110,8 @@
 	<ChangeArrows
 		view={arrows}
 		reference={outside ? undefined : reference}
-		title={outside
-			? `Averaged over ${together}, pair by pair`
-			: `${Who} in 2000–2003 and 2023–2024, pair by pair`}
+		title={arrows ? arrowsTitle(changeCounts(arrows.rows)) : data.arrowsTitle}
+		subtitle={outside ? `Averaged over ${together}, pair by pair` : `${Who}, pair by pair`}
 		summary={chartSummary}
 		{together}
 		sort={vs.sort}

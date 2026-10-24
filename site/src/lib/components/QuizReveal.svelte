@@ -9,6 +9,8 @@
 	import { RESPONSES, count, percent, place, score } from '#lib/data/format.ts';
 	import type { ResponseCounts, SampleId, Society } from '#lib/data/model.ts';
 	import {
+		answerTitle,
+		appropriateTitle,
 		distributionSummary,
 		placement,
 		placementText,
@@ -68,7 +70,10 @@
 <div class="reveal">
 	<ChartFrame
 		id="answer"
-		title="Your answer and {drill?.plotted.length ?? 'the'} societies' average answers"
+		title={drill
+			? answerTitle(placement(drill, response))
+			: 'Your answer and the societies’ average answers'}
+		subtitle="Each dot: one society's average; yours dashed"
 		summary={drill ? where : 'Loading the societies’ answers…'}
 		about={resolve('method/#quiz')}
 	>
@@ -115,7 +120,8 @@
 				{#if mine.kind === 'counts'}
 					<ChartFrame
 						id="society-answers"
-						title="How {who} answered"
+						title={appropriateTitle(mine.counts, society.code, society.name)}
+						subtitle="How {who} answered, by response"
 						summary={distributionSummary(mine.counts, society.code, society.name, question)}
 						about={resolve('method/#quiz')}
 					>

@@ -1,3 +1,4 @@
+import { placesTitle } from '#lib/charts/titles.ts';
 import { indexSummary, mapSummary } from '#lib/data/society.ts';
 import { REGIONS, type Region } from '#lib/data/model.ts';
 import { societies } from '#lib/server/derived.ts';
@@ -8,6 +9,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = () => ({
 	summary: indexSummary(societies, 'all'),
 	mapSummary: mapSummary(societies, 'all'),
+	mapTitle: placesTitle(societies.list.map((s) => s.region)),
 	regions: Object.fromEntries(
 		REGIONS.map((region) => [region, societies.list.filter((s) => s.region === region).length])
 	) as Record<Region, number>

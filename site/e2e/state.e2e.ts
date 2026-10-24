@@ -32,7 +32,9 @@ test('AT-11: society, sample and scale update every view and the URL; back and f
 	// FR-5: the scale changes every view.
 	await page.getByRole('radio', { name: "Relative to each society's average" }).check();
 	await expect(page).toHaveURL(/\?society=chl&sample=attention&scale=centered$/);
-	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
+	await expect(page.locator('#swarm .subtitle')).toHaveText(
+		"Each dot: one society's average answer"
+	);
 	// D-3: every centered chart says so beside its title, the first one with what centering does.
 	await expect(page.locator('.scale-chip')).toHaveCount(3);
 	await expect(page.locator('.scale-chip').first()).toContainText(
@@ -302,12 +304,12 @@ test('NFR-30, §6.4: the theme follows the system, and a manual choice is the on
 	await page.emulateMedia({ colorScheme: 'dark' });
 	await page.goto(url(''));
 	const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-	expect(await background()).toBe('rgb(20, 24, 28)');
+	expect(await background()).toBe('rgb(23, 22, 19)');
 	await page.getByLabel('Theme').selectOption('light');
-	expect(await background()).toBe('rgb(255, 255, 255)');
+	expect(await background()).toBe('rgb(250, 247, 242)');
 	await page.reload();
 	expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe('light');
-	expect(await background()).toBe('rgb(255, 255, 255)');
+	expect(await background()).toBe('rgb(250, 247, 242)');
 	expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['theme']);
 	// SvelteKit's router keeps scroll positions per history entry in sessionStorage; nothing
 	// else is stored there unless the reader takes the quiz (decisions 43 and 80).

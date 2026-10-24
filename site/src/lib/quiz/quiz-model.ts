@@ -178,6 +178,21 @@ export function summaryLine(p: Placement, response: Response): string {
 	return `${said}; ${which} societies' average answers were ${way} approving.`;
 }
 
+/** Direction A: the reveal's chart title, the side most societies' averages fall on. */
+export function answerTitle(p: Placement): string {
+	if (p.of === 0) return 'No society has enough responses to compare with';
+	if (p.same === p.of) return "Every society's average answer is the same as yours";
+	const [n, way] = p.below >= p.above ? [p.below, 'more'] : [p.above, 'less'];
+	const which = n === p.of ? `All ${p.of}` : `${n} of ${p.of}`;
+	return `${which} societies' average answers are ${way} approving than yours`;
+}
+
+/** Direction A: a society's response bars' title, its share choosing an appropriate answer. */
+export function appropriateTitle(counts: ResponseCounts, code: string, name: string): string {
+	const s = shares(counts);
+	return `${percent(s[3] + s[4] + s[5])} of respondents in ${place(code, name)} chose an appropriate answer`;
+}
+
 /** Whole percents of a society's respondents choosing each response. */
 export function shares(counts: ResponseCounts): number[] {
 	return counts.counts.map((c) => (c / counts.n) * 100);

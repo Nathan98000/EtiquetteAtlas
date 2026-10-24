@@ -96,7 +96,8 @@
 	<div class="map-section needs-js">
 		<ChartFrame
 			id="map"
-			title="Where the {societies.current?.list.length ?? 90} societies are"
+			title={data.mapTitle}
+			subtitle="Each dot: one society; each opens its page"
 			summary={mapText}
 			about={resolve('method/#map')}
 		>

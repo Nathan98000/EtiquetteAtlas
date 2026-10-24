@@ -37,12 +37,20 @@ test('AT-2: a cell URL with society and sample opens in a fresh browser with tha
 test('FR-22: shrunken by default, raw on request, small samples flagged', async ({ page }) => {
 	await page.goto(cell);
 	await swarmReady(page);
-	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
+	// Direction A: the title states the societies' range; the subtitle says what a dot is.
+	await expect(page.locator('#swarm-title')).toHaveText(
+		/^(Societies' averages run from .+ to .+|Every society's average is .+)$/
+	);
+	await expect(page.locator('#swarm .subtitle')).toHaveText(
+		"Each dot: one society's average answer"
+	);
 	await expect(page.locator('.beeswarm .dot.small').first()).toBeVisible();
 	await page.getByRole('radio', { name: 'Unadjusted', exact: true }).check();
 	await expect(page).toHaveURL(/estimate=raw$/);
-	// Decision 5: the title stays; the toggle and the table say which estimate.
-	await expect(page.getByRole('heading', { name: "Every society's average answer" })).toBeVisible();
+	// Decision 5: the subtitle stays; the toggle and the table say which estimate.
+	await expect(page.locator('#swarm .subtitle')).toHaveText(
+		"Each dot: one society's average answer"
+	);
 	await expect(page.getByRole('radio', { name: 'Unadjusted', exact: true })).toBeChecked();
 });
 

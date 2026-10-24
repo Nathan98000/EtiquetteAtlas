@@ -13,6 +13,7 @@
 		type MultipleTableRow
 	} from '#lib/charts/audience-model.ts';
 	import ChartFrame from '#lib/charts/ChartFrame.svelte';
+	import { AUDIENCES_SUBTITLE, audiencesTitle } from '#lib/charts/titles.ts';
 	import DataTable, { type Column } from '#lib/charts/DataTable.svelte';
 	import SeriesKey, { type KeyItem } from '#lib/charts/SeriesKey.svelte';
 	import Slopegraph from '#lib/charts/Slopegraph.svelte';
@@ -114,7 +115,9 @@
 
 	<ChartFrame
 		id="multiples"
-		title="All {BEHAVIORS.length} behaviors, by audience"
+		title={rows ? audiencesTitle(rows.map((r) => r.effect)) : data.title}
+		reserve={data.title}
+		subtitle={AUDIENCES_SUBTITLE}
 		summary="The survey also asked about the {BEHAVIORS.length} behaviors without a situation, by who is watching. Each panel shows one behavior, from left to right alone, in front of colleagues or classmates and in front of management or professors, and opens its own page."
 		about={resolve('method/#audiences')}
 	>

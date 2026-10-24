@@ -11,7 +11,15 @@
 
 	interface Props {
 		id: string;
+		/** Direction A: what the chart shows, as a finding (charts/titles.ts). */
 		title: string;
+		/** What is drawn and its unit, under the title. */
+		subtitle?: string;
+		/**
+		 * The prerendered title, kept as an invisible sizer on a `?society=` link (app.html marks
+		 * it before the first paint), so a society's shorter title does not pull the chart up.
+		 */
+		reserve?: string;
 		/** NFR-11: the chart in one sentence. */
 		summary: string;
 		/** FR-7: the method note behind the chart. */
@@ -31,6 +39,11 @@
 		 * space from the first paint (app.html), before the URL applies (NFR-2).
 		 */
 		scaled?: boolean;
+		/**
+		 * D-23: on phones the key follows the chart instead of leading it, so a chart with a long
+		 * key still starts on the first screen (the pair page's beeswarm).
+		 */
+		legendAfterOnPhones?: boolean;
 		/** What centering does, said once per page on its first chart (CENTERING, or more). */
 		explain?: string | Snippet;
 		/**
@@ -43,6 +56,8 @@
 	let {
 		id,
 		title,
+		subtitle,
+		reserve,
 		summary,
 		about,
 		controls,
@@ -53,19 +68,30 @@
 		centered = false,
 		scaled = false,
 		explain,
+		legendAfterOnPhones = false,
 		compact = false
 	}: Props = $props();
 
 	let showTable = $state(false);
 </script>
 
-<section class="chart-frame" aria-labelledby="{id}-title">
+<section {id} class="chart-frame" aria-labelledby="{id}-title">
 	<div class="head">
-		<h2 id="{id}-title">{title}</h2>
+		<div class="titles">
+			{#if reserve}
+				<h2 id="{id}-title" class="stack">
+					<span>{title}</span><span class="sizer" aria-hidden="true">{reserve}</span>
+				</h2>
+			{:else}
+				<h2 id="{id}-title">{title}</h2>
+			{/if}
+			{#if subtitle}<p class="subtitle">{subtitle}</p>{/if}
+		</div>
 		{#if controls}<div class="tools">{@render controls()}</div>{/if}
 	</div>
 	{#if centered || scaled}
-		<!-- D-3: nothing else on the chart may show that the scale changed, so the chart says so. -->
+		<!-- D-3: nothing else on the chart may show that the scale changed, so the chart says so,
+		     as a second line of its subtitle (recommendation 12). -->
 		<p class="scale-chip" class:pending={!centered} aria-hidden={centered ? undefined : 'true'}>
 			<strong>Relative to each society's own average.</strong>
 			{#if typeof explain === 'string'}{explain}{:else}{@render explain?.()}{/if}
@@ -74,10 +100,16 @@
 			</button>
 		</p>
 	{/if}
-	{@render legend?.()}
+	{#if legend}
+		<div class="legend-wrap" class:after={legendAfterOnPhones}>{@render legend()}</div>
+	{/if}
 	<div class="body needs-js" hidden={showTable}>
 		{@render chart()}
 	</div>
+	{#if legend && legendAfterOnPhones}
+		<!-- The same key, shown here instead below 640 px; only one of the two is ever displayed. -->
+		<div class="legend-under">{@render legend()}</div>
+	{/if}
 	<div id="{id}-table" class="table-wrap" hidden={!showTable}>
 		{#if showTable}
 			{@render table()}
@@ -139,6 +171,57 @@
 		margin: 0;
 	}
 
+	/* NFR-2: the title and its sizer share one cell; the sizer counts only on a `?society=` link. */
+	.stack {
+		display: grid;
+	}
+
+	.stack > span {
+		grid-area: 1 / 1;
+	}
+
+	.sizer {
+		display: none;
+		visibility: hidden;
+	}
+
+	:global(html[data-society]) .sizer {
+		display: block;
+	}
+
+	.titles {
+		min-width: 0;
+		flex: 1 1 20rem;
+	}
+
+	.legend-under {
+		display: none;
+	}
+
+	/* Phones: titles a step smaller, and a long key under its chart, so the chart starts on the
+	   first screen (D-23). */
+	@media (max-width: 639.98px) {
+		h2 {
+			font-size: var(--text-md);
+		}
+
+		.legend-wrap.after {
+			display: none;
+		}
+
+		.legend-under {
+			display: block;
+			margin-top: 0.5rem;
+		}
+	}
+
+	.subtitle {
+		max-width: var(--measure);
+		margin: 0.125rem 0 0;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
 	.tools {
 		display: flex;
 		flex-wrap: wrap;
@@ -161,10 +244,7 @@
 
 	.scale-chip {
 		max-width: var(--measure);
-		margin: 0.5rem 0 0;
-		padding: 0.375rem 0.75rem;
-		border-left: 4px solid var(--border-strong);
-		background: var(--surface-muted);
+		margin: -0.25rem 0 0.5rem;
 		font-size: var(--text-sm);
 	}
 

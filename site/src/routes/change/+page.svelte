@@ -5,11 +5,15 @@
 	import {
 		behaviorStrip,
 		behaviorStripSummary,
+		arrowsTitle,
+		behaviorStripTitle,
 		changeChartSummary,
+		changeCounts,
 		changeSummary,
 		globalChange,
 		societiesSummary,
 		societyStrip,
+		societyStripTitle,
 		subjectOf,
 		VERDICT,
 		type StripRow
@@ -141,7 +145,8 @@
 
 	<ChangeArrows
 		view={arrows}
-		title="Averaged over {together}, pair by pair"
+		title={arrows ? arrowsTitle(changeCounts(arrows.rows)) : data.arrowsTitle}
+		subtitle="Averaged over {together}, pair by pair"
 		summary={arrows ? changeChartSummary(scope, arrows, n) : data.chartSummary}
 		{together}
 		sort={vs.sort}
@@ -154,7 +159,8 @@
 	<section class="more" aria-label="Societies and behaviors">
 		<ChartFrame
 			id="societies-strip"
-			title="Each society, averaged over its pairs"
+			title={strip ? societyStripTitle(strip) : data.societyTitle}
+			subtitle="Each society's mean difference over its pairs"
 			summary={strip ? societiesSummary(strip) : data.societySummary}
 			about={resolve('method/#change')}
 		>
@@ -191,7 +197,8 @@
 
 		<ChartFrame
 			id="behaviors-strip"
-			title="Each behavior, averaged over societies and situations"
+			title={behaviors ? behaviorStripTitle(behaviors) : data.behaviorTitle}
+			subtitle="Each behavior's mean difference"
 			summary={behaviors ? behaviorStripSummary(behaviors, n) : data.behaviorSummary}
 			about={resolve('method/#change')}
 		>

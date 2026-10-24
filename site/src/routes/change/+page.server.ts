@@ -1,11 +1,15 @@
 import {
+	arrowsTitle,
 	behaviorStrip,
 	behaviorStripSummary,
+	behaviorStripTitle,
+	changeCounts,
 	changeChartSummary,
 	changeSummary,
 	globalChange,
 	societiesSummary,
-	societyStrip
+	societyStrip,
+	societyStripTitle
 } from '#lib/charts/change-model.ts';
 import { changeAll } from '#lib/server/change.ts';
 import { societies } from '#lib/server/derived.ts';
@@ -23,6 +27,9 @@ export const load: PageServerLoad = () => {
 		summary: changeSummary(scope, view, n),
 		chartSummary: changeChartSummary(scope, view, n),
 		societySummary: societiesSummary(strip),
-		behaviorSummary: behaviorStripSummary(behaviorStrip(changeAll), n)
+		behaviorSummary: behaviorStripSummary(behaviorStrip(changeAll), n),
+		arrowsTitle: arrowsTitle(changeCounts(view.rows)),
+		societyTitle: societyStripTitle(strip),
+		behaviorTitle: behaviorStripTitle(behaviorStrip(changeAll))
 	};
 };

@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { ChangeCells, Societies } from '../data/model';
 import { changeDoc } from '../data/test-fixtures';
 import {
+	arrowsTitle,
+	behaviorStripTitle,
+	societyStripTitle,
 	ARROWS_NOTE,
 	CLEARLY,
 	behaviorStrip,
@@ -155,6 +158,32 @@ describe('FR-51, FR-52, FR-73: summaries', () => {
 			'Each arrow runs from the 2000–2003 average to the 2023–2024 average for respondents in ' +
 				'Japan; the largest difference is for arguing at a funeral ceremony, from −2.0 to −3.5 ' +
 				'(−1.5).'
+		);
+	});
+});
+
+describe('direction A: the charts’ titles count what is clearly higher or lower', () => {
+	it('counts the pairs, societies and behaviors', () => {
+		expect(arrowsTitle({ higher: 47, lower: 38, within: 35, shown: 120 })).toBe(
+			'47 of the 120 pairs are clearly higher in 2023–2024, 38 clearly lower'
+		);
+		expect(arrowsTitle({ higher: 0, lower: 0, within: 3, shown: 3 })).toBe(
+			'Too close to call on every pair'
+		);
+		expect(arrowsTitle({ higher: 0, lower: 0, within: 0, shown: 0 })).toBe(
+			'No pair both surveys can show'
+		);
+		const strip = [
+			{ direction: 1 },
+			{ direction: 1 },
+			{ direction: 0 },
+			{ direction: -1 }
+		] as const;
+		expect(societyStripTitle(strip)).toBe(
+			'Clearly higher in 2023–2024 on average for respondents in 2 of the 4 societies'
+		);
+		expect(behaviorStripTitle(strip)).toBe(
+			'2 of the 4 behaviors are clearly higher in 2023–2024 on average'
 		);
 	});
 });

@@ -1,5 +1,11 @@
 import { error } from '@sveltejs/kit';
-import { changeChartSummary, changeSummary, societyChange } from '#lib/charts/change-model.ts';
+import {
+	arrowsTitle,
+	changeChartSummary,
+	changeCounts,
+	changeSummary,
+	societyChange
+} from '#lib/charts/change-model.ts';
 import { respondentsIn } from '#lib/data/format.ts';
 import { CHANGE_SOCIETIES } from '#lib/data/model.ts';
 import { changeAll } from '#lib/server/change.ts';
@@ -35,6 +41,7 @@ export const load: PageServerLoad = ({ params }) => {
 		title: `${capital(respondentsIn(society.code, society.name))} in 2000–2003 and 2023–2024`,
 		summary: changeSummary(scope, view, n),
 		chartSummary: changeChartSummary(scope, view, n),
+		arrowsTitle: arrowsTitle(changeCounts(view.rows)),
 		facts: {
 			older: facts.respondents,
 			newer: societies.respondents(society.code, 'all'),

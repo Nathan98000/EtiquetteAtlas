@@ -11,6 +11,7 @@
 	import Slopegraph from '#lib/charts/Slopegraph.svelte';
 	import SocietyTable from '#lib/charts/SocietyTable.svelte';
 	import SpreadStrips from '#lib/charts/SpreadStrips.svelte';
+	import { audienceTitle, rangeTitle } from '#lib/charts/titles.ts';
 	import { CHANGE_MODULE } from '#lib/change-module.ts';
 	import { STORY_CHANGE_TITLE } from '#lib/change-text.ts';
 	import AudienceCredit from '#lib/components/AudienceCredit.svelte';
@@ -222,6 +223,7 @@
 			<ChartFrame
 				id="story-finding"
 				title="Behaviors in their situations vary more than societies"
+				subtitle="Each dot: one pair's or one society's average"
 				summary={spreadText}
 				about={resolve('method/#story')}
 				compact
@@ -284,7 +286,10 @@
 			{#snippet figure()}
 				<ChartFrame
 					id="story-{id}"
-					title="{headline(CELLS[c.cell])}, society by society"
+					title={rangeTitle(c.range)}
+					subtitle="{headline(
+						CELLS[c.cell]
+					)}: each society's average answer, adjusted for small samples"
 					summary="Each shape is one society's average answer; they run from {score(
 						c.range[0]
 					)} to {score(c.range[1])}, around a global average of {score(c.mean)}."
@@ -343,7 +348,12 @@
 		{#snippet figure()}
 			<ChartFrame
 				id="story-audience"
-				title="{behaviorText.label}, by audience"
+				title={audienceTitle(
+					BEHAVIORS[n.audience.behavior],
+					n.audience.alone,
+					n.audience.management
+				)}
+				subtitle="All societies, by audience"
 				summary="All societies: {score(n.audience.alone)} when alone and {score(
 					n.audience.management
 				)} in front of management or professors."
