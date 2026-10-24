@@ -20,7 +20,7 @@ import {
 	MANAGEMENT
 } from '../data/grid';
 import { cents, orderBy, type SortKey } from '../data/derive';
-import { count, ordinal, percent, place, responseLabel, score } from '../data/format';
+import { count, percent, place, responseLabel, score } from '../data/format';
 import {
 	Status,
 	missingText,
