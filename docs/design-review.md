@@ -515,10 +515,10 @@ Keep these.
 Added after the review, when its changes were built (23 and 24 October 2026, on `main`, commits
 `d991473` to `58a58e9`, nothing pushed), following `docs/design-changes-kickoff.md`: the
 maintainer took everything in this review for v1.0 (its section 3), and the choices made on the way
-are decisions 111 to 140 in `docs/decisions.md`. The SRS lines they need wait in
-`docs/srs-changes.md` under "Proposed, not applied". Every finding was built; one part of one
-finding was dropped (D-4's band), and three were built differently from the proposal (D-2, D-3,
-D-12), each said below.
+are decisions 111 to 140 in `docs/decisions.md`. The 22 SRS lines they needed were accepted and
+applied on 24 October 2026 (`docs/srs-changes.md`, commit 703ea3a). Every finding was built; one
+part of one finding was dropped (D-4's band), and three were built differently from the proposal
+(D-2, D-3, D-12), each said below.
 
 | Finding | Outcome | What the site does now | Decision, SRS line | Commits |
 | --- | --- | --- | --- | --- |

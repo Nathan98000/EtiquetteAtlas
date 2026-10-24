@@ -73,8 +73,8 @@ launch adds only fixes (SRS §10).
 - **The look** (D-25, D-26, D-37 to D-39): paper and ink, the palette as a band and a tile, marks
   in one ink, beeswarm dots coloured as on the map, more colour near the middle of the dark ramp,
   and share cards headed by findings, with the credit in two lines.
-- What happened to each finding is in section 10 of `docs/design-review.md`; the SRS lines these
-  changes need are proposed in `docs/srs-changes.md`.
+- What happened to each finding is in section 10 of `docs/design-review.md`; the SRS was updated
+  to match, in 22 lines (`docs/srs-changes.md`).
 
 ### How it is built
 

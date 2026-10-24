@@ -8,11 +8,17 @@ decision behind it.
 
 ## Proposed, not applied
 
-From the design changes before v1.0 (`docs/design-changes-kickoff.md`, decisions 111 to 140), 24
-October 2026. The site already does what each line says; the SRS is unchanged until the maintainer
-accepts them.
+None.
 
-| Requirement | Wording now | Proposed wording | Why |
+## Applied
+
+### The design changes before v1.0
+
+All 22 lines below, from the design changes (`docs/design-changes-kickoff.md`, decisions 111 to
+140), were accepted by the maintainer on 24 October 2026 and applied in commit 703ea3a, with the
+SRS's date line moved to 24 October 2026. None was rejected.
+
+| Requirement | Wording before | Applied wording | Why |
 | --- | --- | --- | --- |
 | FR-2 | "A persistent header shall link to: Explore (matrix), Societies (fingerprint), Audiences, Change, Story and Method." | "A persistent header shall link, in this order, to Tour (the guided story), Situations (the matrix), Societies (fingerprints), Who's watching (audiences), Then and now (the 2000–2003 comparison) and Method, and shall name the current module at every width." | Decisions 114 and 121; D-24, D-32 |
 | FR-3 | "A global society picker shall support type-ahead search by society name and full keyboard use. …" | "A global search shall find societies by name and pairs by their behavior or situation, with type-ahead and full keyboard use; choosing a society selects it, and choosing a pair opens its drill-down with the society kept. …" (the second sentence unchanged) | Decision 122 |
@@ -37,7 +43,7 @@ accepts them.
 | §6.5 | (new) | "Say how sure in words: "clearly higher" or "clearly lower" (or "clearly stricter", "clearly looser") when the 95% interval of a difference excludes 0, and "too close to call" when it includes 0, with one line per page on what "clearly" means; never "significant"." | Decision 112; D-4, D-15 |
 | §6.5 | (new) | "Chart titles state what the chart shows, as observations; the subtitle says what is drawn, and scores go in details, tables and axes rather than in the first sentence." | Decisions 113 and 118; D-5, D-6, D-7 |
 
-## Applied
+### M5 to M7 and the launch
 
 All 28 lines below were accepted by the maintainer on 23 October 2026 and applied in commit 89993c7,
 with the SRS's date line moved to 23 October 2026. None was rejected. Two more, proposed at the
@@ -48,7 +54,7 @@ launch, were accepted and applied the same day in commit ff12017:
 | §3.2 | The layout's root folder `etiquette-atlas/` | `EtiquetteAtlas/` | The repository's name, as the slug edit and §11.2 now say |
 | §11.2 | "- [ ] Send the GSN authors a courtesy note before launch, …?" | "- [x] … Closed: no note was sent (the maintainer's decision, 23 October 2026); whether the OSF licence covers the 2000–2003 extract stays unasked, and `CHANGE_MODULE=off` removes the module if that is ever questioned (R-6)." | Decision 108 |
 
-### Wording that no longer matched the site
+#### Wording that no longer matched the site
 
 | Requirement | Wording before | Applied wording | Why |
 | --- | --- | --- | --- |
@@ -71,7 +77,7 @@ launch, were accepted and applied the same day in commit ff12017:
 | §8.5 | "Its docs do not say whether a `*.github.io` hostname is accepted, so this is checked in the first milestone." | "Cloudflare accepted the `github.io` hostname (23 October 2026); GoatCounter is not needed." | `docs/SETUP.md` |
 | §11.2 | Open questions on the quiz cells, the slug and the share images' style | Close them: the cells of decision 78, the slug `EtiquetteAtlas`, the quiet editorial style of decision 91 | Decisions 78 and 91 |
 
-### Decisions that refine a requirement
+#### Decisions that refine a requirement
 
 | Requirement | Wording before | Applied wording | Why |
 | --- | --- | --- | --- |
