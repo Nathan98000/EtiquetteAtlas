@@ -106,7 +106,7 @@ test.describe('AT-4: the overview of the societies in both surveys', () => {
 		await expect(behaviors.getByRole('listitem')).toHaveCount(12);
 		const cry = behaviors.getByRole('listitem').first();
 		await expect(cry.locator('.label')).toHaveText('Cry');
-		await expect(cry.locator('.value')).toHaveText('+0.60▲');
+		await expect(cry.locator('.value')).toHaveText('+0.6▲');
 		await expect(cry.locator('.note')).toHaveText('clearly higher · higher in 26 of 26 societies');
 		await societies.getByRole('link', { name: 'Japan' }).click();
 		await expect(page).toHaveURL(/\/change\/jpn\/$/);

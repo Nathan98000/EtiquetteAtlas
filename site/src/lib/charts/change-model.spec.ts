@@ -171,8 +171,8 @@ describe('NFR-11: the strips and table', () => {
 				'more appropriate in 2023–2024 and in 0 clearly less; 1 was too close to call.'
 		);
 		expect(societyStripSummary(strip)).toBe(
-			'Averaged over their pairs, differences run from +0.05 among respondents in the United ' +
-				'Kingdom to +0.19 among respondents in Japan.'
+			'Averaged over their pairs, differences run from +0.1 among respondents in the United ' +
+				'Kingdom to +0.2 among respondents in Japan.'
 		);
 	});
 
@@ -181,8 +181,8 @@ describe('NFR-11: the strips and table', () => {
 		expect(strip[0]).toMatchObject({ key: 'eat', note: 'higher in 2 of 2 societies' });
 		expect(strip.at(-1)?.key).toBe('argue');
 		expect(behaviorStripSummary(strip, 2)).toBe(
-			'Averaged over the 2 societies and the 10 situations, differences run from −0.50 for ' +
-				'arguing to +0.60 for eating.'
+			'Averaged over the 2 societies and the 10 situations, differences run from −0.5 for ' +
+				'arguing to +0.6 for eating.'
 		);
 	});
 

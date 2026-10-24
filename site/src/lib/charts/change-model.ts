@@ -331,8 +331,8 @@ export function societyStripSummary(strip: readonly StripRow[]): string {
 	const high = strip[0];
 	const low = strip[strip.length - 1];
 	return (
-		`Averaged over their pairs, differences run from ${score(low.diff.value, 2)} among ` +
-		`respondents in ${place(low.key, low.label)} to ${score(high.diff.value, 2)} among ` +
+		`Averaged over their pairs, differences run from ${score(low.diff.value)} among ` +
+		`respondents in ${place(low.key, low.label)} to ${score(high.diff.value)} among ` +
 		`respondents in ${place(high.key, high.label)}.`
 	);
 }
@@ -344,7 +344,7 @@ export function behaviorStripSummary(strip: readonly StripRow[], societies: numb
 	const gerund = (row: StripRow) => BEHAVIOR_TEXT[row.key as Behavior].gerund.toLowerCase();
 	return (
 		`Averaged over the ${societies} societies and the 10 situations, differences run from ` +
-		`${score(low.diff.value, 2)} for ${gerund(low)} to ${score(high.diff.value, 2)} for ` +
+		`${score(low.diff.value)} for ${gerund(low)} to ${score(high.diff.value)} for ` +
 		`${gerund(high)}.`
 	);
 }

@@ -19,7 +19,8 @@
 	const x = (v: number) => ((Math.max(-MAX, Math.min(MAX, v)) + MAX) / (2 * MAX)) * 100;
 </script>
 
-<!-- FR-51 (decision 73): a mean difference per row with its 95% interval, from −1 to +1. The
+<!-- FR-51 (decision 73): a mean difference per row with its 95% interval, from −1 to +1, with one
+     decimal like every other score (D-35). The
      whisker is blue or orange beyond the interval and grey within it, and ▲ or ▼ says the same
      without colour; the point is in the text colour. -->
 <div class="strip direction" style={directionStyle()}>
@@ -35,7 +36,7 @@
 					<span class="label">{row.label}</span>
 				{/if}
 				<span class="visually-hidden">
-					{score(row.diff.value, 2)} (95% interval {interval(row.diff.lo, row.diff.hi, 2)}), {directionText(
+					{score(row.diff.value)} (95% interval {interval(row.diff.lo, row.diff.hi)}), {directionText(
 						row.direction
 					)}{row.note ? `; ${row.note}` : ''}
 				</span>
@@ -47,7 +48,7 @@
 					<span class="point" style="left: {x(row.diff.value)}%"></span>
 				</span>
 				<span class="value num" aria-hidden="true"
-					>{score(row.diff.value, 2)}<span class="glyph">{DIRECTION_GLYPH[row.direction]}</span
+					>{score(row.diff.value)}<span class="glyph">{DIRECTION_GLYPH[row.direction]}</span
 					></span
 				>
 				<!-- D-4: how sure, in words beside ▲ and ▼. -->

@@ -14,8 +14,9 @@ export function signed(x: number, digits = 1): string {
 }
 
 /**
- * A score on the −2.5 to +2.5 scale, signed so both sides of 0 read alike: "+1.2", "−0.4". Averages
- * of differences, whose intervals are narrow, take two decimals: "+0.05".
+ * A score on the −2.5 to +2.5 scale, signed so both sides of 0 read alike: "+1.2", "−0.4". Every
+ * score and difference a reader sees has one decimal (§6.5, D-35); `digits` stays for the few
+ * values that are not scores.
  */
 export function score(x: number, digits = 1): string {
 	const text = signed(x, digits);

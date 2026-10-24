@@ -77,8 +77,8 @@
 
 	const stripColumns = (first: string, note: string): Column<StripRow>[] => [
 		{ header: first, text: (r) => r.label, rowHeader: true },
-		{ header: 'Mean difference', text: (r) => score(r.diff.value, 2) },
-		{ header: '95% interval', text: (r) => interval(r.diff.lo, r.diff.hi, 2) },
+		{ header: 'Mean difference', text: (r) => score(r.diff.value) },
+		{ header: '95% interval', text: (r) => interval(r.diff.lo, r.diff.hi) },
 		{
 			header: 'How sure',
 			text: (r) => VERDICT[r.direction][0].toUpperCase() + VERDICT[r.direction].slice(1)
